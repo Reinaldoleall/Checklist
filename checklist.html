@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Check List Consultor 2026 - Versão Excel Completa</title>
-    <meta name="viewport" content="width=device-width, initial-scale=0.6, maximum-scale=2.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=0.5, maximum-scale=2.0, user-scalable=yes">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -770,6 +770,13 @@
 
                 <!-- BARRA DE AÇÕES -->
                 <div class="action-bar">
+                    <!-- BOTÃO SALVAR -->
+                    <div class="p-4"
+                        style="border-top: 2px solid transparent; background: linear-gradient(to right, #f8f9fa, #ffffff);">
+                        <button onclick="salvarDados()" class="btn-excel-green" type="button">
+                            <i class="fas fa-cloud-upload-alt"></i> SALVAR CHECKLIST
+                        </button>
+                    </div>
                     <button onclick="exportarChecklistExcel()" class="btn-excel" type="button">
                         <i class="fas fa-file-excel"></i> EXPORTAR EXCEL
                     </button>
@@ -778,13 +785,7 @@
                     </button>
                 </div>
 
-                <!-- BOTÃO SALVAR -->
-                <div class="p-4"
-                    style="border-top: 2px solid #000; background: linear-gradient(to right, #f8f9fa, #ffffff);">
-                    <button onclick="salvarDados()" class="btn-excel-green" type="button">
-                        <i class="fas fa-cloud-upload-alt"></i> SALVAR CHECKLIST NO FIREBASE
-                    </button>
-                </div>
+
             </div> <!-- Fim .excel-container -->
         </div> <!-- Fim .scrollable-content -->
     </div> <!-- Fim .main-container -->
@@ -1006,182 +1007,177 @@
             btn.innerHTML = '<span class="loading"></span> SALVANDO...';
             btn.disabled = true;
 
-            const userRef = database.ref('consultores/' + consultor.replace(/\s+/g, '_').toUpperCase());
-            userRef.set(dados, (error) => {
+            const consultorId = consultor.replace(/\s+/g, '_').toUpperCase();
+            const now = new Date().toISOString();
+
+            // 1. Salvar registro específico no histórico
+            const newChecklistRef = database.ref('consultores/' + consultorId + '/checklists').push();
+            dados.id = newChecklistRef.key;
+            dados.dataSalvamento = now;
+
+            newChecklistRef.set(dados, (error) => {
                 btn.innerHTML = textoOriginal;
                 btn.disabled = false;
 
                 if (error) {
                     alert('❌ Erro ao salvar: ' + error.message);
                 } else {
-                    alert('✅ Checklist salvo com sucesso no Firebase!');
+                    // 2. Atualizar perfil básico para listagem do gestor
+                    database.ref('consultores/' + consultorId + '/perfil').set({
+                        consultor: consultor,
+                        regional: dados.regional || '',
+                        cidade: dados.cidade || '',
+                        uf: dados.uf || '',
+                        supervisor: dados.supervisor || '',
+                        coordenador: dados.coordenador || '',
+                        dataAdmissao: dados.dataAdmissao || '',
+                        dataCertificacao: dados.dataCertificacao || '',
+                        notaCertificacao: dados.notaCertificacao || '',
+                        ultimaAtualizacao: now,
+                        online: true
+                    });
+
+                    alert('✅ Checklist salvo com sucesso no histórico!');
                 }
             });
         }
 
-        // Função para carregar dados do Firebase
         function carregarDados(consultor) {
             if (!consultor) return;
 
-            const userRef = database.ref('consultores/' + consultor.replace(/\s+/g, '_').toUpperCase());
-            userRef.once('value', (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    // Preencher campos básicos
-                    document.getElementById('dataAdmissao').value = data.dataAdmissao || '';
-                    document.getElementById('cidade').value = data.cidade || '';
-                    document.getElementById('uf').value = data.uf || '';
-                    document.getElementById('supervisor').value = data.supervisor || '';
-                    document.getElementById('coordenador').value = data.coordenador || '';
-                    document.getElementById('regional').value = data.regional || '';
-                    document.getElementById('dataCertificacao').value = data.dataCertificacao || '';
-                    document.getElementById('notaCertificacao').value = data.notaCertificacao || '';
-                    document.getElementById('anotacoesGerais').value = data.anotacoesGerais || '';
+            const consultorId = consultor.replace(/\s+/g, '_').toUpperCase();
 
-                    // IDC
-                    if (data.idc) {
-                        const meses = ['janeiro', 'fevereiro', 'marco', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
-                        meses.forEach(mes => {
-                            const notaId = `nota${mes.charAt(0).toUpperCase() + mes.slice(1)}`;
-                            const apontId = `apont${mes.charAt(0).toUpperCase() + mes.slice(1)}`;
-                            if (document.getElementById(notaId)) {
-                                document.getElementById(notaId).value = data.idc[mes]?.nota || '';
-                            }
-                            if (document.getElementById(apontId)) {
-                                document.getElementById(apontId).value = data.idc[mes]?.apontamento || '';
-                            }
-                        });
-                    }
-
-                    // Loja
-                    if (data.loja) {
-                        document.getElementById('revenda').value = data.loja.revenda || '';
-                        document.getElementById('filial').value = data.loja.filial || '';
-                        document.getElementById('idLoja').value = data.loja.id || '';
-                        document.getElementById('endereco').value = data.loja.endereco || '';
-                        document.getElementById('cidadeUf').value = data.loja.cidadeUf || '';
-                        document.getElementById('gerente').value = data.loja.gerente || '';
-                        document.getElementById('contato').value = data.loja.contato || '';
-                        document.getElementById('subGerente').value = data.loja.subGerente || '';
-                        document.getElementById('cnpj').value = data.loja.cnpj || '';
-                        document.getElementById('faturamentoLoja').value = data.loja.faturamentoLoja || '';
-                        document.getElementById('faturamentoPanasonic').value = data.loja.faturamentoPanasonic || '';
-                        document.getElementById('ranking').value = data.loja.ranking || '';
-                        document.getElementById('justificativa').value = data.loja.justificativa || '';
-                        document.getElementById('floorShare').value = data.loja.floorShare || '';
-                    }
-
-                    // Destaques
-                    if (data.destaques) {
-                        document.getElementById('geladeiraMarca').value = data.destaques.geladeira?.marca || '';
-                        document.getElementById('geladeiraModelo').value = data.destaques.geladeira?.modelo || '';
-                        document.getElementById('geladeiraPreco').value = data.destaques.geladeira?.preco || '';
-                        document.getElementById('lavadoraMarca').value = data.destaques.lavadora?.marca || '';
-                        document.getElementById('lavadoraModelo').value = data.destaques.lavadora?.modelo || '';
-                        document.getElementById('lavadoraPreco').value = data.destaques.lavadora?.preco || '';
-                        document.getElementById('microondasMarca').value = data.destaques.microondas?.marca || '';
-                        document.getElementById('microondasModelo').value = data.destaques.microondas?.modelo || '';
-                        document.getElementById('microondasPreco').value = data.destaques.microondas?.preco || '';
-                        document.getElementById('outrosDestaques').value = data.destaques.outros || '';
-                    }
-
-                    // Programas
-                    if (data.programas) {
-                        const radios = document.querySelectorAll('input[name="conhecemPrograma"]');
-                        radios.forEach(r => { if (r.value === data.programas.conhecemPrograma) r.checked = true; });
-
-                        const radios2 = document.querySelectorAll('input[name="cadastrados"]');
-                        radios2.forEach(r => { if (r.value === data.programas.cadastrados) r.checked = true; });
-
-                        const radios3 = document.querySelectorAll('input[name="pendencia"]');
-                        radios3.forEach(r => { if (r.value === data.programas.pendencia) r.checked = true; });
-
-                        document.getElementById('obsCadastro').value = data.programas.obsCadastro || '';
-                    }
-
-                    // Metas
-                    if (data.metas) {
-                        document.getElementById('metaTreinamento').value = data.metas.metaTreinamento || '';
-                        document.getElementById('metaPessoas').value = data.metas.metaPessoas || '';
-                    }
-
-                    // Merchandising
-                    if (data.merchandising) {
-                        const radios = document.querySelectorAll('input[name="mpvAplicado"]');
-                        radios.forEach(r => { if (r.value === data.merchandising.mpvAplicado) r.checked = true; });
-
-                        const radios2 = document.querySelectorAll('input[name="produtosLimpos"]');
-                        radios2.forEach(r => { if (r.value === data.merchandising.produtosLimpos) r.checked = true; });
-
-                        document.getElementById('motivoMpv').value = data.merchandising.motivoMpv || '';
-                        document.getElementById('motivoLimpeza').value = data.merchandising.motivoLimpeza || '';
-                    }
-
-                    // Limpar e recriar lançamentos
-                    document.getElementById('lancamentos').innerHTML = '';
-                    if (data.lancamentos && data.lancamentos.length > 0) {
-                        data.lancamentos.forEach(l => {
-                            adicionarLancamento();
-                            const lastRow = document.querySelector('#lancamentos tr:last-child');
-                            if (lastRow) {
-                                lastRow.querySelector('.lancamento-data').value = l.data || '';
-                                lastRow.querySelector('.lancamento-marca').value = l.marca || '';
-                                lastRow.querySelector('.lancamento-produto').value = l.produto || '';
-                                lastRow.querySelector('.lancamento-modelo').value = l.modelo || '';
-                                lastRow.querySelector('.lancamento-preco').value = l.preco || '';
-                            }
-                        });
-                    } else {
-                        adicionarLancamento();
-                    }
-
-                    // Limpar e recriar visitas
-                    document.getElementById('visitas').innerHTML = '';
-                    if (data.visitas && data.visitas.length > 0) {
-                        data.visitas.forEach(v => {
-                            adicionarVisita();
-                            const lastRow = document.querySelector('#visitas tr:last-child');
-                            if (lastRow) {
-                                lastRow.querySelector('.visita-data').value = v.data || '';
-                                lastRow.querySelector('.visita-nome').value = v.nome || '';
-                                lastRow.querySelector('.visita-visto').value = v.visto || '';
-
-                                // Marcar ferramentas
-                                const ferramentas = Array.isArray(v.ferramenta) ? v.ferramenta : (v.ferramenta ? [v.ferramenta] : []);
-                                lastRow.querySelectorAll('.visita-ferramenta').forEach(cb => {
-                                    if (ferramentas.includes(cb.value)) cb.checked = true;
-                                });
-
-                                // Marcar dominios
-                                const dominios = Array.isArray(v.dominio) ? v.dominio : (v.dominio ? [v.dominio] : []);
-                                lastRow.querySelectorAll('.visita-dominio').forEach(cb => {
-                                    if (dominios.includes(cb.value)) cb.checked = true;
-                                });
-
-                                // Marcar uniformes
-                                const uniformes = Array.isArray(v.uniforme) ? v.uniforme : (v.uniforme ? [v.uniforme] : []);
-                                lastRow.querySelectorAll('.visita-uniforme').forEach(cb => {
-                                    if (uniformes.includes(cb.value)) cb.checked = true;
-                                });
-
-                                // Marcar pdvs
-                                const pdvs = Array.isArray(v.pdv) ? v.pdv : (v.pdv ? [v.pdv] : []);
-                                lastRow.querySelectorAll('.visita-pdv').forEach(cb => {
-                                    if (pdvs.includes(cb.value)) cb.checked = true;
-                                });
-
-                                lastRow.querySelector('.visita-obs').value = v.observacao || '';
-                            }
-                        });
-                    } else {
-                        adicionarVisita();
-                    }
-
-                    alert('✅ Dados carregados com sucesso!');
-                } else {
-                    alert('ℹ️ Nenhum dado encontrado para este consultor.');
+            // 1. Carregar perfil básico (novo modelo)
+            database.ref('consultores/' + consultorId + '/perfil').once('value', (snapshot) => {
+                const profile = snapshot.val();
+                if (profile) {
+                    document.getElementById('dataAdmissao').value = profile.dataAdmissao || '';
+                    document.getElementById('cidade').value = profile.cidade || '';
+                    document.getElementById('uf').value = profile.uf || '';
+                    document.getElementById('supervisor').value = profile.supervisor || '';
+                    document.getElementById('coordenador').value = profile.coordenador || '';
+                    document.getElementById('regional').value = profile.regional || '';
+                    document.getElementById('dataCertificacao').value = profile.dataCertificacao || '';
+                    document.getElementById('notaCertificacao').value = profile.notaCertificacao || '';
                 }
             });
+
+            // 2. Carregar o checklist mais recente
+            database.ref('consultores/' + consultorId + '/checklists').orderByChild('dataSalvamento').limitToLast(1).once('value', (snapshot) => {
+                const results = snapshot.val();
+                let data = null;
+
+                if (results) {
+                    const keys = Object.keys(results);
+                    data = results[keys[0]];
+                }
+
+                // Fallback para modelo antigo se não houver no novo histórico
+                if (!data) {
+                    database.ref('consultores/' + consultorId).once('value', (snapAntigo) => {
+                        const oldData = snapAntigo.val();
+                        if (oldData && !oldData.checklists && !oldData.perfil) {
+                            preencherFormulario(oldData);
+                        }
+                    });
+                } else {
+                    preencherFormulario(data);
+                }
+            });
+        }
+
+        function preencherFormulario(data) {
+            if (!data) return;
+
+            document.getElementById('anotacoesGerais').value = data.anotacoesGerais || '';
+
+            // IDC
+            if (data.idc) {
+                const meses = ['janeiro', 'fevereiro', 'marco', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+                meses.forEach(mes => {
+                    const notaId = `nota${mes.charAt(0).toUpperCase() + mes.slice(1)}`;
+                    const apontId = `apont${mes.charAt(0).toUpperCase() + mes.slice(1)}`;
+                    if (document.getElementById(notaId)) document.getElementById(notaId).value = data.idc[mes]?.nota || '';
+                    if (document.getElementById(apontId)) document.getElementById(apontId).value = data.idc[mes]?.apontamento || '';
+                });
+            }
+
+            // Loja
+            if (data.loja) {
+                document.getElementById('revenda').value = data.loja.revenda || '';
+                document.getElementById('filial').value = data.loja.filial || '';
+                document.getElementById('idLoja').value = data.loja.id || '';
+                document.getElementById('endereco').value = data.loja.endereco || '';
+                document.getElementById('cidadeUf').value = data.loja.cidadeUf || '';
+                document.getElementById('gerente').value = data.loja.gerente || '';
+                document.getElementById('contato').value = data.loja.contato || '';
+                document.getElementById('subGerente').value = data.loja.subGerente || '';
+                document.getElementById('cnpj').value = data.loja.cnpj || '';
+                document.getElementById('faturamentoLoja').value = data.loja.faturamentoLoja || '';
+                document.getElementById('faturamentoPanasonic').value = data.loja.faturamentoPanasonic || '';
+                document.getElementById('ranking').value = data.loja.ranking || '';
+                document.getElementById('justificativa').value = data.loja.justificativa || '';
+                document.getElementById('floorShare').value = data.loja.floorShare || '';
+            }
+
+            // Destaques
+            if (data.destaques) {
+                document.getElementById('geladeiraMarca').value = data.destaques.geladeira?.marca || '';
+                document.getElementById('geladeiraModelo').value = data.destaques.geladeira?.modelo || '';
+                document.getElementById('geladeiraPreco').value = data.destaques.geladeira?.preco || '';
+                document.getElementById('lavadoraMarca').value = data.destaques.lavadora?.marca || '';
+                document.getElementById('lavadoraModelo').value = data.destaques.lavadora?.modelo || '';
+                document.getElementById('lavadoraPreco').value = data.destaques.lavadora?.preco || '';
+                document.getElementById('microondasMarca').value = data.destaques.microondas?.marca || '';
+                document.getElementById('microondasModelo').value = data.destaques.microondas?.modelo || '';
+                document.getElementById('microondasPreco').value = data.destaques.microondas?.preco || '';
+                document.getElementById('outrosDestaques').value = data.destaques.outros || '';
+            }
+
+            // Programas
+            if (data.programas) {
+                const setRadio = (name, val) => {
+                    const radios = document.querySelectorAll(`input[name="${name}"]`);
+                    radios.forEach(r => { if (r.value === val) r.checked = true; });
+                };
+                setRadio('conhecemPrograma', data.programas.conhecemPrograma);
+                setRadio('cadastrados', data.programas.cadastrados);
+                setRadio('pendencia', data.programas.pendencia);
+                document.getElementById('obsCadastro').value = data.programas.obsCadastro || '';
+            }
+
+            // Metas
+            if (data.metas) {
+                document.getElementById('metaTreinamento').value = data.metas.metaTreinamento || '';
+                document.getElementById('metaPessoas').value = data.metas.metaPessoas || '';
+            }
+
+            // Merchandising
+            if (data.merchandising) {
+                const setRadio = (name, val) => {
+                    const radios = document.querySelectorAll(`input[name="${name}"]`);
+                    radios.forEach(r => { if (r.value === val) r.checked = true; });
+                };
+                setRadio('mpvAplicado', data.merchandising.mpvAplicado);
+                setRadio('produtosLimpos', data.merchandising.produtosLimpos);
+                document.getElementById('motivoMpv').value = data.merchandising.motivoMpv || '';
+                document.getElementById('motivoLimpeza').value = data.merchandising.motivoLimpeza || '';
+            }
+
+            // Lançamentos e Visitas
+            document.getElementById('lancamentos').innerHTML = '';
+            if (data.lancamentos) {
+                data.lancamentos.forEach(l => adicionarLancamento(l));
+            } else {
+                adicionarLancamento();
+            }
+
+            document.getElementById('visitas').innerHTML = '';
+            if (data.visitas) {
+                data.visitas.forEach(v => adicionarVisita(v));
+            } else {
+                adicionarVisita();
+            }
         }
 
         // FUNÇÃO PARA EXPORTAR EXCEL (MELHORADA COM LARGURA AUTOMÁTICA E MESCLAGEM)
