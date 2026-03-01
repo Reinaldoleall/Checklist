@@ -240,6 +240,72 @@
             overflow-x: auto;
             width: 100%;
         }
+        /* CORREÇÃO PARA OCUPAR TELA TODA SEM BORDA */
+body {
+    padding: 0 !important;
+    margin: 0 !important;
+    background: #f0f2f5;
+    min-width: 100vw;
+    overflow-x: auto;
+}
+
+.main-container {
+    max-width: 100% !important;
+    width: 100vw !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.excel-container {
+    border: none !important; /* Remove a borda */
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+}
+
+.max-w-7xl {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Remove bordas dos elementos internos se desejar */
+.section-title, .subsection-title {
+    border-left: none !important;
+    border-right: none !important;
+}
+
+.action-bar {
+    border-left: none !important;
+    border-right: none !important;
+    border-radius: 0 !important;
+}
+
+/* Ajuste para o conteúdo ocupar toda largura */
+.overflow-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.excel-table {
+    min-width: 1600px;
+    width: 100%;
+    margin: 0;
+}
+
+/* Remove padding do container principal */
+.p-4 {
+    padding: 16px 0 !important;
+}
+
+/* Ajuste dos botões para ficarem alinhados */
+.action-bar {
+    padding: 16px 20px !important;
+    margin: 0 !important;
+}
     </style>
 </head>
 
