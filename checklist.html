@@ -844,34 +844,30 @@
                 <td><input type="text" class="excel-input visita-nome" placeholder="Nome"></td>
                 <td><input type="text" class="excel-input visita-visto" placeholder="Assinatura"></td>
                 <td>
-                    <select class="excel-select visita-ferramenta">
-                        <option value="">SELECIONE</option>
-                        <option value="CELULAR_BOM">📱 CELULAR BOM ESTADO</option>
-                        <option value="CELULAR_DEFEITO">📱 CELULAR COM DEFEITO</option>
-                    </select>
+                    <div class="checkbox-group flex-col items-start">
+                        <label class="checkbox-item"><input type="checkbox" class="visita-ferramenta" value="CELULAR_BOM"> 📱 Celular OK</label>
+                        <label class="checkbox-item"><input type="checkbox" class="visita-ferramenta" value="CELULAR_DEFEITO"> 📱 Celular Def.</label>
+                    </div>
                 </td>
                 <td>
-                    <select class="excel-select visita-dominio">
-                        <option value="">SELECIONE</option>
-                        <option value="FOCO_MENSAL">🎯 FOCO MENSAL</option>
-                        <option value="CAMPANHAS">📢 CAMPANHAS VIGENTES</option>
-                        <option value="INFO_LOJA">🏪 INFORMAÇÕES LOJA</option>
-                    </select>
+                    <div class="checkbox-group flex-col items-start">
+                        <label class="checkbox-item"><input type="checkbox" class="visita-dominio" value="FOCO_MENSAL"> 🎯 Foco Mensal</label>
+                        <label class="checkbox-item"><input type="checkbox" class="visita-dominio" value="CAMPANHAS"> 📢 Campanhas</label>
+                        <label class="checkbox-item"><input type="checkbox" class="visita-dominio" value="INFO_LOJA"> 🏪 Info Loja</label>
+                    </div>
                 </td>
                 <td>
-                    <select class="excel-select visita-uniforme">
-                        <option value="">SELECIONE</option>
-                        <option value="COMPLETO">👔 COMPLETO BOM ESTADO</option>
-                        <option value="INCOMPLETO">👕 INCOMPLETO</option>
-                    </select>
+                    <div class="checkbox-group flex-col items-start">
+                        <label class="checkbox-item"><input type="checkbox" class="visita-uniforme" value="COMPLETO"> 👔 Unif. OK</label>
+                        <label class="checkbox-item"><input type="checkbox" class="visita-uniforme" value="INCOMPLETO"> 👕 Incompleto</label>
+                    </div>
                 </td>
                 <td>
-                    <select class="excel-select visita-pdv">
-                        <option value="">SELECIONE</option>
-                        <option value="POSITIVACAO">📦 POSITIVAÇÃO</option>
-                        <option value="LIMPEZA">🧹 LIMPEZA/ORGANIZAÇÃO</option>
-                        <option value="PRECIFICACAO">🏷️ PRECIFICAÇÃO</option>
-                    </select>
+                    <div class="checkbox-group flex-col items-start">
+                        <label class="checkbox-item"><input type="checkbox" class="visita-pdv" value="POSITIVACAO"> 📦 Positivação</label>
+                        <label class="checkbox-item"><input type="checkbox" class="visita-pdv" value="LIMPEZA"> 🧹 Limpeza/Org.</label>
+                        <label class="checkbox-item"><input type="checkbox" class="visita-pdv" value="PRECIFICACAO"> 🏷️ Precificação</label>
+                    </div>
                 </td>
                 <td colspan="5"><textarea class="excel-input visita-obs" rows="2" placeholder="Observações..."></textarea></td>
                 <td><button onclick="removerLinha(this)" class="btn-remove" type="button"><i class="fas fa-trash"></i></button></td>
@@ -980,10 +976,10 @@
                         data: data,
                         nome: row.querySelector('.visita-nome')?.value || '',
                         visto: row.querySelector('.visita-visto')?.value || '',
-                        ferramenta: row.querySelector('.visita-ferramenta')?.value || '',
-                        dominio: row.querySelector('.visita-dominio')?.value || '',
-                        uniforme: row.querySelector('.visita-uniforme')?.value || '',
-                        pdv: row.querySelector('.visita-pdv')?.value || '',
+                        ferramenta: Array.from(row.querySelectorAll('.visita-ferramenta:checked')).map(cb => cb.value),
+                        dominio: Array.from(row.querySelectorAll('.visita-dominio:checked')).map(cb => cb.value),
+                        uniforme: Array.from(row.querySelectorAll('.visita-uniforme:checked')).map(cb => cb.value),
+                        pdv: Array.from(row.querySelectorAll('.visita-pdv:checked')).map(cb => cb.value),
                         observacao: row.querySelector('.visita-obs')?.value || ''
                     });
                 }
@@ -1149,10 +1145,31 @@
                                 lastRow.querySelector('.visita-data').value = v.data || '';
                                 lastRow.querySelector('.visita-nome').value = v.nome || '';
                                 lastRow.querySelector('.visita-visto').value = v.visto || '';
-                                lastRow.querySelector('.visita-ferramenta').value = v.ferramenta || '';
-                                lastRow.querySelector('.visita-dominio').value = v.dominio || '';
-                                lastRow.querySelector('.visita-uniforme').value = v.uniforme || '';
-                                lastRow.querySelector('.visita-pdv').value = v.pdv || '';
+
+                                // Marcar ferramentas
+                                const ferramentas = Array.isArray(v.ferramenta) ? v.ferramenta : (v.ferramenta ? [v.ferramenta] : []);
+                                lastRow.querySelectorAll('.visita-ferramenta').forEach(cb => {
+                                    if (ferramentas.includes(cb.value)) cb.checked = true;
+                                });
+
+                                // Marcar dominios
+                                const dominios = Array.isArray(v.dominio) ? v.dominio : (v.dominio ? [v.dominio] : []);
+                                lastRow.querySelectorAll('.visita-dominio').forEach(cb => {
+                                    if (dominios.includes(cb.value)) cb.checked = true;
+                                });
+
+                                // Marcar uniformes
+                                const uniformes = Array.isArray(v.uniforme) ? v.uniforme : (v.uniforme ? [v.uniforme] : []);
+                                lastRow.querySelectorAll('.visita-uniforme').forEach(cb => {
+                                    if (uniformes.includes(cb.value)) cb.checked = true;
+                                });
+
+                                // Marcar pdvs
+                                const pdvs = Array.isArray(v.pdv) ? v.pdv : (v.pdv ? [v.pdv] : []);
+                                lastRow.querySelectorAll('.visita-pdv').forEach(cb => {
+                                    if (pdvs.includes(cb.value)) cb.checked = true;
+                                });
+
                                 lastRow.querySelector('.visita-obs').value = v.observacao || '';
                             }
                         });
@@ -1237,7 +1254,7 @@
             // DESTAQUES
             if (dados.destaques) {
                 planilha.push(['DESTAQUE DE VENDAS - LINHA BRANCA', '', '', '', '', '', '', '', '', '', '', '', '']);
-                planilha.push(['GELADEIRA', '', '', 'MÁQUINA DE LAVAR', '', '', 'MICRO-ONDAS', '', '', 'OUTROS DESTAQUES', '', '', '']);
+                planilha.push(['GELADEIRA', 'PRODUTO', 'PREÇO', 'LAVADORA', 'PRODUTO', 'PREÇO', 'MICRO-ONDAS', 'PRODUTO', 'PREÇO', 'OUTROS', '', '', '']);
                 planilha.push([
                     dados.destaques.geladeira.marca, dados.destaques.geladeira.modelo, 'R$ ' + dados.destaques.geladeira.preco,
                     dados.destaques.lavadora.marca, dados.destaques.lavadora.modelo, 'R$ ' + dados.destaques.lavadora.preco,
@@ -1290,7 +1307,11 @@
                 planilha.push(['VERSO CHECK LIST - VISITAS RECEBIDAS', '', '', '', '', '', '', '', '', '', '', '', '']);
                 planilha.push(['DATA', 'NOME', 'VISTO', 'FERRAMENTA', 'DOMÍNIO', 'UNIFORME', 'PDV', 'OBSERVAÇÃO', '', '', '', '', '']);
                 dados.visitas.forEach(v => {
-                    planilha.push([v.data, v.nome, v.visto, v.ferramenta, v.dominio, v.uniforme, v.pdv, v.observacao, '', '', '', '', '']);
+                    const ferramenta = Array.isArray(v.ferramenta) ? v.ferramenta.join(', ') : v.ferramenta;
+                    const dominio = Array.isArray(v.dominio) ? v.dominio.join(', ') : v.dominio;
+                    const uniforme = Array.isArray(v.uniforme) ? v.uniforme.join(', ') : v.uniforme;
+                    const pdv = Array.isArray(v.pdv) ? v.pdv.join(', ') : v.pdv;
+                    planilha.push([v.data, v.nome, v.visto, ferramenta, dominio, uniforme, pdv, v.observacao, '', '', '', '', '']);
                 });
             }
 
@@ -1506,14 +1527,18 @@
 
             let visitasHTML = '';
             dados.visitas.forEach(v => {
+                const ferramenta = Array.isArray(v.ferramenta) ? v.ferramenta.join(', ') : v.ferramenta;
+                const dominio = Array.isArray(v.dominio) ? v.dominio.join(', ') : v.dominio;
+                const uniforme = Array.isArray(v.uniforme) ? v.uniforme.join(', ') : v.uniforme;
+                const pdv = Array.isArray(v.pdv) ? v.pdv.join(', ') : v.pdv;
                 visitasHTML += `<tr>
                     <td style="border: 1px solid #333; padding: 4px;">${v.data}</td>
                     <td style="border: 1px solid #333; padding: 4px;">${v.nome}</td>
                     <td style="border: 1px solid #333; padding: 4px;">${v.visto}</td>
-                    <td style="border: 1px solid #333; padding: 4px;">${v.ferramenta}</td>
-                    <td style="border: 1px solid #333; padding: 4px;">${v.dominio}</td>
-                    <td style="border: 1px solid #333; padding: 4px;">${v.uniforme}</td>
-                    <td style="border: 1px solid #333; padding: 4px;">${v.pdv}</td>
+                    <td style="border: 1px solid #333; padding: 4px;">${ferramenta}</td>
+                    <td style="border: 1px solid #333; padding: 4px;">${dominio}</td>
+                    <td style="border: 1px solid #333; padding: 4px;">${uniforme}</td>
+                    <td style="border: 1px solid #333; padding: 4px;">${pdv}</td>
                     <td style="border: 1px solid #333; padding: 4px;" colspan="2">${v.observacao}</td>
                 </tr>`;
             });
