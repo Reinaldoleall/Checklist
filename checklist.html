@@ -820,57 +820,63 @@
         }
 
         // Função para adicionar lançamento
-        function adicionarLancamento() {
+        function adicionarLancamento(dados = null) {
             const tbody = document.getElementById('lancamentos');
             const novaLinha = document.createElement('tr');
             novaLinha.className = 'lancamento-row';
             novaLinha.innerHTML = `
-                <td><input type="date" class="excel-input lancamento-data"></td>
-                <td><input type="text" class="excel-input lancamento-marca" placeholder="Marca"></td>
-                <td colspan="2"><input type="text" class="excel-input lancamento-produto" placeholder="Produto"></td>
-                <td colspan="3"><input type="text" class="excel-input lancamento-modelo" placeholder="Modelo"></td>
-                <td colspan="5"><input type="number" class="excel-input lancamento-preco" placeholder="Preço R$"></td>
+                <td><input type="date" class="excel-input lancamento-data" value="${dados?.data || ''}"></td>
+                <td><input type="text" class="excel-input lancamento-marca" placeholder="Marca" value="${dados?.marca || ''}"></td>
+                <td colspan="2"><input type="text" class="excel-input lancamento-produto" placeholder="Produto" value="${dados?.produto || ''}"></td>
+                <td colspan="3"><input type="text" class="excel-input lancamento-modelo" placeholder="Modelo" value="${dados?.modelo || ''}"></td>
+                <td colspan="5"><input type="number" class="excel-input lancamento-preco" placeholder="Preço R$" value="${dados?.preco || ''}"></td>
                 <td><button onclick="removerLinha(this)" class="btn-remove" type="button"><i class="fas fa-times"></i></button></td>
             `;
             tbody.appendChild(novaLinha);
         }
 
         // Função para adicionar visita
-        function adicionarVisita() {
+        function adicionarVisita(dados = null) {
             const tbody = document.getElementById('visitas');
             const novaLinha = document.createElement('tr');
             novaLinha.className = 'visita-row';
+
+            const checks = (tipo, valor) => {
+                if (!dados || !dados[tipo]) return '';
+                return dados[tipo].includes(valor) ? 'checked' : '';
+            };
+
             novaLinha.innerHTML = `
-                <td><input type="date" class="excel-input visita-data"></td>
-                <td><input type="text" class="excel-input visita-nome" placeholder="Nome"></td>
-                <td><input type="text" class="excel-input visita-visto" placeholder="Assinatura"></td>
+                <td><input type="date" class="excel-input visita-data" value="${dados?.data || ''}"></td>
+                <td><input type="text" class="excel-input visita-nome" placeholder="Nome" value="${dados?.nome || ''}"></td>
+                <td><input type="text" class="excel-input visita-visto" placeholder="Assinatura" value="${dados?.visto || ''}"></td>
                 <td>
                     <div class="checkbox-group flex-col items-start">
-                        <label class="checkbox-item"><input type="checkbox" class="visita-ferramenta" value="CELULAR_BOM"> 📱 Celular OK</label>
-                        <label class="checkbox-item"><input type="checkbox" class="visita-ferramenta" value="CELULAR_DEFEITO"> 📱 Celular Def.</label>
+                        <label class="checkbox-item"><input type="checkbox" class="visita-ferramenta" value="CELULAR_BOM" ${checks('ferramenta', 'CELULAR_BOM')}> 📱 Celular OK</label>
+                        <label class="checkbox-item"><input type="checkbox" class="visita-ferramenta" value="CELULAR_DEFEITO" ${checks('ferramenta', 'CELULAR_DEFEITO')}> 📱 Celular Def.</label>
                     </div>
                 </td>
                 <td>
                     <div class="checkbox-group flex-col items-start">
-                        <label class="checkbox-item"><input type="checkbox" class="visita-dominio" value="FOCO_MENSAL"> 🎯 Foco Mensal</label>
-                        <label class="checkbox-item"><input type="checkbox" class="visita-dominio" value="CAMPANHAS"> 📢 Campanhas</label>
-                        <label class="checkbox-item"><input type="checkbox" class="visita-dominio" value="INFO_LOJA"> 🏪 Info Loja</label>
+                        <label class="checkbox-item"><input type="checkbox" class="visita-dominio" value="FOCO_MENSAL" ${checks('dominio', 'FOCO_MENSAL')}> 🎯 Foco Mensal</label>
+                        <label class="checkbox-item"><input type="checkbox" class="visita-dominio" value="CAMPANHAS" ${checks('dominio', 'CAMPANHAS')}> 📢 Campanhas</label>
+                        <label class="checkbox-item"><input type="checkbox" class="visita-dominio" value="INFO_LOJA" ${checks('dominio', 'INFO_LOJA')}> 🏪 Info Loja</label>
                     </div>
                 </td>
                 <td>
                     <div class="checkbox-group flex-col items-start">
-                        <label class="checkbox-item"><input type="checkbox" class="visita-uniforme" value="COMPLETO"> 👔 Unif. OK</label>
-                        <label class="checkbox-item"><input type="checkbox" class="visita-uniforme" value="INCOMPLETO"> 👕 Incompleto</label>
+                        <label class="checkbox-item"><input type="checkbox" class="visita-uniforme" value="COMPLETO" ${checks('uniforme', 'COMPLETO')}> 👔 Unif. OK</label>
+                        <label class="checkbox-item"><input type="checkbox" class="visita-uniforme" value="INCOMPLETO" ${checks('uniforme', 'INCOMPLETO')}> 👕 Incompleto</label>
                     </div>
                 </td>
                 <td>
                     <div class="checkbox-group flex-col items-start">
-                        <label class="checkbox-item"><input type="checkbox" class="visita-pdv" value="POSITIVACAO"> 📦 Positivação</label>
-                        <label class="checkbox-item"><input type="checkbox" class="visita-pdv" value="LIMPEZA"> 🧹 Limpeza/Org.</label>
-                        <label class="checkbox-item"><input type="checkbox" class="visita-pdv" value="PRECIFICACAO"> 🏷️ Precificação</label>
+                        <label class="checkbox-item"><input type="checkbox" class="visita-pdv" value="POSITIVACAO" ${checks('pdv', 'POSITIVACAO')}> 📦 Positivação</label>
+                        <label class="checkbox-item"><input type="checkbox" class="visita-pdv" value="LIMPEZA" ${checks('pdv', 'LIMPEZA')}> 🧹 Limpeza/Org.</label>
+                        <label class="checkbox-item"><input type="checkbox" class="visita-pdv" value="PRECIFICACAO" ${checks('pdv', 'PRECIFICACAO')}> 🏷️ Precificação</label>
                     </div>
                 </td>
-                <td colspan="5"><textarea class="excel-input visita-obs" rows="2" placeholder="Observações..."></textarea></td>
+                <td colspan="5"><textarea class="excel-input visita-obs" rows="2" placeholder="Observações...">${dados?.observacao || ''}</textarea></td>
                 <td><button onclick="removerLinha(this)" class="btn-remove" type="button"><i class="fas fa-trash"></i></button></td>
             `;
             tbody.appendChild(novaLinha);
