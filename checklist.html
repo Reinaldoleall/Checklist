@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Check List Consultor 2026 - Versão Excel Completa</title>
-    <meta name="viewport" content="width=1024, initial-scale=0.8, minimum-scale=0.5, maximum-scale=1.5">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -22,11 +22,20 @@
             background: #f0f2f5;
             padding: 20px;
             margin: 0;
+            overflow-x: auto;
+            min-width: 1024px;
         }
         
-        /* Status online/offline - OCULTO POR PADRÃO */
+        /* Status online/offline - OCULTO */
         .status-badge {
-            display: none !important; /* Oculta completamente */
+            display: none !important;
+        }
+        
+        /* Container principal com scroll */
+        .main-container {
+            max-width: 100%;
+            overflow-x: auto;
+            padding: 0 20px;
         }
         
         /* Estilo EXATAMENTE como Excel */
@@ -34,7 +43,7 @@
             background: white;
             border: 2px solid #000;
             overflow-x: auto;
-            max-width: 100%;
+            width: 100%;
             box-shadow: 0 4px 20px rgba(0,0,0,0.15);
             border-radius: 8px;
         }
@@ -42,7 +51,7 @@
         .excel-table {
             border-collapse: collapse;
             width: 100%;
-            min-width: 1400px; /* Aumentado para melhor visualização */
+            min-width: 1600px; /* Aumentado para garantir scroll */
             table-layout: fixed;
         }
         
@@ -211,14 +220,6 @@
             border-bottom: 2px solid #000;
         }
         
-        /* Ajustes de largura das colunas */
-        .col-mes { width: 10%; }
-        .col-nota { width: 10%; }
-        .col-apont { width: 80%; }
-        .col-pequena { width: 8%; }
-        .col-media { width: 12%; }
-        .col-grande { width: 20%; }
-        
         /* Loading spinner */
         .loading {
             display: inline-block;
@@ -234,335 +235,337 @@
             to { transform: rotate(360deg); }
         }
         
-        /* Ajuste para telas maiores */
-        .max-w-7xl {
-            max-width: 1600px !important;
-            margin: 0 auto;
+        /* Ajuste para scroll */
+        .overflow-wrapper {
+            overflow-x: auto;
+            width: 100%;
         }
     </style>
 </head>
 
 <body>
-    <!-- Status do Firebase - OCULTO (display: none no CSS) -->
+    <!-- Status do Firebase - OCULTO -->
     <div class="max-w-7xl mx-auto mb-2 flex justify-end">
         <div id="statusConexao" class="status-badge status-offline">🔴 OFFLINE - Verificando...</div>
     </div>
 
-    <div class="max-w-7xl mx-auto excel-container">
-        
-        <!-- CABEÇALHO PRINCIPAL -->
-        <div class="section-title">
-            CHECK LIST - 2026 | PANASONIC
-        </div>
+    <div class="main-container">
+        <div class="excel-container">
+            
+            <!-- CABEÇALHO PRINCIPAL -->
+            <div class="section-title">
+                CHECK LIST - 2026 | PANASONIC
+            </div>
 
-        <!-- ========== ABA CONSULTOR ========== -->
-        <div style="overflow-x: auto;">
-            <table class="excel-table">
-                <!-- INFORMAÇÕES CONSULTOR -->
-                <tr>
-                    <td colspan="8" class="subsection-title">INFORMAÇÕES DO CONSULTOR</td>
-                </tr>
-                <tr>
-                    <td colspan="2" style="width: 15%;"><strong>CONSULTOR(A):</strong></td>
-                    <td colspan="3" style="width: 40%;"><input type="text" id="consultor" class="excel-input" placeholder="Nome completo"></td>
-                    <td style="width: 10%;"><strong>REGIONAL:</strong></td>
-                    <td colspan="2" style="width: 25%;"><input type="text" id="regional" class="excel-input" placeholder="Regional"></td>
-                </tr>
-                <tr>
-                    <td colspan="2"><strong>DATA DE ADMISSÃO:</strong></td>
-                    <td colspan="3"><input type="date" id="dataAdmissao" class="excel-input"></td>
-                    <td></td>
-                    <td colspan="2"></td>
-                </tr>
-                <tr>
-                    <td colspan="2"><strong>CIDADE:</strong></td>
-                    <td colspan="3"><input type="text" id="cidade" class="excel-input" placeholder="Cidade"></td>
-                    <td><strong>UF:</strong></td>
-                    <td colspan="2"><input type="text" id="uf" maxlength="2" class="excel-input" placeholder="UF"></td>
-                </tr>
-                <tr>
-                    <td colspan="2"><strong>SUPERVISOR(A):</strong></td>
-                    <td colspan="6"><input type="text" id="supervisor" class="excel-input" placeholder="Nome do supervisor"></td>
-                </tr>
-                <tr>
-                    <td colspan="2"><strong>COORDENADOR(A):</strong></td>
-                    <td colspan="6"><input type="text" id="coordenador" class="excel-input" placeholder="Nome do coordenador"></td>
-                </tr>
-
-                <!-- CERTIFICAÇÃO -->
-                <tr>
-                    <td colspan="8" class="subsection-title">CERTIFICAÇÃO</td>
-                </tr>
-                <tr>
-                    <td colspan="4"><strong>DATA DA ÚLTIMA CERTIFICAÇÃO:</strong></td>
-                    <td colspan="4"><input type="date" id="dataCertificacao" class="excel-input"></td>
-                </tr>
-                <tr>
-                    <td colspan="4"><strong>NOTA DA CERTIFICAÇÃO:</strong></td>
-                    <td colspan="4"><input type="number" step="0.1" min="0" max="10" id="notaCertificacao" class="excel-input" placeholder="0.0 a 10.0"></td>
-                </tr>
-
-                <!-- IDC -->
-                <tr>
-                    <td colspan="8" class="subsection-title">IDC - ÍNDICE DE DESEMPENHO DO CONSULTOR</td>
-                </tr>
-                <tr>
-                    <th style="width: 15%;">MÊS</th>
-                    <th style="width: 10%;" colspan="2">NOTA</th>
-                    <th style="width: 75%;" colspan="5">APONTAMENTOS / OBSERVAÇÕES</th>
-                </tr>
-                <tr><td>JANEIRO</td><td colspan="2"><input type="number" step="0.1" id="notaJan" class="excel-input" placeholder="0-10"></td><td colspan="5"><input type="text" id="apontJan" class="excel-input" placeholder="Observações..."></td></tr>
-                <tr><td>FEVEREIRO</td><td colspan="2"><input type="number" step="0.1" id="notaFev" class="excel-input" placeholder="0-10"></td><td colspan="5"><input type="text" id="apontFev" class="excel-input" placeholder="Observações..."></td></tr>
-                <tr><td>MARÇO</td><td colspan="2"><input type="number" step="0.1" id="notaMar" class="excel-input" placeholder="0-10"></td><td colspan="5"><input type="text" id="apontMar" class="excel-input" placeholder="Observações..."></td></tr>
-                <tr><td>ABRIL</td><td colspan="2"><input type="number" step="0.1" id="notaAbr" class="excel-input" placeholder="0-10"></td><td colspan="5"><input type="text" id="apontAbr" class="excel-input" placeholder="Observações..."></td></tr>
-                <tr><td>MAIO</td><td colspan="2"><input type="number" step="0.1" id="notaMai" class="excel-input" placeholder="0-10"></td><td colspan="5"><input type="text" id="apontMai" class="excel-input" placeholder="Observações..."></td></tr>
-                <tr><td>JUNHO</td><td colspan="2"><input type="number" step="0.1" id="notaJun" class="excel-input" placeholder="0-10"></td><td colspan="5"><input type="text" id="apontJun" class="excel-input" placeholder="Observações..."></td></tr>
-                <tr><td>JULHO</td><td colspan="2"><input type="number" step="0.1" id="notaJul" class="excel-input" placeholder="0-10"></td><td colspan="5"><input type="text" id="apontJul" class="excel-input" placeholder="Observações..."></td></tr>
-                <tr><td>AGOSTO</td><td colspan="2"><input type="number" step="0.1" id="notaAgo" class="excel-input" placeholder="0-10"></td><td colspan="5"><input type="text" id="apontAgo" class="excel-input" placeholder="Observações..."></td></tr>
-                <tr><td>SETEMBRO</td><td colspan="2"><input type="number" step="0.1" id="notaSet" class="excel-input" placeholder="0-10"></td><td colspan="5"><input type="text" id="apontSet" class="excel-input" placeholder="Observações..."></td></tr>
-                <tr><td>OUTUBRO</td><td colspan="2"><input type="number" step="0.1" id="notaOut" class="excel-input" placeholder="0-10"></td><td colspan="5"><input type="text" id="apontOut" class="excel-input" placeholder="Observações..."></td></tr>
-                <tr><td>NOVEMBRO</td><td colspan="2"><input type="number" step="0.1" id="notaNov" class="excel-input" placeholder="0-10"></td><td colspan="5"><input type="text" id="apontNov" class="excel-input" placeholder="Observações..."></td></tr>
-                <tr><td>DEZEMBRO</td><td colspan="2"><input type="number" step="0.1" id="notaDez" class="excel-input" placeholder="0-10"></td><td colspan="5"><input type="text" id="apontDez" class="excel-input" placeholder="Observações..."></td></tr>
-
-                <!-- ANOTAÇÕES GERAIS -->
-                <tr>
-                    <td colspan="8" class="subsection-title">ANOTAÇÕES GERAIS</td>
-                </tr>
-                <tr>
-                    <td colspan="8">
-                        <textarea id="anotacoesGerais" rows="4" class="excel-input" placeholder="Digite aqui as anotações gerais do consultor..."></textarea>
-                    </td>
-                </tr>
-            </table>
-        </div>
-
-        <!-- ========== FRENTE CHECK LIST ========== -->
-        <div class="section-title" style="margin-top: 2px;">CHECK LIST VISITA - FRENTE</div>
-        
-        <div style="overflow-x: auto;">
-            <table class="excel-table">
-                <!-- INFORMAÇÕES DA LOJA -->
-                <tr>
-                    <td colspan="13" class="subsection-title">INFORMAÇÕES DA LOJA</td>
-                </tr>
-                <tr>
-                    <td colspan="2"><strong>REVENDA:</strong></td>
-                    <td colspan="3"><input type="text" id="revenda" class="excel-input" placeholder="Nome da revenda"></td>
-                    <td colspan="2"><strong>FILIAL:</strong></td>
-                    <td colspan="3"><input type="text" id="filial" class="excel-input" placeholder="Nº filial"></td>
-                    <td><strong>ID:</strong></td>
-                    <td><input type="text" id="idLoja" class="excel-input" placeholder="ID"></td>
-                </tr>
-                <tr>
-                    <td colspan="2"><strong>ENDEREÇO:</strong></td>
-                    <td colspan="6"><input type="text" id="endereco" class="excel-input" placeholder="Endereço completo"></td>
-                    <td colspan="2"><strong>CIDADE/UF:</strong></td>
-                    <td colspan="3"><input type="text" id="cidadeUf" class="excel-input" placeholder="Cidade/UF"></td>
-                </tr>
-                <tr>
-                    <td colspan="2"><strong>GERENTE:</strong></td>
-                    <td colspan="2"><input type="text" id="gerente" class="excel-input" placeholder="Nome do gerente"></td>
-                    <td colspan="2"><strong>CONTATO:</strong></td>
-                    <td colspan="2"><input type="text" id="contato" class="excel-input" placeholder="Telefone/email"></td>
-                    <td colspan="2"><strong>SUB GERENTE:</strong></td>
-                    <td colspan="3"><input type="text" id="subGerente" class="excel-input" placeholder="Nome sub gerente"></td>
-                </tr>
-                <tr>
-                    <td colspan="2"><strong>CNPJ:</strong></td>
-                    <td colspan="11"><input type="text" id="cnpj" class="excel-input" placeholder="00.000.000/0000-00"></td>
-                </tr>
-
-                <!-- FATURAMENTO DA LOJA -->
-                <tr>
-                    <td colspan="13" class="subsection-title">FATURAMENTO DA LOJA</td>
-                </tr>
-                <tr>
-                    <td colspan="4"><strong>FATURAMENTO MENSAL LOJA R$:</strong></td>
-                    <td colspan="3"><input type="number" id="faturamentoLoja" class="excel-input" placeholder="0,00"></td>
-                    <td colspan="3"><strong>FATURAMENTO PANASONIC R$:</strong></td>
-                    <td colspan="3"><input type="number" id="faturamentoPanasonic" class="excel-input" placeholder="0,00"></td>
-                </tr>
-                <tr>
-                    <td colspan="4"><strong>RANKING NA REDE:</strong></td>
-                    <td colspan="9"><input type="text" id="ranking" class="excel-input" placeholder="Posição no ranking"></td>
-                </tr>
-                <tr>
-                    <td colspan="4"><strong>JUSTIFICATIVA (se não tiver info):</strong></td>
-                    <td colspan="9"><input type="text" id="justificativa" class="excel-input" placeholder="Por que não tem a informação?"></td>
-                </tr>
-                <tr>
-                    <td colspan="4"><strong>FLOOR SHARE PANASONIC %:</strong></td>
-                    <td colspan="9"><input type="number" step="0.1" id="floorShare" class="excel-input" placeholder="0.0%"></td>
-                </tr>
-
-                <!-- DESTAQUE DE VENDAS -->
-                <tr>
-                    <td colspan="13" class="subsection-title">DESTAQUE DE VENDAS - LINHA BRANCA</td>
-                </tr>
-                <tr>
-                    <th colspan="4">GELADEIRA</th>
-                    <th colspan="4">MÁQUINA DE LAVAR</th>
-                    <th colspan="5">MICRO-ONDAS</th>
-                </tr>
-                <tr>
-                    <td><strong>MARCA</strong></td>
-                    <td><strong>MODELO</strong></td>
-                    <td colspan="2"><strong>PREÇO</strong></td>
-                    <td><strong>MARCA</strong></td>
-                    <td><strong>MODELO</strong></td>
-                    <td colspan="2"><strong>PREÇO</strong></td>
-                    <td><strong>MARCA</strong></td>
-                    <td><strong>MODELO</strong></td>
-                    <td colspan="3"><strong>PREÇO</strong></td>
-                </tr>
-                <tr>
-                    <td><input type="text" id="geladeiraMarca" class="excel-input" placeholder="Marca"></td>
-                    <td><input type="text" id="geladeiraModelo" class="excel-input" placeholder="Modelo"></td>
-                    <td colspan="2"><input type="number" id="geladeiraPreco" class="excel-input" placeholder="R$"></td>
-                    <td><input type="text" id="lavadoraMarca" class="excel-input" placeholder="Marca"></td>
-                    <td><input type="text" id="lavadoraModelo" class="excel-input" placeholder="Modelo"></td>
-                    <td colspan="2"><input type="number" id="lavadoraPreco" class="excel-input" placeholder="R$"></td>
-                    <td><input type="text" id="microondasMarca" class="excel-input" placeholder="Marca"></td>
-                    <td><input type="text" id="microondasModelo" class="excel-input" placeholder="Modelo"></td>
-                    <td colspan="3"><input type="number" id="microondasPreco" class="excel-input" placeholder="R$"></td>
-                </tr>
-                <tr>
-                    <td colspan="13"><input type="text" id="outrosDestaques" class="excel-input" placeholder="OUTROS PRODUTOS EM DESTAQUE (opcional)"></td>
-                </tr>
-
-                <!-- PANASONIC - CAMPANHAS -->
-                <tr>
-                    <td colspan="13" style="background-color: #d9e1f2;"><strong>PANASONIC - PROGRAMA E CAMPANHAS</strong></td>
-                </tr>
-                <tr>
-                    <td colspan="13">
-                        <div class="checkbox-group">
-                            <span><strong>VENDEDORES/GERENTES CONHECEM O PROGRAMA E AS CAMPANHAS VIGENTES?</strong></span>
-                            <div class="checkbox-item"><input type="radio" name="conhecemPrograma" value="SIM"> SIM</div>
-                            <div class="checkbox-item"><input type="radio" name="conhecemPrograma" value="NAO"> NÃO</div>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="13">
-                        <div class="checkbox-group">
-                            <span><strong>TODOS ESTÃO CADASTRADOS?</strong></span>
-                            <div class="checkbox-item"><input type="radio" name="cadastrados" value="SIM"> SIM</div>
-                            <div class="checkbox-item"><input type="radio" name="cadastrados" value="NAO"> NÃO</div>
-                            <span class="ml-4"><strong>ALGUMA PENDÊNCIA?</strong></span>
-                            <div class="checkbox-item"><input type="radio" name="pendencia" value="SIM"> SIM</div>
-                            <div class="checkbox-item"><input type="radio" name="pendencia" value="NAO"> NÃO</div>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2"><strong>OBS:</strong></td>
-                    <td colspan="11"><input type="text" id="obsCadastro" class="excel-input" placeholder="Observações sobre cadastros..."></td>
-                </tr>
-
-                <!-- LANÇAMENTOS -->
-                <tr>
-                    <td colspan="13" class="subsection-title">LANÇAMENTO - INTRODUÇÃO DE PRODUTO NA LOJA</td>
-                </tr>
-                <tr>
-                    <th style="width: 10%;">DATA</th>
-                    <th style="width: 10%;">MARCA</th>
-                    <th colspan="2" style="width: 20%;">PRODUTO</th>
-                    <th colspan="3" style="width: 25%;">MODELO</th>
-                    <th colspan="6" style="width: 35%;">PREÇO</th>
-                </tr>
-                <tbody id="lancamentos">
-                    <tr class="lancamento-row">
-                        <td><input type="date" class="excel-input lancamento-data"></td>
-                        <td><input type="text" class="excel-input lancamento-marca" placeholder="Marca"></td>
-                        <td colspan="2"><input type="text" class="excel-input lancamento-produto" placeholder="Produto"></td>
-                        <td colspan="3"><input type="text" class="excel-input lancamento-modelo" placeholder="Modelo"></td>
-                        <td colspan="5"><input type="number" class="excel-input lancamento-preco" placeholder="Preço R$"></td>
-                        <td style="width: 5%;"><button onclick="removerLinha(this)" class="btn-remove">X</button></td>
+            <!-- ========== ABA CONSULTOR ========== -->
+            <div class="overflow-wrapper">
+                <table class="excel-table">
+                    <!-- INFORMAÇÕES CONSULTOR -->
+                    <tr>
+                        <td colspan="8" class="subsection-title">INFORMAÇÕES DO CONSULTOR</td>
                     </tr>
-                </tbody>
-                <tr>
-                    <td colspan="13">
-                        <button onclick="adicionarLancamento()" class="btn-excel" style="width: auto; margin: 10px;">+ ADICIONAR NOVO LANÇAMENTO</button>
-                    </td>
-                </tr>
+                    <tr>
+                        <td colspan="2" style="width: 15%;"><strong>CONSULTOR(A):</strong></td>
+                        <td colspan="3" style="width: 40%;"><input type="text" id="consultor" class="excel-input" placeholder="Nome completo"></td>
+                        <td style="width: 10%;"><strong>REGIONAL:</strong></td>
+                        <td colspan="2" style="width: 25%;"><input type="text" id="regional" class="excel-input" placeholder="Regional"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"><strong>DATA DE ADMISSÃO:</strong></td>
+                        <td colspan="3"><input type="date" id="dataAdmissao" class="excel-input"></td>
+                        <td></td>
+                        <td colspan="2"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"><strong>CIDADE:</strong></td>
+                        <td colspan="3"><input type="text" id="cidade" class="excel-input" placeholder="Cidade"></td>
+                        <td><strong>UF:</strong></td>
+                        <td colspan="2"><input type="text" id="uf" maxlength="2" class="excel-input" placeholder="UF"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"><strong>SUPERVISOR(A):</strong></td>
+                        <td colspan="6"><input type="text" id="supervisor" class="excel-input" placeholder="Nome do supervisor"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"><strong>COORDENADOR(A):</strong></td>
+                        <td colspan="6"><input type="text" id="coordenador" class="excel-input" placeholder="Nome do coordenador"></td>
+                    </tr>
 
-                <!-- META DE TREINAMENTO -->
-                <tr>
-                    <td colspan="13" class="subsection-title">META DE TREINAMENTO ON THE JOB</td>
-                </tr>
-                <tr>
-                    <td colspan="4"><strong>META DE TREINAMENTO:</strong></td>
-                    <td colspan="9"><input type="text" id="metaTreinamento" class="excel-input" placeholder="Ex: Treinar todos os vendedores"></td>
-                </tr>
-                <tr>
-                    <td colspan="4"><strong>META DE PESSOAS TREINADAS:</strong></td>
-                    <td colspan="9"><input type="number" id="metaPessoas" class="excel-input" placeholder="Número de pessoas"></td>
-                </tr>
+                    <!-- CERTIFICAÇÃO -->
+                    <tr>
+                        <td colspan="8" class="subsection-title">CERTIFICAÇÃO</td>
+                    </tr>
+                    <tr>
+                        <td colspan="4"><strong>DATA DA ÚLTIMA CERTIFICAÇÃO:</strong></td>
+                        <td colspan="4"><input type="date" id="dataCertificacao" class="excel-input"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4"><strong>NOTA DA CERTIFICAÇÃO:</strong></td>
+                        <td colspan="4"><input type="number" step="0.1" min="0" max="10" id="notaCertificacao" class="excel-input" placeholder="0.0 a 10.0"></td>
+                    </tr>
 
-                <!-- MERCHANDISING -->
-                <tr>
-                    <td colspan="13" class="subsection-title">GUIA DE MERCHANDISING - MPV</td>
-                </tr>
-                <tr>
-                    <td colspan="13">
-                        <div class="checkbox-group">
-                            <span><strong>OS MPVs ESTÃO APLICADOS CORRETAMENTE?</strong></span>
-                            <div class="checkbox-item"><input type="radio" name="mpvAplicado" value="SIM"> SIM</div>
-                            <div class="checkbox-item"><input type="radio" name="mpvAplicado" value="NAO"> NÃO</div>
-                            <span><strong>MOTIVO:</strong></span>
-                            <input type="text" id="motivoMpv" class="excel-input" style="width: 300px;" placeholder="Motivo se não aplicado">
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="13">
-                        <div class="checkbox-group">
-                            <span><strong>OS PRODUTOS ESTÃO LIMPOS?</strong></span>
-                            <div class="checkbox-item"><input type="radio" name="produtosLimpos" value="SIM"> SIM</div>
-                            <div class="checkbox-item"><input type="radio" name="produtosLimpos" value="NAO"> NÃO</div>
-                            <span><strong>MOTIVO:</strong></span>
-                            <input type="text" id="motivoLimpeza" class="excel-input" style="width: 300px;" placeholder="Motivo se não limpos">
-                        </div>
-                    </td>
-                </tr>
-            </table>
-        </div>
+                    <!-- IDC -->
+                    <tr>
+                        <td colspan="8" class="subsection-title">IDC - ÍNDICE DE DESEMPENHO DO CONSULTOR</td>
+                    </tr>
+                    <tr>
+                        <th style="width: 15%;">MÊS</th>
+                        <th style="width: 10%;" colspan="2">NOTA</th>
+                        <th style="width: 75%;" colspan="5">APONTAMENTOS / OBSERVAÇÕES</th>
+                    </tr>
+                    <tr><td>JANEIRO</td><td colspan="2"><input type="number" step="0.1" id="notaJan" class="excel-input" placeholder="0-10"></td><td colspan="5"><input type="text" id="apontJan" class="excel-input" placeholder="Observações..."></td></tr>
+                    <tr><td>FEVEREIRO</td><td colspan="2"><input type="number" step="0.1" id="notaFev" class="excel-input" placeholder="0-10"></td><td colspan="5"><input type="text" id="apontFev" class="excel-input" placeholder="Observações..."></td></tr>
+                    <tr><td>MARÇO</td><td colspan="2"><input type="number" step="0.1" id="notaMar" class="excel-input" placeholder="0-10"></td><td colspan="5"><input type="text" id="apontMar" class="excel-input" placeholder="Observações..."></td></tr>
+                    <tr><td>ABRIL</td><td colspan="2"><input type="number" step="0.1" id="notaAbr" class="excel-input" placeholder="0-10"></td><td colspan="5"><input type="text" id="apontAbr" class="excel-input" placeholder="Observações..."></td></tr>
+                    <tr><td>MAIO</td><td colspan="2"><input type="number" step="0.1" id="notaMai" class="excel-input" placeholder="0-10"></td><td colspan="5"><input type="text" id="apontMai" class="excel-input" placeholder="Observações..."></td></tr>
+                    <tr><td>JUNHO</td><td colspan="2"><input type="number" step="0.1" id="notaJun" class="excel-input" placeholder="0-10"></td><td colspan="5"><input type="text" id="apontJun" class="excel-input" placeholder="Observações..."></td></tr>
+                    <tr><td>JULHO</td><td colspan="2"><input type="number" step="0.1" id="notaJul" class="excel-input" placeholder="0-10"></td><td colspan="5"><input type="text" id="apontJul" class="excel-input" placeholder="Observações..."></td></tr>
+                    <tr><td>AGOSTO</td><td colspan="2"><input type="number" step="0.1" id="notaAgo" class="excel-input" placeholder="0-10"></td><td colspan="5"><input type="text" id="apontAgo" class="excel-input" placeholder="Observações..."></td></tr>
+                    <tr><td>SETEMBRO</td><td colspan="2"><input type="number" step="0.1" id="notaSet" class="excel-input" placeholder="0-10"></td><td colspan="5"><input type="text" id="apontSet" class="excel-input" placeholder="Observações..."></td></tr>
+                    <tr><td>OUTUBRO</td><td colspan="2"><input type="number" step="0.1" id="notaOut" class="excel-input" placeholder="0-10"></td><td colspan="5"><input type="text" id="apontOut" class="excel-input" placeholder="Observações..."></td></tr>
+                    <tr><td>NOVEMBRO</td><td colspan="2"><input type="number" step="0.1" id="notaNov" class="excel-input" placeholder="0-10"></td><td colspan="5"><input type="text" id="apontNov" class="excel-input" placeholder="Observações..."></td></tr>
+                    <tr><td>DEZEMBRO</td><td colspan="2"><input type="number" step="0.1" id="notaDez" class="excel-input" placeholder="0-10"></td><td colspan="5"><input type="text" id="apontDez" class="excel-input" placeholder="Observações..."></td></tr>
 
-        <!-- ========== VERSO CHECK LIST ========== -->
-        <div class="section-title" style="margin-top: 2px;">VERSO CHECK LIST - VISITAS RECEBIDAS</div>
-        
-        <div style="overflow-x: auto;">
-            <table class="excel-table">
-                <tr>
-                    <td colspan="13" class="subsection-title">VISITAS RECEBIDAS (PREENCHIDO PELO GESTOR)</td>
-                </tr>
-                <tbody id="visitas">
-                    <!-- As visitas serão inseridas aqui dinamicamente -->
-                </tbody>
-                <tr>
-                    <td colspan="13">
-                        <button onclick="adicionarVisita()" class="btn-excel" style="width: auto; margin: 10px;">+ ADICIONAR NOVA VISITA</button>
-                    </td>
-                </tr>
-            </table>
-        </div>
-        
-        <!-- BARRA DE AÇÕES MELHORADA -->
-        <div class="action-bar">
-            <button onclick="exportarChecklistExcel()" class="btn-excel">
-                <i class="fas fa-file-excel"></i> EXPORTAR EXCEL
-            </button>
-            <button onclick="exportarChecklistPDF()" class="btn-pdf">
-                <i class="fas fa-file-pdf"></i> EXPORTAR PDF
-            </button>
-        </div>
+                    <!-- ANOTAÇÕES GERAIS -->
+                    <tr>
+                        <td colspan="8" class="subsection-title">ANOTAÇÕES GERAIS</td>
+                    </tr>
+                    <tr>
+                        <td colspan="8">
+                            <textarea id="anotacoesGerais" rows="4" class="excel-input" placeholder="Digite aqui as anotações gerais do consultor..."></textarea>
+                        </td>
+                    </tr>
+                </table>
+            </div>
 
-        <!-- BOTÃO SALVAR MELHORADO -->
-        <div class="p-4" style="border-top: 2px solid #000; background: linear-gradient(to right, #f8f9fa, #ffffff);">
-            <button onclick="salvarDados()" class="btn-excel-green">
-                <i class="fas fa-cloud-upload-alt"></i> SALVAR CHECKLIST NO FIREBASE
-            </button>
+            <!-- ========== FRENTE CHECK LIST ========== -->
+            <div class="section-title" style="margin-top: 2px;">CHECK LIST VISITA - FRENTE</div>
+            
+            <div class="overflow-wrapper">
+                <table class="excel-table">
+                    <!-- INFORMAÇÕES DA LOJA -->
+                    <tr>
+                        <td colspan="13" class="subsection-title">INFORMAÇÕES DA LOJA</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"><strong>REVENDA:</strong></td>
+                        <td colspan="3"><input type="text" id="revenda" class="excel-input" placeholder="Nome da revenda"></td>
+                        <td colspan="2"><strong>FILIAL:</strong></td>
+                        <td colspan="3"><input type="text" id="filial" class="excel-input" placeholder="Nº filial"></td>
+                        <td><strong>ID:</strong></td>
+                        <td><input type="text" id="idLoja" class="excel-input" placeholder="ID"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"><strong>ENDEREÇO:</strong></td>
+                        <td colspan="6"><input type="text" id="endereco" class="excel-input" placeholder="Endereço completo"></td>
+                        <td colspan="2"><strong>CIDADE/UF:</strong></td>
+                        <td colspan="3"><input type="text" id="cidadeUf" class="excel-input" placeholder="Cidade/UF"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"><strong>GERENTE:</strong></td>
+                        <td colspan="2"><input type="text" id="gerente" class="excel-input" placeholder="Nome do gerente"></td>
+                        <td colspan="2"><strong>CONTATO:</strong></td>
+                        <td colspan="2"><input type="text" id="contato" class="excel-input" placeholder="Telefone/email"></td>
+                        <td colspan="2"><strong>SUB GERENTE:</strong></td>
+                        <td colspan="3"><input type="text" id="subGerente" class="excel-input" placeholder="Nome sub gerente"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"><strong>CNPJ:</strong></td>
+                        <td colspan="11"><input type="text" id="cnpj" class="excel-input" placeholder="00.000.000/0000-00"></td>
+                    </tr>
+
+                    <!-- FATURAMENTO DA LOJA -->
+                    <tr>
+                        <td colspan="13" class="subsection-title">FATURAMENTO DA LOJA</td>
+                    </tr>
+                    <tr>
+                        <td colspan="4"><strong>FATURAMENTO MENSAL LOJA R$:</strong></td>
+                        <td colspan="3"><input type="number" id="faturamentoLoja" class="excel-input" placeholder="0,00"></td>
+                        <td colspan="3"><strong>FATURAMENTO PANASONIC R$:</strong></td>
+                        <td colspan="3"><input type="number" id="faturamentoPanasonic" class="excel-input" placeholder="0,00"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4"><strong>RANKING NA REDE:</strong></td>
+                        <td colspan="9"><input type="text" id="ranking" class="excel-input" placeholder="Posição no ranking"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4"><strong>JUSTIFICATIVA (se não tiver info):</strong></td>
+                        <td colspan="9"><input type="text" id="justificativa" class="excel-input" placeholder="Por que não tem a informação?"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4"><strong>FLOOR SHARE PANASONIC %:</strong></td>
+                        <td colspan="9"><input type="number" step="0.1" id="floorShare" class="excel-input" placeholder="0.0%"></td>
+                    </tr>
+
+                    <!-- DESTAQUE DE VENDAS -->
+                    <tr>
+                        <td colspan="13" class="subsection-title">DESTAQUE DE VENDAS - LINHA BRANCA</td>
+                    </tr>
+                    <tr>
+                        <th colspan="4">GELADEIRA</th>
+                        <th colspan="4">MÁQUINA DE LAVAR</th>
+                        <th colspan="5">MICRO-ONDAS</th>
+                    </tr>
+                    <tr>
+                        <td><strong>MARCA</strong></td>
+                        <td><strong>MODELO</strong></td>
+                        <td colspan="2"><strong>PREÇO</strong></td>
+                        <td><strong>MARCA</strong></td>
+                        <td><strong>MODELO</strong></td>
+                        <td colspan="2"><strong>PREÇO</strong></td>
+                        <td><strong>MARCA</strong></td>
+                        <td><strong>MODELO</strong></td>
+                        <td colspan="3"><strong>PREÇO</strong></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" id="geladeiraMarca" class="excel-input" placeholder="Marca"></td>
+                        <td><input type="text" id="geladeiraModelo" class="excel-input" placeholder="Modelo"></td>
+                        <td colspan="2"><input type="number" id="geladeiraPreco" class="excel-input" placeholder="R$"></td>
+                        <td><input type="text" id="lavadoraMarca" class="excel-input" placeholder="Marca"></td>
+                        <td><input type="text" id="lavadoraModelo" class="excel-input" placeholder="Modelo"></td>
+                        <td colspan="2"><input type="number" id="lavadoraPreco" class="excel-input" placeholder="R$"></td>
+                        <td><input type="text" id="microondasMarca" class="excel-input" placeholder="Marca"></td>
+                        <td><input type="text" id="microondasModelo" class="excel-input" placeholder="Modelo"></td>
+                        <td colspan="3"><input type="number" id="microondasPreco" class="excel-input" placeholder="R$"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="13"><input type="text" id="outrosDestaques" class="excel-input" placeholder="OUTROS PRODUTOS EM DESTAQUE (opcional)"></td>
+                    </tr>
+
+                    <!-- PANASONIC - CAMPANHAS -->
+                    <tr>
+                        <td colspan="13" style="background-color: #d9e1f2;"><strong>PANASONIC - PROGRAMA E CAMPANHAS</strong></td>
+                    </tr>
+                    <tr>
+                        <td colspan="13">
+                            <div class="checkbox-group">
+                                <span><strong>VENDEDORES/GERENTES CONHECEM O PROGRAMA E AS CAMPANHAS VIGENTES?</strong></span>
+                                <div class="checkbox-item"><input type="radio" name="conhecemPrograma" value="SIM"> SIM</div>
+                                <div class="checkbox-item"><input type="radio" name="conhecemPrograma" value="NAO"> NÃO</div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="13">
+                            <div class="checkbox-group">
+                                <span><strong>TODOS ESTÃO CADASTRADOS?</strong></span>
+                                <div class="checkbox-item"><input type="radio" name="cadastrados" value="SIM"> SIM</div>
+                                <div class="checkbox-item"><input type="radio" name="cadastrados" value="NAO"> NÃO</div>
+                                <span class="ml-4"><strong>ALGUMA PENDÊNCIA?</strong></span>
+                                <div class="checkbox-item"><input type="radio" name="pendencia" value="SIM"> SIM</div>
+                                <div class="checkbox-item"><input type="radio" name="pendencia" value="NAO"> NÃO</div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"><strong>OBS:</strong></td>
+                        <td colspan="11"><input type="text" id="obsCadastro" class="excel-input" placeholder="Observações sobre cadastros..."></td>
+                    </tr>
+
+                    <!-- LANÇAMENTOS -->
+                    <tr>
+                        <td colspan="13" class="subsection-title">LANÇAMENTO - INTRODUÇÃO DE PRODUTO NA LOJA</td>
+                    </tr>
+                    <tr>
+                        <th style="width: 10%;">DATA</th>
+                        <th style="width: 10%;">MARCA</th>
+                        <th colspan="2" style="width: 20%;">PRODUTO</th>
+                        <th colspan="3" style="width: 25%;">MODELO</th>
+                        <th colspan="6" style="width: 35%;">PREÇO</th>
+                    </tr>
+                    <tbody id="lancamentos">
+                        <tr class="lancamento-row">
+                            <td><input type="date" class="excel-input lancamento-data"></td>
+                            <td><input type="text" class="excel-input lancamento-marca" placeholder="Marca"></td>
+                            <td colspan="2"><input type="text" class="excel-input lancamento-produto" placeholder="Produto"></td>
+                            <td colspan="3"><input type="text" class="excel-input lancamento-modelo" placeholder="Modelo"></td>
+                            <td colspan="5"><input type="number" class="excel-input lancamento-preco" placeholder="Preço R$"></td>
+                            <td style="width: 5%;"><button onclick="removerLinha(this)" class="btn-remove">X</button></td>
+                        </tr>
+                    </tbody>
+                    <tr>
+                        <td colspan="13">
+                            <button onclick="adicionarLancamento()" class="btn-excel" style="width: auto; margin: 10px;">+ ADICIONAR NOVO LANÇAMENTO</button>
+                        </td>
+                    </tr>
+
+                    <!-- META DE TREINAMENTO -->
+                    <tr>
+                        <td colspan="13" class="subsection-title">META DE TREINAMENTO ON THE JOB</td>
+                    </tr>
+                    <tr>
+                        <td colspan="4"><strong>META DE TREINAMENTO:</strong></td>
+                        <td colspan="9"><input type="text" id="metaTreinamento" class="excel-input" placeholder="Ex: Treinar todos os vendedores"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4"><strong>META DE PESSOAS TREINADAS:</strong></td>
+                        <td colspan="9"><input type="number" id="metaPessoas" class="excel-input" placeholder="Número de pessoas"></td>
+                    </tr>
+
+                    <!-- MERCHANDISING -->
+                    <tr>
+                        <td colspan="13" class="subsection-title">GUIA DE MERCHANDISING - MPV</td>
+                    </tr>
+                    <tr>
+                        <td colspan="13">
+                            <div class="checkbox-group">
+                                <span><strong>OS MPVs ESTÃO APLICADOS CORRETAMENTE?</strong></span>
+                                <div class="checkbox-item"><input type="radio" name="mpvAplicado" value="SIM"> SIM</div>
+                                <div class="checkbox-item"><input type="radio" name="mpvAplicado" value="NAO"> NÃO</div>
+                                <span><strong>MOTIVO:</strong></span>
+                                <input type="text" id="motivoMpv" class="excel-input" style="width: 300px;" placeholder="Motivo se não aplicado">
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="13">
+                            <div class="checkbox-group">
+                                <span><strong>OS PRODUTOS ESTÃO LIMPOS?</strong></span>
+                                <div class="checkbox-item"><input type="radio" name="produtosLimpos" value="SIM"> SIM</div>
+                                <div class="checkbox-item"><input type="radio" name="produtosLimpos" value="NAO"> NÃO</div>
+                                <span><strong>MOTIVO:</strong></span>
+                                <input type="text" id="motivoLimpeza" class="excel-input" style="width: 300px;" placeholder="Motivo se não limpos">
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- ========== VERSO CHECK LIST ========== -->
+            <div class="section-title" style="margin-top: 2px;">VERSO CHECK LIST - VISITAS RECEBIDAS</div>
+            
+            <div class="overflow-wrapper">
+                <table class="excel-table">
+                    <tr>
+                        <td colspan="13" class="subsection-title">VISITAS RECEBIDAS (PREENCHIDO PELO GESTOR)</td>
+                    </tr>
+                    <tbody id="visitas">
+                        <!-- As visitas serão inseridas aqui dinamicamente -->
+                    </tbody>
+                    <tr>
+                        <td colspan="13">
+                            <button onclick="adicionarVisita()" class="btn-excel" style="width: auto; margin: 10px;">+ ADICIONAR NOVA VISITA</button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            
+            <!-- BARRA DE AÇÕES -->
+            <div class="action-bar">
+                <button onclick="exportarChecklistExcel()" class="btn-excel">
+                    <i class="fas fa-file-excel"></i> EXPORTAR EXCEL
+                </button>
+                <button onclick="exportarChecklistPDF()" class="btn-pdf">
+                    <i class="fas fa-file-pdf"></i> EXPORTAR PDF
+                </button>
+            </div>
+
+            <!-- BOTÃO SALVAR -->
+            <div class="p-4" style="border-top: 2px solid #000; background: linear-gradient(to right, #f8f9fa, #ffffff);">
+                <button onclick="salvarDados()" class="btn-excel-green">
+                    <i class="fas fa-cloud-upload-alt"></i> SALVAR CHECKLIST NO FIREBASE
+                </button>
+            </div>
         </div>
     </div>
 
@@ -699,7 +702,6 @@
             userRef.once('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
-                    // Preencher dados básicos
                     document.getElementById('dataAdmissao').value = data.dataAdmissao || '';
                     document.getElementById('cidade').value = data.cidade || '';
                     document.getElementById('uf').value = data.uf || '';
@@ -709,16 +711,33 @@
                     document.getElementById('dataCertificacao').value = data.dataCertificacao || '';
                     document.getElementById('notaCertificacao').value = data.notaCertificacao || '';
                     
-                    // IDC
                     if (data.idc) {
                         document.getElementById('notaJan').value = data.idc.janeiro?.nota || '';
                         document.getElementById('apontJan').value = data.idc.janeiro?.apontamento || '';
                         document.getElementById('notaFev').value = data.idc.fevereiro?.nota || '';
                         document.getElementById('apontFev').value = data.idc.fevereiro?.apontamento || '';
-                        // ... continuar para todos os meses
+                        document.getElementById('notaMar').value = data.idc.marco?.nota || '';
+                        document.getElementById('apontMar').value = data.idc.marco?.apontamento || '';
+                        document.getElementById('notaAbr').value = data.idc.abril?.nota || '';
+                        document.getElementById('apontAbr').value = data.idc.abril?.apontamento || '';
+                        document.getElementById('notaMai').value = data.idc.maio?.nota || '';
+                        document.getElementById('apontMai').value = data.idc.maio?.apontamento || '';
+                        document.getElementById('notaJun').value = data.idc.junho?.nota || '';
+                        document.getElementById('apontJun').value = data.idc.junho?.apontamento || '';
+                        document.getElementById('notaJul').value = data.idc.julho?.nota || '';
+                        document.getElementById('apontJul').value = data.idc.julho?.apontamento || '';
+                        document.getElementById('notaAgo').value = data.idc.agosto?.nota || '';
+                        document.getElementById('apontAgo').value = data.idc.agosto?.apontamento || '';
+                        document.getElementById('notaSet').value = data.idc.setembro?.nota || '';
+                        document.getElementById('apontSet').value = data.idc.setembro?.apontamento || '';
+                        document.getElementById('notaOut').value = data.idc.outubro?.nota || '';
+                        document.getElementById('apontOut').value = data.idc.outubro?.apontamento || '';
+                        document.getElementById('notaNov').value = data.idc.novembro?.nota || '';
+                        document.getElementById('apontNov').value = data.idc.novembro?.apontamento || '';
+                        document.getElementById('notaDez').value = data.idc.dezembro?.nota || '';
+                        document.getElementById('apontDez').value = data.idc.dezembro?.apontamento || '';
                     }
                     
-                    // Anotações gerais
                     document.getElementById('anotacoesGerais').value = data.anotacoesGerais || '';
                     
                     alert('✅ Dados carregados com sucesso!');
@@ -735,155 +754,15 @@
                 return;
             }
 
-            // Confirmar salvamento
             if (!confirm('Salvar checklist no Firebase?')) return;
 
-            // Coletar todos os dados
-            const dados = {
-                // Metadados
-                metadata: {
-                    dataCriacao: new Date().toISOString(),
-                    ultimaAtualizacao: new Date().toISOString(),
-                    versao: '1.0',
-                    dispositivo: navigator.userAgent
-                },
-                
-                // Informações do consultor
-                consultor: consultor,
-                dataAdmissao: document.getElementById('dataAdmissao').value,
-                cidade: document.getElementById('cidade').value,
-                uf: document.getElementById('uf').value,
-                supervisor: document.getElementById('supervisor').value,
-                coordenador: document.getElementById('coordenador').value,
-                regional: document.getElementById('regional').value,
-                
-                // Certificação
-                dataCertificacao: document.getElementById('dataCertificacao').value,
-                notaCertificacao: document.getElementById('notaCertificacao').value,
-                
-                // IDC
-                idc: {
-                    janeiro: { nota: document.getElementById('notaJan')?.value, apontamento: document.getElementById('apontJan')?.value },
-                    fevereiro: { nota: document.getElementById('notaFev')?.value, apontamento: document.getElementById('apontFev')?.value },
-                    marco: { nota: document.getElementById('notaMar')?.value, apontamento: document.getElementById('apontMar')?.value },
-                    abril: { nota: document.getElementById('notaAbr')?.value, apontamento: document.getElementById('apontAbr')?.value },
-                    maio: { nota: document.getElementById('notaMai')?.value, apontamento: document.getElementById('apontMai')?.value },
-                    junho: { nota: document.getElementById('notaJun')?.value, apontamento: document.getElementById('apontJun')?.value },
-                    julho: { nota: document.getElementById('notaJul')?.value, apontamento: document.getElementById('apontJul')?.value },
-                    agosto: { nota: document.getElementById('notaAgo')?.value, apontamento: document.getElementById('apontAgo')?.value },
-                    setembro: { nota: document.getElementById('notaSet')?.value, apontamento: document.getElementById('apontSet')?.value },
-                    outubro: { nota: document.getElementById('notaOut')?.value, apontamento: document.getElementById('apontOut')?.value },
-                    novembro: { nota: document.getElementById('notaNov')?.value, apontamento: document.getElementById('apontNov')?.value },
-                    dezembro: { nota: document.getElementById('notaDez')?.value, apontamento: document.getElementById('apontDez')?.value }
-                },
-                
-                // Anotações gerais
-                anotacoesGerais: document.getElementById('anotacoesGerais').value,
-                
-                // Dados da loja
-                loja: {
-                    revenda: document.getElementById('revenda').value,
-                    filial: document.getElementById('filial').value,
-                    id: document.getElementById('idLoja').value,
-                    endereco: document.getElementById('endereco').value,
-                    cidadeUf: document.getElementById('cidadeUf').value,
-                    gerente: document.getElementById('gerente').value,
-                    contato: document.getElementById('contato').value,
-                    subGerente: document.getElementById('subGerente').value,
-                    cnpj: document.getElementById('cnpj').value,
-                    faturamentoLoja: document.getElementById('faturamentoLoja').value,
-                    faturamentoPanasonic: document.getElementById('faturamentoPanasonic').value,
-                    ranking: document.getElementById('ranking').value,
-                    justificativa: document.getElementById('justificativa').value,
-                    floorShare: document.getElementById('floorShare').value
-                },
-                
-                // Destaque de vendas
-                destaques: {
-                    geladeira: {
-                        marca: document.getElementById('geladeiraMarca').value,
-                        modelo: document.getElementById('geladeiraModelo').value,
-                        preco: document.getElementById('geladeiraPreco').value
-                    },
-                    lavadora: {
-                        marca: document.getElementById('lavadoraMarca').value,
-                        modelo: document.getElementById('lavadoraModelo').value,
-                        preco: document.getElementById('lavadoraPreco').value
-                    },
-                    microondas: {
-                        marca: document.getElementById('microondasMarca').value,
-                        modelo: document.getElementById('microondasModelo').value,
-                        preco: document.getElementById('microondasPreco').value
-                    },
-                    outros: document.getElementById('outrosDestaques')?.value || ''
-                },
-                
-                // Programas e campanhas
-                programas: {
-                    conhecemPrograma: document.querySelector('input[name="conhecemPrograma"]:checked')?.value || '',
-                    cadastrados: document.querySelector('input[name="cadastrados"]:checked')?.value || '',
-                    pendencia: document.querySelector('input[name="pendencia"]:checked')?.value || '',
-                    obsCadastro: document.getElementById('obsCadastro').value
-                },
-                
-                // Metas
-                metas: {
-                    metaTreinamento: document.getElementById('metaTreinamento').value,
-                    metaPessoas: document.getElementById('metaPessoas').value
-                },
-                
-                // Merchandising
-                merchandising: {
-                    mpvAplicado: document.querySelector('input[name="mpvAplicado"]:checked')?.value || '',
-                    motivoMpv: document.getElementById('motivoMpv').value,
-                    produtosLimpos: document.querySelector('input[name="produtosLimpos"]:checked')?.value || '',
-                    motivoLimpeza: document.getElementById('motivoLimpeza').value
-                },
-                
-                // Lançamentos
-                lancamentos: [],
-                // Visitas
-                visitas: []
-            };
+            const dados = coletarDadosAtuais();
 
-            // Coletar lançamentos
-            document.querySelectorAll('.lancamento-row').forEach((row) => {
-                const data = row.querySelector('.lancamento-data')?.value;
-                if (data) {
-                    dados.lancamentos.push({
-                        data: data,
-                        marca: row.querySelector('.lancamento-marca')?.value || '',
-                        produto: row.querySelector('.lancamento-produto')?.value || '',
-                        modelo: row.querySelector('.lancamento-modelo')?.value || '',
-                        preco: row.querySelector('.lancamento-preco')?.value || ''
-                    });
-                }
-            });
-
-            // Coletar visitas
-            document.querySelectorAll('.visita-row').forEach((row) => {
-                const data = row.querySelector('.visita-data')?.value;
-                if (data) {
-                    dados.visitas.push({
-                        data: data,
-                        nome: row.querySelector('.visita-nome')?.value || '',
-                        visto: row.querySelector('.visita-visto')?.value || '',
-                        ferramenta: row.querySelector('.visita-ferramenta')?.value || '',
-                        dominio: row.querySelector('.visita-dominio')?.value || '',
-                        uniforme: row.querySelector('.visita-uniforme')?.value || '',
-                        pdv: row.querySelector('.visita-pdv')?.value || '',
-                        observacao: row.querySelector('.visita-obs')?.value || ''
-                    });
-                }
-            });
-
-            // Mostrar loading
             const btn = event.target;
             const textoOriginal = btn.innerHTML;
             btn.innerHTML = '<span class="loading"></span> SALVANDO...';
             btn.disabled = true;
 
-            // Salvar no Firebase
             const userRef = database.ref('consultores/' + consultor.replace(/\s+/g, '_').toUpperCase());
             userRef.set(dados, (error) => {
                 btn.innerHTML = textoOriginal;
@@ -905,16 +784,13 @@
                 return;
             }
 
-            // Mostrar loading no botão
             const btn = event.target.closest('button');
             const textoOriginal = btn.innerHTML;
-            btn.innerHTML = '<span class="loading"></span> GERANDO...';
+            btn.innerHTML = '<span class="loading"></span> GERANDO EXCEL...';
             btn.disabled = true;
 
-            // Coletar dados atuais
             const dados = coletarDadosAtuais();
             
-            // Criar workbook
             const wb = XLSX.utils.book_new();
             const planilha = [];
             
@@ -939,10 +815,12 @@
             planilha.push(['MÊS', 'NOTA', 'APONTAMENTOS / OBSERVAÇÕES', '', '', '', '', '', '', '', '', '', '']);
             
             const meses = ['JANEIRO','FEVEREIRO','MARÇO','ABRIL','MAIO','JUNHO','JULHO','AGOSTO','SETEMBRO','OUTUBRO','NOVEMBRO','DEZEMBRO'];
-            meses.forEach((mes, index) => {
-                const campo = ['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'][index];
-                planilha.push([mes, dados.idc[campo]?.nota || '', dados.idc[campo]?.apontamento || '', '', '', '', '', '', '', '', '', '', '']);
-            });
+            const campos = ['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+            
+            for (let i = 0; i < meses.length; i++) {
+                const dadosMes = dados.idc[campos[i]] || { nota: '', apontamento: '' };
+                planilha.push([meses[i], dadosMes.nota || '', dadosMes.apontamento || '', '', '', '', '', '', '', '', '', '', '']);
+            }
             
             planilha.push([]);
             planilha.push(['ANOTAÇÕES GERAIS', '', '', '', '', '', '', '', '', '', '', '', '']);
@@ -970,20 +848,25 @@
                 planilha.push(['DESTAQUE DE VENDAS - LINHA BRANCA', '', '', '', '', '', '', '', '', '', '', '', '']);
                 planilha.push(['GELADEIRA', '', '', 'MÁQUINA DE LAVAR', '', '', 'MICRO-ONDAS', '', '', '', '', '', '']);
                 planilha.push([
-                    dados.destaques.geladeira.marca, dados.destaques.geladeira.modelo, `R$ ${dados.destaques.geladeira.preco}`,
-                    dados.destaques.lavadora.marca, dados.destaques.lavadora.modelo, `R$ ${dados.destaques.lavadora.preco}`,
-                    dados.destaques.microondas.marca, dados.destaques.microondas.modelo, `R$ ${dados.destaques.microondas.preco}`,
+                    dados.destaques.geladeira.marca, dados.destaques.geladeira.modelo, 'R$ ' + dados.destaques.geladeira.preco,
+                    dados.destaques.lavadora.marca, dados.destaques.lavadora.modelo, 'R$ ' + dados.destaques.lavadora.preco,
+                    dados.destaques.microondas.marca, dados.destaques.microondas.modelo, 'R$ ' + dados.destaques.microondas.preco,
                     '', '', '', ''
                 ]);
-                planilha.push(['OUTROS DESTAQUES:', dados.destaques.outros, '', '', '', '', '', '', '', '', '', '', '']);
+                planilha.push(['OUTROS DESTAQUES: ' + dados.destaques.outros, '', '', '', '', '', '', '', '', '', '', '', '']);
                 planilha.push([]);
             }
             
             // PROGRAMAS
             if (dados.programas) {
                 planilha.push(['PANASONIC - PROGRAMA E CAMPANHAS', '', '', '', '', '', '', '', '', '', '', '', '']);
-                planilha.push([`Conhecem Programa: ${dados.programas.conhecemPrograma}`, `Cadastrados: ${dados.programas.cadastrados}`, `Pendência: ${dados.programas.pendencia}`, '', '', '', '', '', '', '', '', '', '']);
-                planilha.push([`OBS: ${dados.programas.obsCadastro}`, '', '', '', '', '', '', '', '', '', '', '', '']);
+                planilha.push([
+                    'Conhecem Programa: ' + dados.programas.conhecemPrograma,
+                    'Cadastrados: ' + dados.programas.cadastrados,
+                    'Pendência: ' + dados.programas.pendencia,
+                    '', '', '', '', '', '', '', '', '', ''
+                ]);
+                planilha.push(['OBS: ' + dados.programas.obsCadastro, '', '', '', '', '', '', '', '', '', '', '', '']);
                 planilha.push([]);
             }
             
@@ -992,7 +875,7 @@
                 planilha.push(['LANÇAMENTO - INTRODUÇÃO DE PRODUTO NA LOJA', '', '', '', '', '', '', '', '', '', '', '', '']);
                 planilha.push(['DATA', 'MARCA', 'PRODUTO', 'MODELO', 'PREÇO', '', '', '', '', '', '', '', '']);
                 dados.lancamentos.forEach(l => {
-                    planilha.push([l.data, l.marca, l.produto, l.modelo, `R$ ${l.preco}`, '', '', '', '', '', '', '', '']);
+                    planilha.push([l.data, l.marca, l.produto, l.modelo, 'R$ ' + l.preco, '', '', '', '', '', '', '', '']);
                 });
                 planilha.push([]);
             }
@@ -1000,15 +883,15 @@
             // METAS
             if (dados.metas) {
                 planilha.push(['META DE TREINAMENTO ON THE JOB', '', '', '', '', '', '', '', '', '', '', '', '']);
-                planilha.push([`Meta: ${dados.metas.metaTreinamento}`, `Pessoas: ${dados.metas.metaPessoas}`, '', '', '', '', '', '', '', '', '', '', '']);
+                planilha.push(['Meta: ' + dados.metas.metaTreinamento, 'Pessoas: ' + dados.metas.metaPessoas, '', '', '', '', '', '', '', '', '', '', '']);
                 planilha.push([]);
             }
             
             // MERCHANDISING
             if (dados.merchandising) {
                 planilha.push(['GUIA DE MERCHANDISING - MPV', '', '', '', '', '', '', '', '', '', '', '', '']);
-                planilha.push([`MPV Aplicado: ${dados.merchandising.mpvAplicado}`, `Motivo: ${dados.merchandising.motivoMpv}`, '', '', '', '', '', '', '', '', '', '', '']);
-                planilha.push([`Produtos Limpos: ${dados.merchandising.produtosLimpos}`, `Motivo: ${dados.merchandising.motivoLimpeza}`, '', '', '', '', '', '', '', '', '', '', '']);
+                planilha.push(['MPV Aplicado: ' + dados.merchandising.mpvAplicado, 'Motivo: ' + dados.merchandising.motivoMpv, '', '', '', '', '', '', '', '', '', '', '']);
+                planilha.push(['Produtos Limpos: ' + dados.merchandising.produtosLimpos, 'Motivo: ' + dados.merchandising.motivoLimpeza, '', '', '', '', '', '', '', '', '', '', '']);
                 planilha.push([]);
             }
             
@@ -1022,17 +905,67 @@
             }
             
             const ws = XLSX.utils.aoa_to_sheet(planilha);
+            
+            // APLICAR ESTILOS
+            const range = XLSX.utils.decode_range(ws['!ref']);
+            for (let R = range.s.r; R <= range.e.r; R++) {
+                for (let C = range.s.c; C <= range.e.c; C++) {
+                    const cellRef = XLSX.utils.encode_cell({r: R, c: C});
+                    if (!ws[cellRef]) continue;
+                    
+                    ws[cellRef].s = {
+                        border: {
+                            top: {style: 'thin', color: {rgb: '000000'}},
+                            bottom: {style: 'thin', color: {rgb: '000000'}},
+                            left: {style: 'thin', color: {rgb: '000000'}},
+                            right: {style: 'thin', color: {rgb: '000000'}}
+                        },
+                        font: { name: 'Arial', sz: 10 },
+                        alignment: { vertical: 'center', wrapText: true }
+                    };
+                    
+                    if (R === 0) {
+                        ws[cellRef].s.fill = { fgColor: { rgb: '1e3c72' } };
+                        ws[cellRef].s.font = { color: { rgb: 'FFFFFF' }, bold: true, sz: 14 };
+                        ws[cellRef].s.alignment = { horizontal: 'center' };
+                    }
+                    
+                    if (planilha[R] && planilha[R][0] && 
+                        (planilha[R][0].includes('INFORMAÇÕES') || 
+                         planilha[R][0].includes('CERTIFICAÇÃO') ||
+                         planilha[R][0].includes('IDC') ||
+                         planilha[R][0].includes('ANOTAÇÕES') ||
+                         planilha[R][0].includes('FRENTE') ||
+                         planilha[R][0].includes('LOJA') ||
+                         planilha[R][0].includes('FATURAMENTO') ||
+                         planilha[R][0].includes('DESTAQUE') ||
+                         planilha[R][0].includes('PROGRAMA') ||
+                         planilha[R][0].includes('LANÇAMENTO') ||
+                         planilha[R][0].includes('META') ||
+                         planilha[R][0].includes('GUIA') ||
+                         planilha[R][0].includes('VERSO'))) {
+                        ws[cellRef].s.fill = { fgColor: { rgb: '4472c4' } };
+                        ws[cellRef].s.font = { color: { rgb: 'FFFFFF' }, bold: true, sz: 12 };
+                    }
+                }
+            }
+            
+            ws['!cols'] = [
+                { wch: 20 }, { wch: 20 }, { wch: 20 }, { wch: 20 },
+                { wch: 20 }, { wch: 20 }, { wch: 20 }, { wch: 20 },
+                { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 15 }
+            ];
+            
             XLSX.utils.book_append_sheet(wb, ws, "CHECKLIST");
             
             const nomeArquivo = `Checklist_${dados.consultor.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`;
             XLSX.writeFile(wb, nomeArquivo);
             
-            // Restaurar botão
             btn.innerHTML = textoOriginal;
             btn.disabled = false;
         }
 
-        // FUNÇÃO PARA EXPORTAR PDF (VERSÃO CORRIGIDA)
+        // FUNÇÃO PARA EXPORTAR PDF
         function exportarChecklistPDF() {
             const consultor = document.getElementById('consultor').value.trim();
             if (!consultor) {
@@ -1040,40 +973,28 @@
                 return;
             }
             
-            // Mostrar loading
             const btn = event.target.closest('button');
             const textoOriginal = btn.innerHTML;
             btn.innerHTML = '<span class="loading"></span> GERANDO PDF...';
             btn.disabled = true;
             
-            // Clonar o container do checklist
-            const container = document.querySelector('.excel-container');
-            const clone = container.cloneNode(true);
+            const dados = coletarDadosAtuais();
             
-            // Remover botões do clone
-            const botoesClone = clone.querySelectorAll('button');
-            botoesClone.forEach(btn => btn.remove());
+            // Criar HTML do checklist com os dados preenchidos
+            const htmlChecklist = gerarHTMLChecklistCompleto(dados);
             
-            // Configurar para impressão
-            clone.style.width = '1600px';
-            clone.style.margin = '0 auto';
-            clone.style.padding = '20px';
-            clone.style.backgroundColor = 'white';
-            clone.style.boxShadow = 'none';
-            
-            // Criar elemento temporário
             const tempDiv = document.createElement('div');
             tempDiv.style.position = 'absolute';
             tempDiv.style.left = '-9999px';
             tempDiv.style.top = '0';
             tempDiv.style.width = '1600px';
             tempDiv.style.backgroundColor = '#ffffff';
-            tempDiv.appendChild(clone);
+            tempDiv.style.padding = '20px';
+            tempDiv.innerHTML = htmlChecklist;
             document.body.appendChild(tempDiv);
             
-            // Aguardar renderização
             setTimeout(() => {
-                html2canvas(clone, {
+                html2canvas(tempDiv, {
                     scale: 2,
                     backgroundColor: '#ffffff',
                     logging: false,
@@ -1083,7 +1004,6 @@
                 }).then((canvas) => {
                     const imgData = canvas.toDataURL('image/png');
                     
-                    // Criar PDF em paisagem
                     const pdf = new jspdf.jsPDF({
                         orientation: 'landscape',
                         unit: 'mm',
@@ -1091,21 +1011,14 @@
                     });
                     
                     const pdfWidth = pdf.internal.pageSize.getWidth();
-                    const pdfHeight = pdf.internal.pageSize.getHeight();
-                    const imgWidth = canvas.width;
-                    const imgHeight = canvas.height;
+                    const ratio = pdfWidth / canvas.width;
+                    const height = canvas.height * ratio;
                     
-                    // Calcular proporção para preencher a largura
-                    const ratio = pdfWidth / imgWidth;
-                    const width = pdfWidth;
-                    const height = imgHeight * ratio;
-                    
-                    pdf.addImage(imgData, 'PNG', 0, 0, width, height);
-                    pdf.save(`Checklist_${consultor.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`);
+                    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, height);
+                    pdf.save(`Checklist_${dados.consultor.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`);
                     
                     document.body.removeChild(tempDiv);
                     
-                    // Restaurar botão
                     btn.innerHTML = textoOriginal;
                     btn.disabled = false;
                 }).catch(error => {
@@ -1120,7 +1033,7 @@
 
         // FUNÇÃO AUXILIAR PARA COLETAR DADOS
         function coletarDadosAtuais() {
-            return {
+            const dados = {
                 consultor: document.getElementById('consultor').value,
                 regional: document.getElementById('regional').value,
                 dataAdmissao: document.getElementById('dataAdmissao').value,
@@ -1130,20 +1043,7 @@
                 coordenador: document.getElementById('coordenador').value,
                 dataCertificacao: document.getElementById('dataCertificacao').value,
                 notaCertificacao: document.getElementById('notaCertificacao').value,
-                idc: {
-                    janeiro: { nota: document.getElementById('notaJan')?.value, apontamento: document.getElementById('apontJan')?.value },
-                    fevereiro: { nota: document.getElementById('notaFev')?.value, apontamento: document.getElementById('apontFev')?.value },
-                    marco: { nota: document.getElementById('notaMar')?.value, apontamento: document.getElementById('apontMar')?.value },
-                    abril: { nota: document.getElementById('notaAbr')?.value, apontamento: document.getElementById('apontAbr')?.value },
-                    maio: { nota: document.getElementById('notaMai')?.value, apontamento: document.getElementById('apontMai')?.value },
-                    junho: { nota: document.getElementById('notaJun')?.value, apontamento: document.getElementById('apontJun')?.value },
-                    julho: { nota: document.getElementById('notaJul')?.value, apontamento: document.getElementById('apontJul')?.value },
-                    agosto: { nota: document.getElementById('notaAgo')?.value, apontamento: document.getElementById('apontAgo')?.value },
-                    setembro: { nota: document.getElementById('notaSet')?.value, apontamento: document.getElementById('apontSet')?.value },
-                    outubro: { nota: document.getElementById('notaOut')?.value, apontamento: document.getElementById('apontOut')?.value },
-                    novembro: { nota: document.getElementById('notaNov')?.value, apontamento: document.getElementById('apontNov')?.value },
-                    dezembro: { nota: document.getElementById('notaDez')?.value, apontamento: document.getElementById('apontDez')?.value }
-                },
+                idc: {},
                 anotacoesGerais: document.getElementById('anotacoesGerais').value,
                 loja: {
                     revenda: document.getElementById('revenda').value,
@@ -1198,6 +1098,163 @@
                 lancamentos: [],
                 visitas: []
             };
+
+            // IDC
+            const meses = ['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+            meses.forEach(mes => {
+                dados.idc[mes] = {
+                    nota: document.getElementById(`nota${mes.charAt(0).toUpperCase() + mes.slice(1)}`)?.value || '',
+                    apontamento: document.getElementById(`apont${mes.charAt(0).toUpperCase() + mes.slice(1)}`)?.value || ''
+                };
+            });
+
+            // Lançamentos
+            document.querySelectorAll('.lancamento-row').forEach((row) => {
+                const data = row.querySelector('.lancamento-data')?.value;
+                if (data) {
+                    dados.lancamentos.push({
+                        data: data,
+                        marca: row.querySelector('.lancamento-marca')?.value || '',
+                        produto: row.querySelector('.lancamento-produto')?.value || '',
+                        modelo: row.querySelector('.lancamento-modelo')?.value || '',
+                        preco: row.querySelector('.lancamento-preco')?.value || ''
+                    });
+                }
+            });
+
+            // Visitas
+            document.querySelectorAll('.visita-row').forEach((row) => {
+                const data = row.querySelector('.visita-data')?.value;
+                if (data) {
+                    dados.visitas.push({
+                        data: data,
+                        nome: row.querySelector('.visita-nome')?.value || '',
+                        visto: row.querySelector('.visita-visto')?.value || '',
+                        ferramenta: row.querySelector('.visita-ferramenta')?.value || '',
+                        dominio: row.querySelector('.visita-dominio')?.value || '',
+                        uniforme: row.querySelector('.visita-uniforme')?.value || '',
+                        pdv: row.querySelector('.visita-pdv')?.value || '',
+                        observacao: row.querySelector('.visita-obs')?.value || ''
+                    });
+                }
+            });
+
+            return dados;
+        }
+
+        // FUNÇÃO PARA GERAR HTML DO CHECKLIST COMPLETO
+        function gerarHTMLChecklistCompleto(dados) {
+            const meses = ['JANEIRO','FEVEREIRO','MARÇO','ABRIL','MAIO','JUNHO','JULHO','AGOSTO','SETEMBRO','OUTUBRO','NOVEMBRO','DEZEMBRO'];
+            const campos = ['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+            
+            let linhasIDC = '';
+            for (let i = 0; i < meses.length; i++) {
+                const dadosMes = dados.idc[campos[i]] || { nota: '', apontamento: '' };
+                linhasIDC += `<tr><td>${meses[i]}</td><td colspan="2">${dadosMes.nota || ''}</td><td colspan="5">${dadosMes.apontamento || ''}</td></tr>`;
+            }
+            
+            let lancamentosHTML = '';
+            dados.lancamentos.forEach(l => {
+                lancamentosHTML += `<tr><td>${l.data}</td><td>${l.marca}</td><td colspan="2">${l.produto}</td><td colspan="3">${l.modelo}</td><td colspan="6">R$ ${l.preco}</td></tr>`;
+            });
+            
+            let visitasHTML = '';
+            dados.visitas.forEach(v => {
+                visitasHTML += `<tr><td>${v.data}</td><td>${v.nome}</td><td>${v.visto}</td><td>${v.ferramenta}</td><td>${v.dominio}</td><td>${v.uniforme}</td><td>${v.pdv}</td><td colspan="6">${v.observacao}</td></tr>`;
+            });
+            
+            return `
+                <div style="background: white; border: 2px solid #000; width: 1400px; font-family: 'Inter', sans-serif;">
+                    <div style="background-color: #1e3c72; color: white; padding: 12px; font-weight: bold; font-size: 16px; text-align: center; border-bottom: 1px solid #000;">CHECK LIST - 2026 | PANASONIC</div>
+                    
+                    <table style="border-collapse: collapse; width: 100%;">
+                        <!-- INFORMAÇÕES CONSULTOR -->
+                        <tr><td colspan="8" style="background-color: #4472c4; color: white; padding: 8px; font-weight: 600; border: 1px solid #000;">INFORMAÇÕES DO CONSULTOR</td></tr>
+                        <tr><td colspan="2" style="border: 1px solid #000; padding: 8px;"><strong>CONSULTOR(A):</strong></td><td colspan="3" style="border: 1px solid #000; padding: 8px;">${dados.consultor}</td><td style="border: 1px solid #000; padding: 8px;"><strong>REGIONAL:</strong></td><td colspan="2" style="border: 1px solid #000; padding: 8px;">${dados.regional}</td></tr>
+                        <tr><td colspan="2" style="border: 1px solid #000; padding: 8px;"><strong>DATA DE ADMISSÃO:</strong></td><td colspan="3" style="border: 1px solid #000; padding: 8px;">${dados.dataAdmissao}</td><td colspan="3" style="border: 1px solid #000; padding: 8px;"></td></tr>
+                        <tr><td colspan="2" style="border: 1px solid #000; padding: 8px;"><strong>CIDADE:</strong></td><td colspan="3" style="border: 1px solid #000; padding: 8px;">${dados.cidade}</td><td style="border: 1px solid #000; padding: 8px;"><strong>UF:</strong></td><td colspan="2" style="border: 1px solid #000; padding: 8px;">${dados.uf}</td></tr>
+                        <tr><td colspan="2" style="border: 1px solid #000; padding: 8px;"><strong>SUPERVISOR(A):</strong></td><td colspan="6" style="border: 1px solid #000; padding: 8px;">${dados.supervisor}</td></tr>
+                        <tr><td colspan="2" style="border: 1px solid #000; padding: 8px;"><strong>COORDENADOR(A):</strong></td><td colspan="6" style="border: 1px solid #000; padding: 8px;">${dados.coordenador}</td></tr>
+
+                        <!-- CERTIFICAÇÃO -->
+                        <tr><td colspan="8" style="background-color: #4472c4; color: white; padding: 8px; font-weight: 600; border: 1px solid #000;">CERTIFICAÇÃO</td></tr>
+                        <tr><td colspan="4" style="border: 1px solid #000; padding: 8px;"><strong>DATA DA ÚLTIMA CERTIFICAÇÃO:</strong></td><td colspan="4" style="border: 1px solid #000; padding: 8px;">${dados.dataCertificacao}</td></tr>
+                        <tr><td colspan="4" style="border: 1px solid #000; padding: 8px;"><strong>NOTA DA CERTIFICAÇÃO:</strong></td><td colspan="4" style="border: 1px solid #000; padding: 8px;">${dados.notaCertificacao}</td></tr>
+
+                        <!-- IDC -->
+                        <tr><td colspan="8" style="background-color: #4472c4; color: white; padding: 8px; font-weight: 600; border: 1px solid #000;">IDC - ÍNDICE DE DESEMPENHO DO CONSULTOR</td></tr>
+                        <tr><th style="border: 1px solid #000; padding: 8px; background-color: #1e3c72; color: white;">MÊS</th><th colspan="2" style="border: 1px solid #000; padding: 8px; background-color: #1e3c72; color: white;">NOTA</th><th colspan="5" style="border: 1px solid #000; padding: 8px; background-color: #1e3c72; color: white;">APONTAMENTOS / OBSERVAÇÕES</th></tr>
+                        ${linhasIDC}
+
+                        <!-- ANOTAÇÕES GERAIS -->
+                        <tr><td colspan="8" style="background-color: #4472c4; color: white; padding: 8px; font-weight: 600; border: 1px solid #000;">ANOTAÇÕES GERAIS</td></tr>
+                        <tr><td colspan="8" style="border: 1px solid #000; padding: 8px;">${dados.anotacoesGerais}</td></tr>
+                    </table>
+
+                    <div style="background-color: #1e3c72; color: white; padding: 10px; font-weight: bold; font-size: 14px; text-align: center; border: 2px solid #000; margin-top: 2px;">CHECK LIST VISITA - FRENTE</div>
+                    
+                    <table style="border-collapse: collapse; width: 100%;">
+                        <!-- INFORMAÇÕES DA LOJA -->
+                        <tr><td colspan="13" style="background-color: #4472c4; color: white; padding: 8px; font-weight: 600; border: 1px solid #000;">INFORMAÇÕES DA LOJA</td></tr>
+                        <tr><td colspan="2" style="border: 1px solid #000; padding: 8px;"><strong>REVENDA:</strong></td><td colspan="3" style="border: 1px solid #000; padding: 8px;">${dados.loja.revenda}</td><td colspan="2" style="border: 1px solid #000; padding: 8px;"><strong>FILIAL:</strong></td><td colspan="3" style="border: 1px solid #000; padding: 8px;">${dados.loja.filial}</td><td style="border: 1px solid #000; padding: 8px;"><strong>ID:</strong></td><td style="border: 1px solid #000; padding: 8px;">${dados.loja.id}</td></tr>
+                        <tr><td colspan="2" style="border: 1px solid #000; padding: 8px;"><strong>ENDEREÇO:</strong></td><td colspan="6" style="border: 1px solid #000; padding: 8px;">${dados.loja.endereco}</td><td colspan="2" style="border: 1px solid #000; padding: 8px;"><strong>CIDADE/UF:</strong></td><td colspan="3" style="border: 1px solid #000; padding: 8px;">${dados.loja.cidadeUf}</td></tr>
+                        <tr><td colspan="2" style="border: 1px solid #000; padding: 8px;"><strong>GERENTE:</strong></td><td colspan="2" style="border: 1px solid #000; padding: 8px;">${dados.loja.gerente}</td><td colspan="2" style="border: 1px solid #000; padding: 8px;"><strong>CONTATO:</strong></td><td colspan="2" style="border: 1px solid #000; padding: 8px;">${dados.loja.contato}</td><td colspan="2" style="border: 1px solid #000; padding: 8px;"><strong>SUB GERENTE:</strong></td><td colspan="3" style="border: 1px solid #000; padding: 8px;">${dados.loja.subGerente}</td></tr>
+                        <tr><td colspan="2" style="border: 1px solid #000; padding: 8px;"><strong>CNPJ:</strong></td><td colspan="11" style="border: 1px solid #000; padding: 8px;">${dados.loja.cnpj}</td></tr>
+
+                        <!-- FATURAMENTO DA LOJA -->
+                        <tr><td colspan="13" style="background-color: #4472c4; color: white; padding: 8px; font-weight: 600; border: 1px solid #000;">FATURAMENTO DA LOJA</td></tr>
+                        <tr><td colspan="4" style="border: 1px solid #000; padding: 8px;"><strong>FATURAMENTO MENSAL LOJA R$:</strong></td><td colspan="3" style="border: 1px solid #000; padding: 8px;">${dados.loja.faturamentoLoja}</td><td colspan="3" style="border: 1px solid #000; padding: 8px;"><strong>FATURAMENTO PANASONIC R$:</strong></td><td colspan="3" style="border: 1px solid #000; padding: 8px;">${dados.loja.faturamentoPanasonic}</td></tr>
+                        <tr><td colspan="4" style="border: 1px solid #000; padding: 8px;"><strong>RANKING NA REDE:</strong></td><td colspan="9" style="border: 1px solid #000; padding: 8px;">${dados.loja.ranking}</td></tr>
+                        <tr><td colspan="4" style="border: 1px solid #000; padding: 8px;"><strong>JUSTIFICATIVA:</strong></td><td colspan="9" style="border: 1px solid #000; padding: 8px;">${dados.loja.justificativa}</td></tr>
+                        <tr><td colspan="4" style="border: 1px solid #000; padding: 8px;"><strong>FLOOR SHARE PANASONIC %:</strong></td><td colspan="9" style="border: 1px solid #000; padding: 8px;">${dados.loja.floorShare}</td></tr>
+
+                        <!-- DESTAQUE DE VENDAS -->
+                        <tr><td colspan="13" style="background-color: #4472c4; color: white; padding: 8px; font-weight: 600; border: 1px solid #000;">DESTAQUE DE VENDAS - LINHA BRANCA</td></tr>
+                        <tr><th colspan="4" style="border: 1px solid #000; padding: 8px; background-color: #1e3c72; color: white;">GELADEIRA</th><th colspan="4" style="border: 1px solid #000; padding: 8px; background-color: #1e3c72; color: white;">MÁQUINA DE LAVAR</th><th colspan="5" style="border: 1px solid #000; padding: 8px; background-color: #1e3c72; color: white;">MICRO-ONDAS</th></tr>
+                        <tr><td style="border: 1px solid #000; padding: 8px;"><strong>MARCA</strong></td><td style="border: 1px solid #000; padding: 8px;"><strong>MODELO</strong></td><td colspan="2" style="border: 1px solid #000; padding: 8px;"><strong>PREÇO</strong></td><td style="border: 1px solid #000; padding: 8px;"><strong>MARCA</strong></td><td style="border: 1px solid #000; padding: 8px;"><strong>MODELO</strong></td><td colspan="2" style="border: 1px solid #000; padding: 8px;"><strong>PREÇO</strong></td><td style="border: 1px solid #000; padding: 8px;"><strong>MARCA</strong></td><td style="border: 1px solid #000; padding: 8px;"><strong>MODELO</strong></td><td colspan="3" style="border: 1px solid #000; padding: 8px;"><strong>PREÇO</strong></td></tr>
+                        <tr><td style="border: 1px solid #000; padding: 8px;">${dados.destaques.geladeira.marca}</td><td style="border: 1px solid #000; padding: 8px;">${dados.destaques.geladeira.modelo}</td><td colspan="2" style="border: 1px solid #000; padding: 8px;">R$ ${dados.destaques.geladeira.preco}</td><td style="border: 1px solid #000; padding: 8px;">${dados.destaques.lavadora.marca}</td><td style="border: 1px solid #000; padding: 8px;">${dados.destaques.lavadora.modelo}</td><td colspan="2" style="border: 1px solid #000; padding: 8px;">R$ ${dados.destaques.lavadora.preco}</td><td style="border: 1px solid #000; padding: 8px;">${dados.destaques.microondas.marca}</td><td style="border: 1px solid #000; padding: 8px;">${dados.destaques.microondas.modelo}</td><td colspan="3" style="border: 1px solid #000; padding: 8px;">R$ ${dados.destaques.microondas.preco}</td></tr>
+                        <tr><td colspan="13" style="border: 1px solid #000; padding: 8px;">OUTROS DESTAQUES: ${dados.destaques.outros}</td></tr>
+
+                        <!-- PROGRAMAS E CAMPANHAS -->
+                        <tr><td colspan="13" style="background-color: #d9e1f2; padding: 8px; font-weight: 600; border: 1px solid #000;"><strong>PANASONIC - PROGRAMA E CAMPANHAS</strong></td></tr>
+                        <tr><td colspan="13" style="border: 1px solid #000; padding: 8px;">
+                            <div style="display: flex; gap: 30px;">
+                                <span><strong>Conhecem Programa:</strong> ${dados.programas.conhecemPrograma}</span>
+                                <span><strong>Cadastrados:</strong> ${dados.programas.cadastrados}</span>
+                                <span><strong>Pendência:</strong> ${dados.programas.pendencia}</span>
+                            </div>
+                        </td></tr>
+                        <tr><td colspan="2" style="border: 1px solid #000; padding: 8px;"><strong>OBS:</strong></td><td colspan="11" style="border: 1px solid #000; padding: 8px;">${dados.programas.obsCadastro}</td></tr>
+
+                        <!-- LANÇAMENTOS -->
+                        ${dados.lancamentos.length > 0 ? `
+                        <tr><td colspan="13" style="background-color: #4472c4; color: white; padding: 8px; font-weight: 600; border: 1px solid #000;">LANÇAMENTO - INTRODUÇÃO DE PRODUTO NA LOJA</td></tr>
+                        <tr><th style="border: 1px solid #000; padding: 8px; background-color: #1e3c72; color: white;">DATA</th><th style="border: 1px solid #000; padding: 8px; background-color: #1e3c72; color: white;">MARCA</th><th colspan="2" style="border: 1px solid #000; padding: 8px; background-color: #1e3c72; color: white;">PRODUTO</th><th colspan="3" style="border: 1px solid #000; padding: 8px; background-color: #1e3c72; color: white;">MODELO</th><th colspan="6" style="border: 1px solid #000; padding: 8px; background-color: #1e3c72; color: white;">PREÇO</th></tr>
+                        ${lancamentosHTML}
+                        ` : ''}
+
+                        <!-- METAS -->
+                        <tr><td colspan="13" style="background-color: #4472c4; color: white; padding: 8px; font-weight: 600; border: 1px solid #000;">META DE TREINAMENTO ON THE JOB</td></tr>
+                        <tr><td colspan="4" style="border: 1px solid #000; padding: 8px;"><strong>META DE TREINAMENTO:</strong></td><td colspan="9" style="border: 1px solid #000; padding: 8px;">${dados.metas.metaTreinamento}</td></tr>
+                        <tr><td colspan="4" style="border: 1px solid #000; padding: 8px;"><strong>META DE PESSOAS TREINADAS:</strong></td><td colspan="9" style="border: 1px solid #000; padding: 8px;">${dados.metas.metaPessoas}</td></tr>
+
+                        <!-- MERCHANDISING -->
+                        <tr><td colspan="13" style="background-color: #4472c4; color: white; padding: 8px; font-weight: 600; border: 1px solid #000;">GUIA DE MERCHANDISING - MPV</td></tr>
+                        <tr><td colspan="13" style="border: 1px solid #000; padding: 8px;"><strong>MPV Aplicado:</strong> ${dados.merchandising.mpvAplicado} | <strong>Motivo:</strong> ${dados.merchandising.motivoMpv}</td></tr>
+                        <tr><td colspan="13" style="border: 1px solid #000; padding: 8px;"><strong>Produtos Limpos:</strong> ${dados.merchandising.produtosLimpos} | <strong>Motivo:</strong> ${dados.merchandising.motivoLimpeza}</td></tr>
+                    </table>
+
+                    <!-- VERSO -->
+                    ${dados.visitas.length > 0 ? `
+                    <div style="background-color: #1e3c72; color: white; padding: 10px; font-weight: bold; font-size: 14px; text-align: center; border: 2px solid #000; margin-top: 2px;">VERSO CHECK LIST - VISITAS RECEBIDAS</div>
+                    <table style="border-collapse: collapse; width: 100%;">
+                        <tr><td colspan="13" style="background-color: #4472c4; color: white; padding: 8px; font-weight: 600; border: 1px solid #000;">VISITAS RECEBIDAS</td></tr>
+                        <tr><th style="border: 1px solid #000; padding: 8px; background-color: #1e3c72; color: white;">DATA</th><th style="border: 1px solid #000; padding: 8px; background-color: #1e3c72; color: white;">NOME</th><th style="border: 1px solid #000; padding: 8px; background-color: #1e3c72; color: white;">VISTO</th><th style="border: 1px solid #000; padding: 8px; background-color: #1e3c72; color: white;">FERRAMENTA</th><th style="border: 1px solid #000; padding: 8px; background-color: #1e3c72; color: white;">DOMÍNIO</th><th style="border: 1px solid #000; padding: 8px; background-color: #1e3c72; color: white;">UNIFORME</th><th style="border: 1px solid #000; padding: 8px; background-color: #1e3c72; color: white;">PDV</th><th colspan="6" style="border: 1px solid #000; padding: 8px; background-color: #1e3c72; color: white;">OBSERVAÇÃO</th></tr>
+                        ${visitasHTML}
+                    </table>
+                    ` : ''}
+                </div>
+            `;
         }
 
         // Carregar dados ao digitar consultor
@@ -1221,4 +1278,4 @@
         };
     </script>
 </body>
-                    </html>
+                            </html>
