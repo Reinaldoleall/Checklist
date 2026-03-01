@@ -7,6 +7,12 @@
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Bibliotecas para Excel e PDF -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Font Awesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -14,8 +20,13 @@
         body {
             font-family: 'Inter', sans-serif;
             background: #f0f2f5;
-            padding: 10px;
+            padding: 20px;
             margin: 0;
+        }
+        
+        /* Status online/offline - OCULTO POR PADRÃO */
+        .status-badge {
+            display: none !important; /* Oculta completamente */
         }
         
         /* Estilo EXATAMENTE como Excel */
@@ -24,19 +35,20 @@
             border: 2px solid #000;
             overflow-x: auto;
             max-width: 100%;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            border-radius: 8px;
         }
         
         .excel-table {
             border-collapse: collapse;
             width: 100%;
-            min-width: 1200px; /* Largura mínima para não quebrar */
-            table-layout: fixed; /* Força larguras fixas */
+            min-width: 1400px; /* Aumentado para melhor visualização */
+            table-layout: fixed;
         }
         
         .excel-table td, .excel-table th {
             border: 1px solid #000000;
-            padding: 6px 4px;
+            padding: 8px 6px;
             vertical-align: middle;
             overflow: visible;
             white-space: normal;
@@ -57,9 +69,10 @@
             outline: none;
             background: white;
             font-size: 12px;
-            padding: 4px;
-            border-radius: 2px;
+            padding: 6px;
+            border-radius: 4px;
             box-sizing: border-box;
+            transition: all 0.2s;
         }
         
         .excel-input:focus {
@@ -71,8 +84,9 @@
             width: 100%;
             border: 1px solid #ccc;
             font-size: 12px;
-            padding: 4px;
+            padding: 6px;
             background: white;
+            border-radius: 4px;
         }
         
         .checkbox-group {
@@ -94,9 +108,9 @@
         .section-title {
             background-color: #1e3c72;
             color: white;
-            padding: 8px;
+            padding: 12px;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 16px;
             text-align: center;
             border: 2px solid #000;
             border-bottom: 1px solid #000;
@@ -105,42 +119,69 @@
         .subsection-title {
             background-color: #4472c4;
             color: white;
-            padding: 6px;
+            padding: 8px;
             font-weight: 600;
-            font-size: 13px;
+            font-size: 14px;
             border: 1px solid #000;
         }
         
-        .btn-excel {
-            background-color: #1e3c72;
-            color: white;
-            border: 2px solid #000;
-            padding: 8px 16px;
-            font-weight: bold;
+        /* ESTILOS MELHORADOS PARA BOTÕES */
+        .btn-excel, .btn-excel-green, .btn-pdf {
+            padding: 12px 24px;
+            font-weight: 600;
             font-size: 14px;
             cursor: pointer;
-            border-radius: 0;
-            transition: all 0.2s;
+            border: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-excel {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
         }
         
         .btn-excel:hover {
-            background-color: #2a5298;
+            background: linear-gradient(135deg, #2a5298, #1e3c72);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(30,60,114,0.3);
+        }
+        
+        .btn-pdf {
+            background: linear-gradient(135deg, #d32f2f, #b71c1c);
+            color: white;
+        }
+        
+        .btn-pdf:hover {
+            background: linear-gradient(135deg, #b71c1c, #d32f2f);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(211,47,47,0.3);
         }
         
         .btn-excel-green {
-            background-color: #2e7d32;
+            background: linear-gradient(135deg, #2e7d32, #1b5e20);
             color: white;
-            border: 2px solid #000;
-            padding: 12px 24px;
-            font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
             width: 100%;
-            transition: all 0.2s;
+            font-size: 16px;
+            padding: 16px;
         }
         
         .btn-excel-green:hover {
-            background-color: #1b5e20;
+            background: linear-gradient(135deg, #1b5e20, #2e7d32);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(46,125,50,0.3);
+        }
+        
+        .btn-excel:active, .btn-pdf:active, .btn-excel-green:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
         .btn-remove {
@@ -151,10 +192,23 @@
             font-size: 11px;
             cursor: pointer;
             font-weight: bold;
+            border-radius: 4px;
+            transition: all 0.2s;
         }
         
         .btn-remove:hover {
             background-color: #b71c1c;
+            transform: scale(1.05);
+        }
+        
+        /* Barra de ações */
+        .action-bar {
+            display: flex;
+            justify-content: flex-end;
+            gap: 16px;
+            padding: 16px;
+            background: linear-gradient(to right, #f8f9fa, #e9ecef);
+            border-bottom: 2px solid #000;
         }
         
         /* Ajustes de largura das colunas */
@@ -165,29 +219,31 @@
         .col-media { width: 12%; }
         .col-grande { width: 20%; }
         
-        /* Status online/offline */
-        .status-badge {
+        /* Loading spinner */
+        .loading {
             display: inline-block;
-            padding: 4px 8px;
-            border: 1px solid #000;
-            font-weight: bold;
-            font-size: 12px;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
         }
         
-        .status-online {
-            background-color: #4caf50;
-            color: white;
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
         
-        .status-offline {
-            background-color: #f44336;
-            color: white;
+        /* Ajuste para telas maiores */
+        .max-w-7xl {
+            max-width: 1600px !important;
+            margin: 0 auto;
         }
     </style>
 </head>
 
 <body>
-    <!-- Status do Firebase -->
+    <!-- Status do Firebase - OCULTO (display: none no CSS) -->
     <div class="max-w-7xl mx-auto mb-2 flex justify-end">
         <div id="statusConexao" class="status-badge status-offline">🔴 OFFLINE - Verificando...</div>
     </div>
@@ -204,7 +260,7 @@
             <table class="excel-table">
                 <!-- INFORMAÇÕES CONSULTOR -->
                 <tr>
-                    <td colspan="8" class="subsection-title" style="background-color: #4472c4;">INFORMAÇÕES DO CONSULTOR</td>
+                    <td colspan="8" class="subsection-title">INFORMAÇÕES DO CONSULTOR</td>
                 </tr>
                 <tr>
                     <td colspan="2" style="width: 15%;"><strong>CONSULTOR(A):</strong></td>
@@ -235,7 +291,7 @@
 
                 <!-- CERTIFICAÇÃO -->
                 <tr>
-                    <td colspan="8" class="subsection-title" style="background-color: #4472c4;">CERTIFICAÇÃO</td>
+                    <td colspan="8" class="subsection-title">CERTIFICAÇÃO</td>
                 </tr>
                 <tr>
                     <td colspan="4"><strong>DATA DA ÚLTIMA CERTIFICAÇÃO:</strong></td>
@@ -248,7 +304,7 @@
 
                 <!-- IDC -->
                 <tr>
-                    <td colspan="8" class="subsection-title" style="background-color: #4472c4;">IDC - ÍNDICE DE DESEMPENHO DO CONSULTOR</td>
+                    <td colspan="8" class="subsection-title">IDC - ÍNDICE DE DESEMPENHO DO CONSULTOR</td>
                 </tr>
                 <tr>
                     <th style="width: 15%;">MÊS</th>
@@ -270,7 +326,7 @@
 
                 <!-- ANOTAÇÕES GERAIS -->
                 <tr>
-                    <td colspan="8" class="subsection-title" style="background-color: #4472c4;">ANOTAÇÕES GERAIS</td>
+                    <td colspan="8" class="subsection-title">ANOTAÇÕES GERAIS</td>
                 </tr>
                 <tr>
                     <td colspan="8">
@@ -287,7 +343,7 @@
             <table class="excel-table">
                 <!-- INFORMAÇÕES DA LOJA -->
                 <tr>
-                    <td colspan="13" class="subsection-title" style="background-color: #4472c4;">INFORMAÇÕES DA LOJA</td>
+                    <td colspan="13" class="subsection-title">INFORMAÇÕES DA LOJA</td>
                 </tr>
                 <tr>
                     <td colspan="2"><strong>REVENDA:</strong></td>
@@ -318,7 +374,7 @@
 
                 <!-- FATURAMENTO DA LOJA -->
                 <tr>
-                    <td colspan="13" class="subsection-title" style="background-color: #4472c4;">FATURAMENTO DA LOJA</td>
+                    <td colspan="13" class="subsection-title">FATURAMENTO DA LOJA</td>
                 </tr>
                 <tr>
                     <td colspan="4"><strong>FATURAMENTO MENSAL LOJA R$:</strong></td>
@@ -341,7 +397,7 @@
 
                 <!-- DESTAQUE DE VENDAS -->
                 <tr>
-                    <td colspan="13" class="subsection-title" style="background-color: #4472c4;">DESTAQUE DE VENDAS - LINHA BRANCA</td>
+                    <td colspan="13" class="subsection-title">DESTAQUE DE VENDAS - LINHA BRANCA</td>
                 </tr>
                 <tr>
                     <th colspan="4">GELADEIRA</th>
@@ -406,7 +462,7 @@
 
                 <!-- LANÇAMENTOS -->
                 <tr>
-                    <td colspan="13" class="subsection-title" style="background-color: #4472c4;">LANÇAMENTO - INTRODUÇÃO DE PRODUTO NA LOJA</td>
+                    <td colspan="13" class="subsection-title">LANÇAMENTO - INTRODUÇÃO DE PRODUTO NA LOJA</td>
                 </tr>
                 <tr>
                     <th style="width: 10%;">DATA</th>
@@ -427,13 +483,13 @@
                 </tbody>
                 <tr>
                     <td colspan="13">
-                        <button onclick="adicionarLancamento()" class="btn-excel">+ ADICIONAR NOVO LANÇAMENTO</button>
+                        <button onclick="adicionarLancamento()" class="btn-excel" style="width: auto; margin: 10px;">+ ADICIONAR NOVO LANÇAMENTO</button>
                     </td>
                 </tr>
 
                 <!-- META DE TREINAMENTO -->
                 <tr>
-                    <td colspan="13" class="subsection-title" style="background-color: #4472c4;">META DE TREINAMENTO ON THE JOB</td>
+                    <td colspan="13" class="subsection-title">META DE TREINAMENTO ON THE JOB</td>
                 </tr>
                 <tr>
                     <td colspan="4"><strong>META DE TREINAMENTO:</strong></td>
@@ -446,7 +502,7 @@
 
                 <!-- MERCHANDISING -->
                 <tr>
-                    <td colspan="13" class="subsection-title" style="background-color: #4472c4;">GUIA DE MERCHANDISING - MPV</td>
+                    <td colspan="13" class="subsection-title">GUIA DE MERCHANDISING - MPV</td>
                 </tr>
                 <tr>
                     <td colspan="13">
@@ -479,23 +535,33 @@
         <div style="overflow-x: auto;">
             <table class="excel-table">
                 <tr>
-                    <td colspan="13" class="subsection-title" style="background-color: #4472c4;">VISITAS RECEBIDAS (PREENCHIDO PELO GESTOR)</td>
+                    <td colspan="13" class="subsection-title">VISITAS RECEBIDAS (PREENCHIDO PELO GESTOR)</td>
                 </tr>
                 <tbody id="visitas">
                     <!-- As visitas serão inseridas aqui dinamicamente -->
                 </tbody>
                 <tr>
                     <td colspan="13">
-                        <button onclick="adicionarVisita()" class="btn-excel">+ ADICIONAR NOVA VISITA</button>
+                        <button onclick="adicionarVisita()" class="btn-excel" style="width: auto; margin: 10px;">+ ADICIONAR NOVA VISITA</button>
                     </td>
                 </tr>
             </table>
         </div>
+        
+        <!-- BARRA DE AÇÕES MELHORADA -->
+        <div class="action-bar">
+            <button onclick="exportarChecklistExcel()" class="btn-excel">
+                <i class="fas fa-file-excel"></i> EXPORTAR EXCEL
+            </button>
+            <button onclick="exportarChecklistPDF()" class="btn-pdf">
+                <i class="fas fa-file-pdf"></i> EXPORTAR PDF
+            </button>
+        </div>
 
-        <!-- BOTÃO SALVAR -->
-        <div class="p-4" style="border-top: 2px solid #000;">
+        <!-- BOTÃO SALVAR MELHORADO -->
+        <div class="p-4" style="border-top: 2px solid #000; background: linear-gradient(to right, #f8f9fa, #ffffff);">
             <button onclick="salvarDados()" class="btn-excel-green">
-                💾 SALVAR CHECKLIST COMPLETO NO FIREBASE
+                <i class="fas fa-cloud-upload-alt"></i> SALVAR CHECKLIST NO FIREBASE
             </button>
         </div>
     </div>
@@ -505,32 +571,31 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
     <script>
-        // CONFIGURAÇÃO DO FIREBASE - SUBSTITUA COM SEUS DADOS REAIS
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyBdNPXscs1-ikMOLGCzL5igJDi989RRCCQ",
-  authDomain: "checklist-94b12.firebaseapp.com",
-  databaseURL: "https://checklist-94b12-default-rtdb.firebaseio.com",
-  projectId: "checklist-94b12",
-  storageBucket: "checklist-94b12.firebasestorage.app",
-  messagingSenderId: "471194751883",
-  appId: "1:471194751883:web:b3ea0cad2212d5e0c6d58e",
-  measurementId: "G-KJBZ2F3ZZE"
-};
+        // CONFIGURAÇÃO DO FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyBdNPXscs1-ikMOLGCzL5igJDi989RRCCQ",
+            authDomain: "checklist-94b12.firebaseapp.com",
+            databaseURL: "https://checklist-94b12-default-rtdb.firebaseio.com",
+            projectId: "checklist-94b12",
+            storageBucket: "checklist-94b12.firebasestorage.app",
+            messagingSenderId: "471194751883",
+            appId: "1:471194751883:web:b3ea0cad2212d5e0c6d58e",
+            measurementId: "G-KJBZ2F3ZZE"
+        };
 
         // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         
-        // Status da conexão
+        // Status da conexão (mantido mas oculto no CSS)
         const connectedRef = database.ref('.info/connected');
         connectedRef.on('value', (snap) => {
             const statusDiv = document.getElementById('statusConexao');
             if (snap.val() === true) {
-                statusDiv.innerHTML = '🟢 ONLINE - Dados sincronizados';
+                statusDiv.innerHTML = '🟢 ONLINE';
                 statusDiv.className = 'status-badge status-online';
             } else {
-                statusDiv.innerHTML = '🔴 OFFLINE - Verificando conexão...';
+                statusDiv.innerHTML = '🔴 OFFLINE';
                 statusDiv.className = 'status-badge status-offline';
             }
         });
@@ -553,12 +618,12 @@ const firebaseConfig = {
                 <td colspan="2"><input type="text" class="excel-input lancamento-produto" placeholder="Produto"></td>
                 <td colspan="3"><input type="text" class="excel-input lancamento-modelo" placeholder="Modelo"></td>
                 <td colspan="5"><input type="number" class="excel-input lancamento-preco" placeholder="Preço R$"></td>
-                <td style="width: 5%;"><button onclick="removerLinha(this)" class="btn-remove">X</button></td>
+                <td style="width: 5%;"><button onclick="removerLinha(this)" class="btn-remove"><i class="fas fa-times"></i></button></td>
             `;
             tbody.appendChild(novaLinha);
         }
 
-        // Função para adicionar visita (formato EXATAMENTE como no Excel)
+        // Função para adicionar visita
         function adicionarVisita() {
             const tbody = document.getElementById('visitas');
             const novaLinha = document.createElement('tr');
@@ -618,7 +683,7 @@ const firebaseConfig = {
                         </div>
                         <div style="text-align: right;">
                             <br>
-                            <button onclick="removerLinha(this)" class="btn-remove">REMOVER VISITA</button>
+                            <button onclick="removerLinha(this)" class="btn-remove"><i class="fas fa-trash"></i> REMOVER</button>
                         </div>
                     </div>
                 </td>
@@ -784,7 +849,7 @@ const firebaseConfig = {
             // Coletar lançamentos
             document.querySelectorAll('.lancamento-row').forEach((row) => {
                 const data = row.querySelector('.lancamento-data')?.value;
-                if (data) { // Só salva se tiver pelo menos a data
+                if (data) {
                     dados.lancamentos.push({
                         data: data,
                         marca: row.querySelector('.lancamento-marca')?.value || '',
@@ -798,7 +863,7 @@ const firebaseConfig = {
             // Coletar visitas
             document.querySelectorAll('.visita-row').forEach((row) => {
                 const data = row.querySelector('.visita-data')?.value;
-                if (data) { // Só salva se tiver pelo menos a data
+                if (data) {
                     dados.visitas.push({
                         data: data,
                         nome: row.querySelector('.visita-nome')?.value || '',
@@ -815,7 +880,7 @@ const firebaseConfig = {
             // Mostrar loading
             const btn = event.target;
             const textoOriginal = btn.innerHTML;
-            btn.innerHTML = '⏳ SALVANDO...';
+            btn.innerHTML = '<span class="loading"></span> SALVANDO...';
             btn.disabled = true;
 
             // Salvar no Firebase
@@ -826,29 +891,327 @@ const firebaseConfig = {
                 
                 if (error) {
                     alert('❌ Erro ao salvar: ' + error.message);
-                    console.error('Erro Firebase:', error);
                 } else {
-                    alert('✅ Checklist salvo com sucesso no Firebase!\n\nOs dados estão disponíveis para o gestor em tempo real.');
-                    
-                    // Mostrar resumo
-                    console.log('📊 Dados salvos:', dados);
+                    alert('✅ Checklist salvo com sucesso no Firebase!');
                 }
             });
         }
 
-        // Carregar dados ao digitar consultor (após sair do campo)
+        // FUNÇÃO PARA EXPORTAR EXCEL
+        function exportarChecklistExcel() {
+            const consultor = document.getElementById('consultor').value.trim();
+            if (!consultor) {
+                alert('❌ Preencha o nome do consultor primeiro!');
+                return;
+            }
+
+            // Mostrar loading no botão
+            const btn = event.target.closest('button');
+            const textoOriginal = btn.innerHTML;
+            btn.innerHTML = '<span class="loading"></span> GERANDO...';
+            btn.disabled = true;
+
+            // Coletar dados atuais
+            const dados = coletarDadosAtuais();
+            
+            // Criar workbook
+            const wb = XLSX.utils.book_new();
+            const planilha = [];
+            
+            // CABEÇALHO
+            planilha.push(['CHECK LIST - 2026 | PANASONIC', '', '', '', '', '', '', '', '', '', '', '', '']);
+            planilha.push([]);
+            
+            // INFORMAÇÕES CONSULTOR
+            planilha.push(['INFORMAÇÕES DO CONSULTOR', '', '', '', '', '', '', '', '', '', '', '', '']);
+            planilha.push(['CONSULTOR(A):', dados.consultor, 'REGIONAL:', dados.regional, '', '', '', '', '', '', '', '', '']);
+            planilha.push(['DATA DE ADMISSÃO:', dados.dataAdmissao, 'CIDADE:', dados.cidade, 'UF:', dados.uf, '', '', '', '', '', '', '']);
+            planilha.push(['SUPERVISOR(A):', dados.supervisor, 'COORDENADOR(A):', dados.coordenador, '', '', '', '', '', '', '', '', '']);
+            planilha.push([]);
+            
+            // CERTIFICAÇÃO
+            planilha.push(['CERTIFICAÇÃO', '', '', '', '', '', '', '', '', '', '', '', '']);
+            planilha.push(['DATA DA ÚLTIMA CERTIFICAÇÃO:', dados.dataCertificacao, 'NOTA DA CERTIFICAÇÃO:', dados.notaCertificacao, '', '', '', '', '', '', '', '', '']);
+            planilha.push([]);
+            
+            // IDC
+            planilha.push(['IDC - ÍNDICE DE DESEMPENHO DO CONSULTOR', '', '', '', '', '', '', '', '', '', '', '', '']);
+            planilha.push(['MÊS', 'NOTA', 'APONTAMENTOS / OBSERVAÇÕES', '', '', '', '', '', '', '', '', '', '']);
+            
+            const meses = ['JANEIRO','FEVEREIRO','MARÇO','ABRIL','MAIO','JUNHO','JULHO','AGOSTO','SETEMBRO','OUTUBRO','NOVEMBRO','DEZEMBRO'];
+            meses.forEach((mes, index) => {
+                const campo = ['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'][index];
+                planilha.push([mes, dados.idc[campo]?.nota || '', dados.idc[campo]?.apontamento || '', '', '', '', '', '', '', '', '', '', '']);
+            });
+            
+            planilha.push([]);
+            planilha.push(['ANOTAÇÕES GERAIS', '', '', '', '', '', '', '', '', '', '', '', '']);
+            planilha.push([dados.anotacoesGerais, '', '', '', '', '', '', '', '', '', '', '', '']);
+            planilha.push([]);
+            planilha.push(['CHECK LIST VISITA - FRENTE', '', '', '', '', '', '', '', '', '', '', '', '']);
+            
+            // LOJA
+            if (dados.loja) {
+                planilha.push(['INFORMAÇÕES DA LOJA', '', '', '', '', '', '', '', '', '', '', '', '']);
+                planilha.push(['REVENDA:', dados.loja.revenda, 'FILIAL:', dados.loja.filial, 'ID:', dados.loja.id, '', '', '', '', '', '', '']);
+                planilha.push(['ENDEREÇO:', dados.loja.endereco, 'CIDADE/UF:', dados.loja.cidadeUf, '', '', '', '', '', '', '', '', '']);
+                planilha.push(['GERENTE:', dados.loja.gerente, 'CONTATO:', dados.loja.contato, 'SUB GERENTE:', dados.loja.subGerente, '', '', '', '', '', '', '']);
+                planilha.push(['CNPJ:', dados.loja.cnpj, '', '', '', '', '', '', '', '', '', '', '']);
+                planilha.push([]);
+                
+                planilha.push(['FATURAMENTO DA LOJA', '', '', '', '', '', '', '', '', '', '', '', '']);
+                planilha.push(['FATURAMENTO MENSAL LOJA R$:', dados.loja.faturamentoLoja, 'FATURAMENTO PANASONIC R$:', dados.loja.faturamentoPanasonic, '', '', '', '', '', '', '', '', '']);
+                planilha.push(['RANKING NA REDE:', dados.loja.ranking, 'JUSTIFICATIVA:', dados.loja.justificativa, 'FLOOR SHARE %:', dados.loja.floorShare, '', '', '', '', '', '', '']);
+                planilha.push([]);
+            }
+            
+            // DESTAQUES
+            if (dados.destaques) {
+                planilha.push(['DESTAQUE DE VENDAS - LINHA BRANCA', '', '', '', '', '', '', '', '', '', '', '', '']);
+                planilha.push(['GELADEIRA', '', '', 'MÁQUINA DE LAVAR', '', '', 'MICRO-ONDAS', '', '', '', '', '', '']);
+                planilha.push([
+                    dados.destaques.geladeira.marca, dados.destaques.geladeira.modelo, `R$ ${dados.destaques.geladeira.preco}`,
+                    dados.destaques.lavadora.marca, dados.destaques.lavadora.modelo, `R$ ${dados.destaques.lavadora.preco}`,
+                    dados.destaques.microondas.marca, dados.destaques.microondas.modelo, `R$ ${dados.destaques.microondas.preco}`,
+                    '', '', '', ''
+                ]);
+                planilha.push(['OUTROS DESTAQUES:', dados.destaques.outros, '', '', '', '', '', '', '', '', '', '', '']);
+                planilha.push([]);
+            }
+            
+            // PROGRAMAS
+            if (dados.programas) {
+                planilha.push(['PANASONIC - PROGRAMA E CAMPANHAS', '', '', '', '', '', '', '', '', '', '', '', '']);
+                planilha.push([`Conhecem Programa: ${dados.programas.conhecemPrograma}`, `Cadastrados: ${dados.programas.cadastrados}`, `Pendência: ${dados.programas.pendencia}`, '', '', '', '', '', '', '', '', '', '']);
+                planilha.push([`OBS: ${dados.programas.obsCadastro}`, '', '', '', '', '', '', '', '', '', '', '', '']);
+                planilha.push([]);
+            }
+            
+            // LANÇAMENTOS
+            if (dados.lancamentos.length > 0) {
+                planilha.push(['LANÇAMENTO - INTRODUÇÃO DE PRODUTO NA LOJA', '', '', '', '', '', '', '', '', '', '', '', '']);
+                planilha.push(['DATA', 'MARCA', 'PRODUTO', 'MODELO', 'PREÇO', '', '', '', '', '', '', '', '']);
+                dados.lancamentos.forEach(l => {
+                    planilha.push([l.data, l.marca, l.produto, l.modelo, `R$ ${l.preco}`, '', '', '', '', '', '', '', '']);
+                });
+                planilha.push([]);
+            }
+            
+            // METAS
+            if (dados.metas) {
+                planilha.push(['META DE TREINAMENTO ON THE JOB', '', '', '', '', '', '', '', '', '', '', '', '']);
+                planilha.push([`Meta: ${dados.metas.metaTreinamento}`, `Pessoas: ${dados.metas.metaPessoas}`, '', '', '', '', '', '', '', '', '', '', '']);
+                planilha.push([]);
+            }
+            
+            // MERCHANDISING
+            if (dados.merchandising) {
+                planilha.push(['GUIA DE MERCHANDISING - MPV', '', '', '', '', '', '', '', '', '', '', '', '']);
+                planilha.push([`MPV Aplicado: ${dados.merchandising.mpvAplicado}`, `Motivo: ${dados.merchandising.motivoMpv}`, '', '', '', '', '', '', '', '', '', '', '']);
+                planilha.push([`Produtos Limpos: ${dados.merchandising.produtosLimpos}`, `Motivo: ${dados.merchandising.motivoLimpeza}`, '', '', '', '', '', '', '', '', '', '', '']);
+                planilha.push([]);
+            }
+            
+            // VERSO
+            if (dados.visitas.length > 0) {
+                planilha.push(['VERSO CHECK LIST - VISITAS RECEBIDAS', '', '', '', '', '', '', '', '', '', '', '', '']);
+                planilha.push(['DATA', 'NOME', 'VISTO', 'FERRAMENTA', 'DOMÍNIO', 'UNIFORME', 'PDV', 'OBSERVAÇÃO', '', '', '', '', '']);
+                dados.visitas.forEach(v => {
+                    planilha.push([v.data, v.nome, v.visto, v.ferramenta, v.dominio, v.uniforme, v.pdv, v.observacao, '', '', '', '', '']);
+                });
+            }
+            
+            const ws = XLSX.utils.aoa_to_sheet(planilha);
+            XLSX.utils.book_append_sheet(wb, ws, "CHECKLIST");
+            
+            const nomeArquivo = `Checklist_${dados.consultor.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`;
+            XLSX.writeFile(wb, nomeArquivo);
+            
+            // Restaurar botão
+            btn.innerHTML = textoOriginal;
+            btn.disabled = false;
+        }
+
+        // FUNÇÃO PARA EXPORTAR PDF (VERSÃO CORRIGIDA)
+        function exportarChecklistPDF() {
+            const consultor = document.getElementById('consultor').value.trim();
+            if (!consultor) {
+                alert('❌ Preencha o nome do consultor primeiro!');
+                return;
+            }
+            
+            // Mostrar loading
+            const btn = event.target.closest('button');
+            const textoOriginal = btn.innerHTML;
+            btn.innerHTML = '<span class="loading"></span> GERANDO PDF...';
+            btn.disabled = true;
+            
+            // Clonar o container do checklist
+            const container = document.querySelector('.excel-container');
+            const clone = container.cloneNode(true);
+            
+            // Remover botões do clone
+            const botoesClone = clone.querySelectorAll('button');
+            botoesClone.forEach(btn => btn.remove());
+            
+            // Configurar para impressão
+            clone.style.width = '1600px';
+            clone.style.margin = '0 auto';
+            clone.style.padding = '20px';
+            clone.style.backgroundColor = 'white';
+            clone.style.boxShadow = 'none';
+            
+            // Criar elemento temporário
+            const tempDiv = document.createElement('div');
+            tempDiv.style.position = 'absolute';
+            tempDiv.style.left = '-9999px';
+            tempDiv.style.top = '0';
+            tempDiv.style.width = '1600px';
+            tempDiv.style.backgroundColor = '#ffffff';
+            tempDiv.appendChild(clone);
+            document.body.appendChild(tempDiv);
+            
+            // Aguardar renderização
+            setTimeout(() => {
+                html2canvas(clone, {
+                    scale: 2,
+                    backgroundColor: '#ffffff',
+                    logging: false,
+                    allowTaint: true,
+                    useCORS: true,
+                    windowWidth: 1600
+                }).then((canvas) => {
+                    const imgData = canvas.toDataURL('image/png');
+                    
+                    // Criar PDF em paisagem
+                    const pdf = new jspdf.jsPDF({
+                        orientation: 'landscape',
+                        unit: 'mm',
+                        format: 'a4'
+                    });
+                    
+                    const pdfWidth = pdf.internal.pageSize.getWidth();
+                    const pdfHeight = pdf.internal.pageSize.getHeight();
+                    const imgWidth = canvas.width;
+                    const imgHeight = canvas.height;
+                    
+                    // Calcular proporção para preencher a largura
+                    const ratio = pdfWidth / imgWidth;
+                    const width = pdfWidth;
+                    const height = imgHeight * ratio;
+                    
+                    pdf.addImage(imgData, 'PNG', 0, 0, width, height);
+                    pdf.save(`Checklist_${consultor.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`);
+                    
+                    document.body.removeChild(tempDiv);
+                    
+                    // Restaurar botão
+                    btn.innerHTML = textoOriginal;
+                    btn.disabled = false;
+                }).catch(error => {
+                    console.error('Erro ao gerar PDF:', error);
+                    alert('Erro ao gerar PDF: ' + error.message);
+                    btn.innerHTML = textoOriginal;
+                    btn.disabled = false;
+                    document.body.removeChild(tempDiv);
+                });
+            }, 500);
+        }
+
+        // FUNÇÃO AUXILIAR PARA COLETAR DADOS
+        function coletarDadosAtuais() {
+            return {
+                consultor: document.getElementById('consultor').value,
+                regional: document.getElementById('regional').value,
+                dataAdmissao: document.getElementById('dataAdmissao').value,
+                cidade: document.getElementById('cidade').value,
+                uf: document.getElementById('uf').value,
+                supervisor: document.getElementById('supervisor').value,
+                coordenador: document.getElementById('coordenador').value,
+                dataCertificacao: document.getElementById('dataCertificacao').value,
+                notaCertificacao: document.getElementById('notaCertificacao').value,
+                idc: {
+                    janeiro: { nota: document.getElementById('notaJan')?.value, apontamento: document.getElementById('apontJan')?.value },
+                    fevereiro: { nota: document.getElementById('notaFev')?.value, apontamento: document.getElementById('apontFev')?.value },
+                    marco: { nota: document.getElementById('notaMar')?.value, apontamento: document.getElementById('apontMar')?.value },
+                    abril: { nota: document.getElementById('notaAbr')?.value, apontamento: document.getElementById('apontAbr')?.value },
+                    maio: { nota: document.getElementById('notaMai')?.value, apontamento: document.getElementById('apontMai')?.value },
+                    junho: { nota: document.getElementById('notaJun')?.value, apontamento: document.getElementById('apontJun')?.value },
+                    julho: { nota: document.getElementById('notaJul')?.value, apontamento: document.getElementById('apontJul')?.value },
+                    agosto: { nota: document.getElementById('notaAgo')?.value, apontamento: document.getElementById('apontAgo')?.value },
+                    setembro: { nota: document.getElementById('notaSet')?.value, apontamento: document.getElementById('apontSet')?.value },
+                    outubro: { nota: document.getElementById('notaOut')?.value, apontamento: document.getElementById('apontOut')?.value },
+                    novembro: { nota: document.getElementById('notaNov')?.value, apontamento: document.getElementById('apontNov')?.value },
+                    dezembro: { nota: document.getElementById('notaDez')?.value, apontamento: document.getElementById('apontDez')?.value }
+                },
+                anotacoesGerais: document.getElementById('anotacoesGerais').value,
+                loja: {
+                    revenda: document.getElementById('revenda').value,
+                    filial: document.getElementById('filial').value,
+                    id: document.getElementById('idLoja').value,
+                    endereco: document.getElementById('endereco').value,
+                    cidadeUf: document.getElementById('cidadeUf').value,
+                    gerente: document.getElementById('gerente').value,
+                    contato: document.getElementById('contato').value,
+                    subGerente: document.getElementById('subGerente').value,
+                    cnpj: document.getElementById('cnpj').value,
+                    faturamentoLoja: document.getElementById('faturamentoLoja').value,
+                    faturamentoPanasonic: document.getElementById('faturamentoPanasonic').value,
+                    ranking: document.getElementById('ranking').value,
+                    justificativa: document.getElementById('justificativa').value,
+                    floorShare: document.getElementById('floorShare').value
+                },
+                destaques: {
+                    geladeira: {
+                        marca: document.getElementById('geladeiraMarca').value,
+                        modelo: document.getElementById('geladeiraModelo').value,
+                        preco: document.getElementById('geladeiraPreco').value
+                    },
+                    lavadora: {
+                        marca: document.getElementById('lavadoraMarca').value,
+                        modelo: document.getElementById('lavadoraModelo').value,
+                        preco: document.getElementById('lavadoraPreco').value
+                    },
+                    microondas: {
+                        marca: document.getElementById('microondasMarca').value,
+                        modelo: document.getElementById('microondasModelo').value,
+                        preco: document.getElementById('microondasPreco').value
+                    },
+                    outros: document.getElementById('outrosDestaques').value
+                },
+                programas: {
+                    conhecemPrograma: document.querySelector('input[name="conhecemPrograma"]:checked')?.value || '',
+                    cadastrados: document.querySelector('input[name="cadastrados"]:checked')?.value || '',
+                    pendencia: document.querySelector('input[name="pendencia"]:checked')?.value || '',
+                    obsCadastro: document.getElementById('obsCadastro').value
+                },
+                metas: {
+                    metaTreinamento: document.getElementById('metaTreinamento').value,
+                    metaPessoas: document.getElementById('metaPessoas').value
+                },
+                merchandising: {
+                    mpvAplicado: document.querySelector('input[name="mpvAplicado"]:checked')?.value || '',
+                    motivoMpv: document.getElementById('motivoMpv').value,
+                    produtosLimpos: document.querySelector('input[name="produtosLimpos"]:checked')?.value || '',
+                    motivoLimpeza: document.getElementById('motivoLimpeza').value
+                },
+                lancamentos: [],
+                visitas: []
+            };
+        }
+
+        // Carregar dados ao digitar consultor
         document.getElementById('consultor').addEventListener('blur', function() {
             if (this.value) {
                 carregarDados(this.value);
             }
         });
 
-        // Inicializar com uma visita e um lançamento
+        // Inicializar
         window.onload = function() {
             adicionarVisita();
             adicionarLancamento();
             
-            // Preencher ano automaticamente nos campos de data
             const hoje = new Date().toISOString().split('T')[0];
             document.querySelectorAll('input[type="date"]').forEach(input => {
                 if (!input.value) {
@@ -858,4 +1221,4 @@ const firebaseConfig = {
         };
     </script>
 </body>
-</html>
+                    </html>
