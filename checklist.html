@@ -778,7 +778,7 @@
                         </button>
                     </div>
                     <div class="flex flex-col sm:flex-row gap-2 mt-4 sm:mt-0">
-                        <button onclick="limparFormulario()"
+                        <button onclick="limparDadosLoja()"
                             class="bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all border border-blue-500/20">
                             <i class="fas fa-plus mr-1"></i> Novo Checklist
                         </button>
@@ -1023,24 +1023,40 @@
             btn.innerHTML = '<span class="loading"></span> SALVANDO...';
             btn.disabled = true;
 
-            // Normalizar ID (Sempre Maiúsculo para consistência no banco)
+            // Normalizar ID (Sempre Maiúsculo para consistência)
             const consultorId = consultor.replace(/\s+/g, '_').toUpperCase();
             const now = new Date().toISOString();
 
-            // 1. Salvar registro específico no histórico
-            const newChecklistRef = database.ref('consultores/' + consultorId + '/checklists').push();
-            dados.id = newChecklistRef.key;
+            // ===== CORREÇÃO PRINCIPAL =====
+            // 1. Adicionar timestamp único para garantir que não sobrescreva
+            const timestamp = Date.now(); // Milissegundos desde 1970 - GARANTE QUE SEJA ÚNICO
+            const dataVisita = dados.loja?.dataVisita || now.split('T')[0]; // Pega a data da visita se existir
+
+            // Criar ID composto: loja_data_timestamp para garantir unicidade
+            const lojaNome = (dados.loja?.revenda || 'loja').replace(/\s+/g, '_').substring(0, 20);
+            const checklistId = `${lojaNome}_${dataVisita}_${timestamp}`;
+
+            // 2. Estrutura correta: consultores/[ID]/checklists/[ID-ÚNICO]
+            const novoChecklistRef = database.ref(`consultores/${consultorId}/checklists/${checklistId}`);
+
+            // Adicionar metadados ao checklist
+            dados.id = checklistId;
             dados.dataSalvamento = now;
+            dados.timestamp = timestamp;
+            dados.loja = dados.loja || {};
+            dados.loja.dataVisita = dataVisita;
 
-            newChecklistRef.set(dados, (error) => {
-                btn.innerHTML = textoOriginal;
-                btn.disabled = false;
-
+            // 3. SALVAR - Isso cria um NOVO registro, NÃO substitui o antigo
+            novoChecklistRef.set(dados, (error) => {
                 if (error) {
+                    btn.innerHTML = textoOriginal;
+                    btn.disabled = false;
                     alert('❌ Erro ao salvar: ' + error.message);
                 } else {
-                    // 2. Atualizar perfil básico para listagem do gestor
-                    database.ref('consultores/' + consultorId + '/perfil').set({
+                    // 4. Atualizar perfil do consultor (separado dos checklists)
+                    const perfilRef = database.ref(`consultores/${consultorId}/perfil`);
+
+                    perfilRef.update({
                         consultor: consultor,
                         regional: dados.regional || '',
                         cidade: dados.cidade || '',
@@ -1051,37 +1067,71 @@
                         dataCertificacao: dados.dataCertificacao || '',
                         notaCertificacao: dados.notaCertificacao || '',
                         ultimaAtualizacao: now,
-                        online: true
+                        online: true,
+                        ultimoChecklistId: checklistId // Referência ao último checklist
                     });
 
-                    alert('✅ Checklist salvo com sucesso no histórico!');
+                    btn.innerHTML = textoOriginal;
+                    btn.disabled = false;
+
+                    // Mensagem de sucesso com informação do ID único
+                    alert(`✅ Checklist salvo com sucesso!\n\n📌 ID: ${checklistId}\n📅 Data: ${dataVisita}\n🏪 Loja: ${dados.loja?.revenda || 'Não informada'}`);
+
+                    // Opcional: Limpar apenas dados da loja para nova visita
+                    if (confirm('Deseja limpar os dados da loja para começar um novo checklist?')) {
+                        limparDadosLoja();
+                    }
                 }
             });
         }
 
-        function limparFormulario() {
-            if (confirm('Deseja iniciar um NOVO checklist? Isso irá limpar os campos da loja atual, mas manterá seus dados de consultor.')) {
-                // Limpar dados da Loja
-                const camposLoja = ['revenda', 'filial', 'idLoja', 'endereco', 'cidadeUf', 'gerente', 'contato', 'subGerente'];
-                camposLoja.forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.value = '';
-                });
+        // FUNÇÃO NOVA - Adicione após salvarDados()
+        function limparDadosLoja() {
+            // Limpar campos da loja
+            const camposLoja = [
+                'revenda', 'filial', 'idLoja', 'endereco', 'cidadeUf',
+                'gerente', 'contato', 'subGerente', 'cnpj',
+                'faturamentoLoja', 'faturamentoPanasonic', 'ranking',
+                'justificativa', 'floorShare', 'outrosDestaques'
+            ];
 
-                // Limpar IDC e Anotações
-                document.getElementById('anotacoesGerais').value = '';
-                const idcInputs = document.querySelectorAll('.idc-input');
-                idcInputs.forEach(input => input.value = '');
+            camposLoja.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
 
-                // Limpar tabelas dinâmicas
-                document.getElementById('lancamentos').innerHTML = '';
-                document.getElementById('visitas').innerHTML = '';
+            // Limpar destaques
+            document.getElementById('geladeiraMarca').value = '';
+            document.getElementById('geladeiraModelo').value = '';
+            document.getElementById('geladeiraPreco').value = '';
+            document.getElementById('lavadoraMarca').value = '';
+            document.getElementById('lavadoraModelo').value = '';
+            document.getElementById('lavadoraPreco').value = '';
+            document.getElementById('microondasMarca').value = '';
+            document.getElementById('microondasModelo').value = '';
+            document.getElementById('microondasPreco').value = '';
 
-                // Resetar checkboxes (Merch, Programas, etc)
-                document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            // Limpar lançamentos (exceto manter uma linha vazia)
+            document.getElementById('lancamentos').innerHTML = '';
+            adicionarLancamento(); // Adiciona uma linha em branco
 
-                alert('Formulário de loja limpo! Você pode preencher os dados de uma nova unidade agora.');
-            }
+            // Resetar checkboxes de programa
+            document.querySelectorAll('input[name="conhecemPrograma"]').forEach(r => r.checked = false);
+            document.querySelectorAll('input[name="cadastrados"]').forEach(r => r.checked = false);
+            document.querySelectorAll('input[name="pendencia"]').forEach(r => r.checked = false);
+            document.getElementById('obsCadastro').value = '';
+
+            // Limpar metas
+            document.getElementById('metaTreinamento').value = '';
+            document.getElementById('metaPessoas').value = '';
+
+            // Limpar merchandising
+            document.querySelectorAll('input[name="mpvAplicado"]').forEach(r => r.checked = false);
+            document.querySelectorAll('input[name="produtosLimpos"]').forEach(r => r.checked = false);
+            document.getElementById('motivoMpv').value = '';
+            document.getElementById('motivoLimpeza').value = '';
+
+            alert('✅ Dados da loja limpos! Pronto para novo checklist.');
         }
 
         function carregarDados(consultor) {
