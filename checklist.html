@@ -777,6 +777,16 @@
                             <i class="fas fa-cloud-upload-alt"></i> SALVAR CHECKLIST
                         </button>
                     </div>
+                    <div class="flex flex-col sm:flex-row gap-2 mt-4 sm:mt-0">
+                        <button onclick="limparFormulario()"
+                            class="bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all border border-blue-500/20">
+                            <i class="fas fa-plus mr-1"></i> Novo Checklist
+                        </button>
+                        <button onclick="window.location.href='index.html'"
+                            class="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all border border-white/20">
+                            <i class="fas fa-arrow-left mr-1"></i> Sair
+                        </button>
+                    </div>
                     <button onclick="exportarChecklistExcel()" class="btn-excel" type="button">
                         <i class="fas fa-file-excel"></i> EXPORTAR EXCEL
                     </button>
@@ -1013,6 +1023,7 @@
             btn.innerHTML = '<span class="loading"></span> SALVANDO...';
             btn.disabled = true;
 
+            // Normalizar ID (Sempre Maiúsculo para consistência no banco)
             const consultorId = consultor.replace(/\s+/g, '_').toUpperCase();
             const now = new Date().toISOString();
 
@@ -1048,48 +1059,87 @@
             });
         }
 
+        function limparFormulario() {
+            if (confirm('Deseja iniciar um NOVO checklist? Isso irá limpar os campos da loja atual, mas manterá seus dados de consultor.')) {
+                // Limpar dados da Loja
+                const camposLoja = ['revenda', 'filial', 'idLoja', 'endereco', 'cidadeUf', 'gerente', 'contato', 'subGerente'];
+                camposLoja.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = '';
+                });
+
+                // Limpar IDC e Anotações
+                document.getElementById('anotacoesGerais').value = '';
+                const idcInputs = document.querySelectorAll('.idc-input');
+                idcInputs.forEach(input => input.value = '');
+
+                // Limpar tabelas dinâmicas
+                document.getElementById('lancamentos').innerHTML = '';
+                document.getElementById('visitas').innerHTML = '';
+
+                // Resetar checkboxes (Merch, Programas, etc)
+                document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+
+                alert('Formulário de loja limpo! Você pode preencher os dados de uma nova unidade agora.');
+            }
+        }
+
         function carregarDados(consultor) {
             if (!consultor) return;
 
-            const consultorId = consultor.replace(/\s+/g, '_').toUpperCase();
+            const consultorIdUpper = consultor.replace(/\s+/g, '_').toUpperCase();
+            const consultorIdLower = consultor.replace(/\s+/g, '_').toLowerCase();
 
-            // 1. Carregar perfil básico (novo modelo)
-            database.ref('consultores/' + consultorId + '/perfil').once('value', (snapshot) => {
-                const profile = snapshot.val();
-                if (profile) {
-                    document.getElementById('dataAdmissao').value = profile.dataAdmissao || '';
-                    document.getElementById('cidade').value = profile.cidade || '';
-                    document.getElementById('uf').value = profile.uf || '';
-                    document.getElementById('supervisor').value = profile.supervisor || '';
-                    document.getElementById('coordenador').value = profile.coordenador || '';
-                    document.getElementById('regional').value = profile.regional || '';
-                    document.getElementById('dataCertificacao').value = profile.dataCertificacao || '';
-                    document.getElementById('notaCertificacao').value = profile.notaCertificacao || '';
-                }
-            });
+            // Tentar carregar perfil (Uppercase primeiro)
+            database.ref('consultores/' + consultorIdUpper + '/perfil').once('value', (snapshot) => {
+                let profile = snapshot.val();
 
-            // 2. Carregar o checklist mais recente
-            database.ref('consultores/' + consultorId + '/checklists').orderByChild('dataSalvamento').limitToLast(1).once('value', (snapshot) => {
-                const results = snapshot.val();
-                let data = null;
-
-                if (results) {
-                    const keys = Object.keys(results);
-                    data = results[keys[0]];
-                }
-
-                // Fallback para modelo antigo se não houver no novo histórico
-                if (!data) {
-                    database.ref('consultores/' + consultorId).once('value', (snapAntigo) => {
-                        const oldData = snapAntigo.val();
-                        if (oldData && !oldData.checklists && !oldData.perfil) {
-                            preencherFormulario(oldData);
-                        }
+                // Se não achou em Upper, tenta em Lower (Legado)
+                if (!profile) {
+                    database.ref('consultores/' + consultorIdLower + '/perfil').once('value', (snapLower) => {
+                        profile = snapLower.val();
+                        if (profile) preencherPerfil(profile);
                     });
                 } else {
-                    preencherFormulario(data);
+                    preencherPerfil(profile);
                 }
             });
+
+            // Tentar carregar checklists (Historico Novo)
+            database.ref('consultores/' + consultorIdUpper + '/checklists').orderByChild('dataSalvamento').limitToLast(1).once('value', (snapshot) => {
+                const results = snapshot.val();
+                if (results) {
+                    const keys = Object.keys(results);
+                    preencherFormulario(results[keys[0]]);
+                } else {
+                    // Fallback para Legado (Root) - Tenta Upper e Lower
+                    database.ref('consultores/' + consultorIdUpper).once('value', (snapUpper) => {
+                        const dataUpper = snapUpper.val();
+                        if (dataUpper && !dataUpper.checklists && !dataUpper.perfil) {
+                            preencherFormulario(dataUpper);
+                        } else {
+                            database.ref('consultores/' + consultorIdLower).once('value', (snapLower) => {
+                                const dataLower = snapLower.val();
+                                if (dataLower && !dataLower.checklists && !dataLower.perfil) {
+                                    preencherFormulario(dataLower);
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        function preencherPerfil(profile) {
+            if (!profile) return;
+            document.getElementById('dataAdmissao').value = profile.dataAdmissao || '';
+            document.getElementById('cidade').value = profile.cidade || '';
+            document.getElementById('uf').value = profile.uf || '';
+            document.getElementById('supervisor').value = profile.supervisor || '';
+            document.getElementById('coordenador').value = profile.coordenador || '';
+            document.getElementById('regional').value = profile.regional || '';
+            document.getElementById('dataCertificacao').value = profile.dataCertificacao || '';
+            document.getElementById('notaCertificacao').value = profile.notaCertificacao || '';
         }
 
         function preencherFormulario(data) {
