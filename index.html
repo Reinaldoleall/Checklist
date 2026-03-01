@@ -16,8 +16,6 @@
 
     <!-- Google Fonts: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         /* RESET & BASE */
@@ -37,106 +35,200 @@
             overflow: hidden;
         }
 
-        /* BACKGROUND */
-        .fundo-capa {
-            position: fixed;
-            top: 0;
-            left: 0;
+        /* LAYOUT WRAPPER */
+        .page-wrapper {
+            display: flex;
             width: 100%;
             height: 100%;
-            z-index: -2;
-            overflow: hidden;
+            animation: fadeIn 0.8s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* BRAND SIDE (DESKTOP) */
+        .brand-side {
+            flex: 1.2;
+            position: relative;
+            background: #1e3c72;
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow: hidden;
         }
 
-        .fundo-capa img {
+        .brand-side img {
+            position: absolute;
             width: 100%;
             height: 100%;
             object-fit: cover;
-            filter: brightness(0.6) blur(2px);
-            transform: scale(1.05);
-            /* Avoid white edges on blur */
+            filter: brightness(0.7) contrast(1.1);
+            transition: transform 10s ease;
         }
 
-        .overlay {
-            position: fixed;
+        .brand-side:hover img {
+            transform: scale(1.1);
+        }
+
+        .brand-overlay {
+            position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 58, 138, 0.4) 100%);
-            z-index: -1;
+            background: linear-gradient(to right, rgba(30, 60, 114, 0.9), rgba(30, 60, 114, 0.4));
+            z-index: 1;
         }
 
-        /* MAIN CONTAINER */
-        body {
+        .brand-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            color: white;
+            padding: 40px;
+        }
+
+        .brand-logo {
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            margin: 0 auto 30px;
+            font-size: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .brand-content h2 {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            letter-spacing: -1px;
+        }
+
+        .brand-content p {
+            font-size: 18px;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        /* FORM SIDE */
+        .form-side {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            background: #fff;
+            position: relative;
+            z-index: 5;
+        }
+
+        /* MOBILE BACKGROUND */
+        .mobile-bg {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .mobile-bg img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.5) blur(3px);
+        }
+
+        .mobile-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 58, 138, 0.5));
         }
 
         /* LOGIN CARD */
         .login-box {
             width: 100%;
-            max-width: 420px;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 24px;
-            padding: 40px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            animation: fadeInScale 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
-            z-index: 1;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 400px;
+            animation: slideInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        @keyframes fadeInScale {
+        @keyframes slideInUp {
             from {
                 opacity: 0;
-                transform: scale(0.95) translateY(20px);
+                transform: translateY(30px);
             }
 
             to {
                 opacity: 1;
-                transform: scale(1) translateY(0);
+                transform: translateY(0);
             }
         }
 
-        /* HEADER */
-        .header {
+        /* FORM HEADER (MOBILE ONLY) */
+        .mobile-header {
+            display: none;
             text-align: center;
-            margin-bottom: 32px;
+            margin-bottom: 30px;
         }
 
-        .logo-placeholder {
-            width: 64px;
-            height: 64px;
+        .mobile-header .logo-placeholder {
+            width: 60px;
+            height: 60px;
             background: #1e3c72;
             border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 16px;
+            margin: 0 auto 15px;
             color: white;
             font-size: 24px;
-            box-shadow: 0 10px 15px -3px rgba(30, 60, 114, 0.3);
         }
 
-        .header h1 {
-            color: #0f172a;
+        .mobile-header h1 {
             font-size: 24px;
             font-weight: 800;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .mobile-header p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+
+        /* FORM TITLES (DESKTOP) */
+        .form-header {
+            margin-bottom: 30px;
+        }
+
+        .form-header h1 {
+            font-size: 28px;
+            font-weight: 800;
+            color: #0f172a;
             letter-spacing: -0.5px;
             margin-bottom: 8px;
         }
 
-        .header p {
+        .form-header p {
             color: #64748b;
             font-size: 14px;
-            font-weight: 400;
         }
 
         /* MESSAGES */
@@ -203,7 +295,6 @@
             font-size: 15px;
             color: #1e293b;
             transition: all 0.2s;
-            font-family: inherit;
         }
 
         .input-group input:focus {
@@ -240,20 +331,18 @@
             height: 18px;
             cursor: pointer;
             accent-color: #1e3c72;
-            border-radius: 4px;
         }
 
         .forgot {
             color: #1e3c72;
             text-decoration: none;
             font-weight: 600;
+            cursor: pointer;
             padding: 4px;
-            border-radius: 4px;
-            transition: background 0.2s;
         }
 
         .forgot:hover {
-            background: rgba(30, 60, 114, 0.05);
+            color: #152c52;
         }
 
         /* BUTTONS */
@@ -278,11 +367,7 @@
         .btn-login:hover {
             background: #152c52;
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(30, 60, 114, 0.25);
-        }
-
-        .btn-login:active {
-            transform: translateY(0);
+            box-shadow: 0 4px 12px rgba(30, 60, 114, 0.2);
         }
 
         .btn-login:disabled {
@@ -305,8 +390,19 @@
 
         .btn-cadastrar:hover {
             background: #f8fafc;
-            border-color: #cbd5e1;
-            color: #1e293b;
+        }
+
+        /* FOOTER */
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .footer.mobile {
+            color: rgba(255, 255, 255, 0.6);
+            display: none;
         }
 
         /* LOADING */
@@ -325,25 +421,33 @@
             }
         }
 
-        /* FOOTER */
-        .footer {
-            text-align: center;
-            margin-top: 32px;
-            font-size: 12px;
-            color: #94a3b8;
-            border-top: 1px solid #f1f5f9;
-            padding-top: 24px;
-        }
-
-        /* MOBILE OPTIMIZATION */
-        @media (max-width: 480px) {
-            .login-box {
-                padding: 32px 24px;
-                border-radius: 20px;
+        /* RESPONSIVITY */
+        @media (max-width: 900px) {
+            .brand-side {
+                display: none;
             }
 
-            .header h1 {
-                font-size: 20px;
+            .form-side {
+                background: transparent;
+            }
+
+            .mobile-bg,
+            .mobile-header,
+            .footer.mobile {
+                display: block;
+            }
+
+            .form-header,
+            .footer.desktop {
+                display: none;
+            }
+
+            .login-box {
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(10px);
+                padding: 40px 30px;
+                border-radius: 24px;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
             }
         }
     </style>
@@ -351,99 +455,129 @@
 
 <body>
 
-    <!-- OVERLAY & BACKGROUND -->
-    <div class="fundo-capa">
-        <img src="./checklist.png" alt="Capa Checklist 2026"
-            onerror="this.src='https://via.placeholder.com/1920x1080/1e3c72/ffffff?text=CHECKLIST+2026'">
-    </div>
-    <div class="overlay"></div>
-
-    <!-- MAIN CARD -->
-    <div class="login-box">
-        <div class="header">
-            <div class="logo-placeholder">
-                <i class="fas fa-clipboard-check"></i>
+    <div class="page-wrapper">
+        <!-- LEFT SIDE: BRANDING (DESKTOP) -->
+        <div class="brand-side">
+            <img src="./checklist.png" alt="Capa Checklist"
+                onerror="this.src='https://via.placeholder.com/1920x1080/1e3c72/ffffff?text=CHECKLIST+2026'">
+            <div class="brand-overlay"></div>
+            <div class="brand-content">
+                <div class="brand-logo">
+                    <i class="fas fa-clipboard-check"></i>
+                </div>
+                <h2>Check List 2026</h2>
+                <p>Otimize sua rotina de consultoria com a Panasonic Brasil.</p>
             </div>
-            <h1>Check List 2026</h1>
-            <p>Panasonic Brasil</p>
         </div>
 
-        <!-- Mensagens -->
-        <div id="mensagem" class="mensagem"></div>
+        <!-- RIGHT SIDE: FORM -->
+        <div class="form-side">
+            <!-- Mobile Optimized Background -->
+            <div class="mobile-bg">
+                <img src="./checklist.png" alt="Background" onerror="this.style.display='none'">
+                <div class="mobile-overlay"></div>
+            </div>
 
-        <!-- Login Form -->
-        <div id="loginForm">
-            <div class="input-group">
-                <label for="email">E-mail de Acesso</label>
-                <div class="input-wrapper">
-                    <i class="fas fa-envelope"></i>
-                    <input type="email" id="email" placeholder="exemplo@email.com" required autocomplete="email">
+            <div class="login-box">
+                <!-- Mobile Header -->
+                <div class="mobile-header">
+                    <div class="logo-placeholder">
+                        <i class="fas fa-clipboard-check"></i>
+                    </div>
+                    <h1>Check List 2026</h1>
+                    <p>Portal do Consultor · Panasonic</p>
+                </div>
+
+                <!-- Desktop Header -->
+                <div class="form-header">
+                    <h1>Bem-vindo!</h1>
+                    <p>Faça login para acessar o painel de consultoria.</p>
+                </div>
+
+                <!-- Messages -->
+                <div id="mensagem" class="mensagem"></div>
+
+                <!-- Login Form -->
+                <div id="loginForm">
+                    <div class="input-group">
+                        <label for="email">E-mail</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="email" placeholder="seu@email.com" required autocomplete="email">
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="senha">Senha</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="senha" placeholder="••••••••" required
+                                autocomplete="current-password">
+                        </div>
+                    </div>
+
+                    <div class="options">
+                        <label class="remember">
+                            <input type="checkbox" id="lembrar"> Lembrar acesso
+                        </label>
+                        <span class="forgot" onclick="recuperarSenha()">Esqueci a senha?</span>
+                    </div>
+
+                    <button type="button" class="btn-login" onclick="fazerLogin()" id="btnLogin">
+                        Acessar Portal
+                    </button>
+
+                    <button type="button" class="btn-cadastrar" onclick="mostrarCadastro()" id="btnMostrarCadastro">
+                        Criar Nova Conta
+                    </button>
+                </div>
+
+                <!-- Cadastro Form -->
+                <div id="cadastroForm" style="display: none;">
+                    <div class="input-group">
+                        <label>Nome Completo</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="nomeCadastro" placeholder="Seu nome completo">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>E-mail Corporativo</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="emailCadastro" placeholder="seu@email.com">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Definir Senha</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="senhaCadastro" placeholder="Mínimo 6 caracteres">
+                        </div>
+                    </div>
+                    <button type="button" class="btn-login" onclick="cadastrarUsuario()" id="btnCadastro">
+                        Finalizar Cadastro
+                    </button>
+                    <button type="button" class="btn-cadastrar" onclick="voltarLogin()">
+                        Voltar ao Login
+                    </button>
+                </div>
+
+                <!-- Desktop Footer -->
+                <div class="footer desktop">
+                    <p>&copy; 2026 Panasonic Brasil · Check List</p>
                 </div>
             </div>
 
-            <div class="input-group">
-                <label for="senha">Senha</label>
-                <div class="input-wrapper">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" id="senha" placeholder="••••••••" required autocomplete="current-password">
-                </div>
+            <!-- Mobile Footer -->
+            <div class="footer mobile" style="position: absolute; bottom: 20px; width: 100%; text-align: center;">
+                <p>&copy; 2026 Panasonic Brasil</p>
             </div>
-
-            <div class="options">
-                <label class="remember">
-                    <input type="checkbox" id="lembrar"> Lembrar acesso
-                </label>
-                <span class="forgot" onclick="recuperarSenha()">Esqueci a senha?</span>
-            </div>
-
-            <button type="button" class="btn-login" onclick="fazerLogin()" id="btnLogin">
-                Acessar Painel
-            </button>
-
-            <button type="button" class="btn-cadastrar" onclick="mostrarCadastro()" id="btnMostrarCadastro">
-                Criar Nova Conta
-            </button>
-        </div>
-
-        <!-- Cadastro Form -->
-        <div id="cadastroForm" style="display: none;">
-            <div class="input-group">
-                <label>Nome Completo</label>
-                <div class="input-wrapper">
-                    <i class="fas fa-user"></i>
-                    <input type="text" id="nomeCadastro" placeholder="Seu nome completo">
-                </div>
-            </div>
-            <div class="input-group">
-                <label>E-mail Corporativo</label>
-                <div class="input-wrapper">
-                    <i class="fas fa-envelope"></i>
-                    <input type="email" id="emailCadastro" placeholder="exemplo@email.com">
-                </div>
-            </div>
-            <div class="input-group">
-                <label>Definir Senha</label>
-                <div class="input-wrapper">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" id="senhaCadastro" placeholder="Mínimo 6 caracteres">
-                </div>
-            </div>
-            <button type="button" class="btn-login" onclick="cadastrarUsuario()" id="btnCadastro">
-                Finalizar Cadastro
-            </button>
-            <button type="button" class="btn-cadastrar" onclick="voltarLogin()">
-                Voltar ao Login
-            </button>
-        </div>
-
-        <div class="footer">
-            <p>&copy; 2026 Panasonic Brasil · Check List</p>
         </div>
     </div>
 
     <script>
-        // CONFIGURAÇÃO DO FIREBASE (MESMA DO SEU CHECKLIST)
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        // CONFIGURAÇÃO DO FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyBdNPXscs1-ikMOLGCzL5igJDi989RRCCQ",
             authDomain: "checklist-94b12.firebaseapp.com",
@@ -460,19 +594,14 @@
         const auth = firebase.auth();
         const database = firebase.database();
 
-        // Variáveis
         let tentativas = 0;
 
-        // Verificar se já está logado
         auth.onAuthStateChanged((user) => {
-            if (user) {
-                if (localStorage.getItem('lembrarLogin') === 'true') {
-                    window.location.href = 'checklist.html';
-                }
+            if (user && localStorage.getItem('lembrarLogin') === 'true') {
+                window.location.href = 'checklist.html';
             }
         });
 
-        // FUNÇÃO DE LOGIN
         function fazerLogin() {
             const email = document.getElementById('email').value.trim();
             const senha = document.getElementById('senha').value;
@@ -492,7 +621,6 @@
             auth.signInWithEmailAndPassword(email, senha)
                 .then((userCredential) => {
                     const user = userCredential.user;
-
                     if (lembrar) {
                         localStorage.setItem('lembrarLogin', 'true');
                         localStorage.setItem('userEmail', email);
@@ -503,45 +631,29 @@
                     database.ref('usuarios/' + user.uid).once('value')
                         .then((snapshot) => {
                             const userData = snapshot.val();
-
                             sessionStorage.setItem('userId', user.uid);
                             sessionStorage.setItem('userNome', userData?.nome || email.split('@')[0]);
-
                             mensagem.className = 'mensagem sucesso';
                             mensagem.innerHTML = '<i class="fas fa-check-circle"></i> Login realizado! Redirecionando...';
-
-                            setTimeout(() => {
-                                window.location.href = 'checklist.html';
-                            }, 1500);
+                            setTimeout(() => { window.location.href = 'checklist.html'; }, 1500);
                         });
                 })
                 .catch((error) => {
                     tentativas++;
-
                     let erroMsg = '';
                     switch (error.code) {
-                        case 'auth/user-not-found':
-                            erroMsg = 'Usuário não encontrado!';
-                            break;
-                        case 'auth/wrong-password':
-                            erroMsg = 'Senha incorreta! Tentativas: ' + tentativas + '/5';
-                            break;
-                        case 'auth/invalid-email':
-                            erroMsg = 'E-mail inválido!';
-                            break;
-                        default:
-                            erroMsg = 'Erro ao fazer login: ' + error.message;
+                        case 'auth/user-not-found': erroMsg = 'Usuário não encontrado!'; break;
+                        case 'auth/wrong-password': erroMsg = 'Senha incorreta! Tentativas: ' + tentativas + '/5'; break;
+                        case 'auth/invalid-email': erroMsg = 'E-mail inválido!'; break;
+                        default: erroMsg = 'Erro ao fazer login: ' + error.message;
                     }
-
                     mensagem.className = 'mensagem erro';
                     mensagem.innerHTML = '<i class="fas fa-times-circle"></i> ' + erroMsg;
-
-                    btnLogin.innerHTML = 'ENTRAR';
+                    btnLogin.innerHTML = 'Acessar Portal';
                     btnLogin.disabled = false;
                 });
         }
 
-        // FUNÇÃO DE CADASTRO
         function cadastrarUsuario() {
             const nome = document.getElementById('nomeCadastro').value.trim();
             const email = document.getElementById('emailCadastro').value.trim();
@@ -567,10 +679,7 @@
             auth.createUserWithEmailAndPassword(email, senha)
                 .then((userCredential) => {
                     const user = userCredential.user;
-
-                    return user.updateProfile({
-                        displayName: nome
-                    }).then(() => {
+                    return user.updateProfile({ displayName: nome }).then(() => {
                         return database.ref('usuarios/' + user.uid).set({
                             nome: nome,
                             email: email,
@@ -581,47 +690,32 @@
                     }).then(() => {
                         mensagem.className = 'mensagem sucesso';
                         mensagem.innerHTML = '<i class="fas fa-check-circle"></i> Cadastro realizado! Faça o login.';
-
-                        setTimeout(() => {
-                            voltarLogin();
-                        }, 2000);
+                        setTimeout(() => { voltarLogin(); }, 2000);
                     });
                 })
                 .catch((error) => {
                     let erroMsg = '';
                     switch (error.code) {
-                        case 'auth/email-already-in-use':
-                            erroMsg = 'Este e-mail já está cadastrado!';
-                            break;
-                        case 'auth/invalid-email':
-                            erroMsg = 'E-mail inválido!';
-                            break;
-                        case 'auth/weak-password':
-                            erroMsg = 'Senha muito fraca!';
-                            break;
-                        default:
-                            erroMsg = 'Erro ao cadastrar: ' + error.message;
+                        case 'auth/email-already-in-use': erroMsg = 'Este e-mail já está cadastrado!'; break;
+                        case 'auth/invalid-email': erroMsg = 'E-mail inválido!'; break;
+                        case 'auth/weak-password': erroMsg = 'Senha muito fraca!'; break;
+                        default: erroMsg = 'Erro ao cadastrar: ' + error.message;
                     }
-
                     mensagem.className = 'mensagem erro';
                     mensagem.innerHTML = '<i class="fas fa-times-circle"></i> ' + erroMsg;
-
-                    btnCadastro.innerHTML = 'CADASTRAR';
+                    btnCadastro.innerHTML = 'Finalizar Cadastro';
                     btnCadastro.disabled = false;
                 });
         }
 
-        // FUNÇÃO DE RECUPERAR SENHA
         function recuperarSenha() {
             const email = document.getElementById('email').value.trim();
             const mensagem = document.getElementById('mensagem');
-
             if (!email) {
                 mensagem.className = 'mensagem erro';
                 mensagem.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Digite seu e-mail para recuperar a senha!';
                 return;
             }
-
             auth.sendPasswordResetEmail(email)
                 .then(() => {
                     mensagem.className = 'mensagem sucesso';
@@ -633,7 +727,6 @@
                 });
         }
 
-        // MOSTRAR TELA DE CADASTRO
         function mostrarCadastro() {
             document.getElementById('loginForm').style.display = 'none';
             document.getElementById('cadastroForm').style.display = 'block';
@@ -641,37 +734,24 @@
             document.getElementById('mensagem').className = 'mensagem';
         }
 
-        // VOLTAR PARA LOGIN
         function voltarLogin() {
             document.getElementById('loginForm').style.display = 'block';
             document.getElementById('cadastroForm').style.display = 'none';
             document.getElementById('mensagem').innerHTML = '';
             document.getElementById('mensagem').className = 'mensagem';
-
             document.getElementById('nomeCadastro').value = '';
             document.getElementById('emailCadastro').value = '';
             document.getElementById('senhaCadastro').value = '';
         }
 
-        // Preencher e-mail salvo
         window.onload = function () {
             const savedEmail = localStorage.getItem('userEmail');
             if (savedEmail) {
                 document.getElementById('email').value = savedEmail;
                 document.getElementById('lembrar').checked = true;
             }
-
-            // Verificar se a imagem carregou
-            const img = document.querySelector('.fundo-capa img');
-            if (img.complete) {
-                console.log('✅ Capa carregada com sucesso!');
-            } else {
-                img.onload = () => console.log('✅ Capa carregada com sucesso!');
-                img.onerror = () => console.log('⚠️ Usando imagem de fallback');
-            }
         };
 
-        // Enter para login
         document.addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 if (document.getElementById('loginForm').style.display !== 'none') {
