@@ -1,777 +1,343 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
-    <title>Check List Consultor 2026 - Versão Excel Completa</title>
-    <meta name="viewport" content="width=device-width, initial-scale=0.5, maximum-scale=1.0, user-scalable=yes">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check List Consultor - Login</title>
+    
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Bibliotecas para Excel e PDF -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <!-- Font Awesome para ícones -->
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
         * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html,
-        body {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            /* trava scroll externo - usaremos scroll interno */
             font-family: 'Inter', sans-serif;
-            background: #f0f2f5;
         }
-
-        .excel-container {
-            background: white;
-            width: 100%;
-            min-width: 1600px;
-            /* Garante que o container acompanhe a largura da tabela */
-            display: block;
-            border: none;
-            /* garante sem borda */
-        }
-
-        .excel-table {
-            border-collapse: collapse;
-            width: 100%;
-            min-width: 1600px;
-            table-layout: fixed;
-        }
-
-        .excel-table td,
-        .excel-table th {
-            border: 1px solid #000000;
-            padding: 8px 6px;
-            vertical-align: middle;
-            overflow: visible;
-            white-space: normal;
-            word-wrap: break-word;
-        }
-
-        .excel-table th {
-            background-color: #1e3c72;
-            color: white;
-            font-weight: 600;
-            font-size: 12px;
-            text-align: center;
-        }
-
-        .excel-input {
-            width: 100%;
-            border: 1px solid #ccc;
-            outline: none;
-            background: white;
-            font-size: 12px;
-            padding: 6px;
-            border-radius: 4px;
-            box-sizing: border-box;
-            transition: all 0.2s;
-        }
-
-        .excel-input:focus {
-            border: 2px solid #1e3c72;
-            background-color: #e8f0fe;
-        }
-
-        .excel-select {
-            width: 100%;
-            border: 1px solid #ccc;
-            font-size: 12px;
-            padding: 6px;
-            background: white;
-            border-radius: 4px;
-        }
-
-        .checkbox-group {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            align-items: center;
-            padding: 5px 0;
-        }
-
-        .checkbox-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 12px;
-            white-space: nowrap;
-        }
-
-        .section-title {
-            background-color: #1e3c72;
-            color: white;
-            padding: 12px;
-            font-weight: bold;
-            font-size: 16px;
-            text-align: center;
-            border: 2px solid #000;
-            border-bottom: 1px solid #000;
-            border-left: none;
-            border-right: none;
-        }
-
-        /* Remove qualquer borda ou padding do body */
+        
         body {
-            padding: 0 !important;
-            margin: 0 !important;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
         }
-
-        .subsection-title {
-            background-color: #4472c4;
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .input-focus-effect:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-outline {
+            border: 2px solid #667eea;
+            color: #667eea;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline:hover {
+            background: #667eea;
             color: white;
-            padding: 8px;
-            font-weight: 600;
-            font-size: 14px;
-            border: 1px solid #000;
         }
-
-/* Container principal - OCUPA TELA INTEIRA SEM SCROLL */
-.main-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    background: white;
-    overflow: hidden;  /* IMPEDE SCROLL NO CONTAINER PRINCIPAL */
-}
-
-/* Área de conteúdo com scroll - OCUPA O ESPAÇO ACIMA DO MENU */
-.scrollable-content {
-    flex: 1;
-    overflow-y: auto;
-    overflow-x: auto;
-    background: white;
-    padding: 0;
-    margin: 0;
-    height: calc(100vh - 70px);  /* Altura fixa: tela total menos menu */
-    max-height: calc(100vh - 70px);  /* Garante que não ultrapasse */
-}
-
-.action-bar {
-    height: 70px;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: left;
-    padding: 8px 12px;
-    background: white;
-    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
-    flex-shrink: 0;
-    overflow: hidden;  /* IMPEDE SCROLL HORIZONTAL E VERTICAL */
-    overflow-x: hidden;  /* FORÇA NÃO TER SCROLL HORIZONTAL */
-    overflow-y: hidden;  /* FORÇA NÃO TER SCROLL VERTICAL */
-    position: relative;
-    z-index: 10;
-    max-width: 100vw;  /* NÃO ULTRAPASSA A LARGURA DA TELA */
-    box-sizing: border-box;
-}
-
-/* Botões do menu - SEM SCROLL */
-.action-btn {
-    width: 52px;
-    height: 52px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    background: transparent;
-    color: #475569;
-    cursor: pointer;
-    flex-direction: column;
-    gap: 2px;
-    overflow: hidden;  /* IMPEDE SCROLL NOS BOTÕES */
-}
-
-.action-btn i {
-    font-size: 20px !important;
-}
-
-.action-btn span {
-    font-size: 9px;
-    font-weight: 500;
-    white-space: nowrap;  /* IMPEDE TEXTO QUEBRAR */
-}
-
-.action-btn:hover {
-    transform: none;
-    background: #f1f5f9;
-}
-
-.btn-save:hover { background-color: #f0fdf4; color: #166534; }
-.btn-plus:hover { background-color: #eff6ff; color: #1d4ed8; }
-.btn-xls:hover { background-color: #f0fdf4; color: #15803d; }
-.btn-pdf:hover { background-color: #fef2f2; color: #dc2626; }
-.btn-off:hover { background-color: #f1f5f9; color: #334155; }
-        /* Loading spinner */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, .3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
+        
+        .slide-up {
+            animation: slideUp 0.5s ease-out;
         }
-
-        @keyframes spin {
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
             to {
-                transform: rotate(360deg);
+                opacity: 1;
+                transform: translateY(0);
             }
         }
-
-        /* Ajuste para scroll */
-        .overflow-wrapper {
-            overflow-x: auto;
-            width: 100%;
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
         }
-
-        /* Ajuste para texto longo em inputs */
-        .excel-input {
-            resize: vertical;
-            min-height: 32px;
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
-
-        textarea.excel-input {
-            min-height: 60px;
+        
+        .password-strength {
+            height: 4px;
+            transition: all 0.3s ease;
         }
-
-        /* Estilo para PDF em RETRATO */
-        .pdf-retrato {
-            width: 210mm;
-            /* Largura A4 retrato */
+        
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 24px;
             background: white;
-            padding: 15mm;
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 9999;
         }
-
-        .pdf-retrato table {
-            border-collapse: collapse;
-            width: 100%;
-            page-break-inside: avoid;
+        
+        .toast.show {
+            transform: translateX(0);
         }
-
-        .pdf-retrato td,
-        .pdf-retrato th {
-            border: 1px solid #000;
-            padding: 6px 4px;
-            font-size: 9px;
-            vertical-align: top;
+        
+        .toast.success {
+            border-left: 4px solid #10b981;
         }
-
-        .pdf-retrato th {
-            background-color: #1e3c72;
-            color: white;
-            font-weight: 600;
+        
+        .toast.error {
+            border-left: 4px solid #ef4444;
         }
-
-        .pdf-retrato .section-title {
-            background-color: #1e3c72;
-            color: white;
-            padding: 8px;
-            font-weight: bold;
-            font-size: 12px;
-            text-align: center;
-            border: 2px solid #000;
-        }
-
-        .pdf-retrato .subsection-title {
-            background-color: #4472c4;
-            color: white;
-            padding: 6px;
-            font-weight: 600;
-            font-size: 10px;
-            border: 1px solid #000;
-        }
-
-        /* Status oculto */
-        .status-badge {
-            display: none !important;
+        
+        .toast.warning {
+            border-left: 4px solid #f59e0b;
         }
     </style>
 </head>
-
-<body>
-    <!-- Status do Firebase - OCULTO -->
-    <div class="max-w-7xl mx-auto mb-2 flex justify-end">
-        <div id="statusConexao" class="status-badge status-offline">🔴 OFFLINE - Verificando...</div>
+<body class="flex items-center justify-center p-4">
+    
+    <!-- Toast Notification -->
+    <div id="toast" class="toast flex items-center gap-3">
+        <i id="toastIcon" class="fas fa-check-circle text-green-500 text-xl"></i>
+        <span id="toastMessage" class="text-gray-700 font-medium"></span>
     </div>
-
-    <div class="main-container">
-        <div class="scrollable-content">
-            <div class="excel-container">
-
-                <!-- CABEÇALHO PRINCIPAL -->
-                <div class="section-title">
-                    CHECK LIST - 2026 | PANASONIC
+    
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center">
+        <div class="bg-white rounded-2xl p-8 flex flex-col items-center gap-4">
+            <div class="w-16 h-16 border-4 border-gray-200 border-t-[#667eea] rounded-full animate-spin"></div>
+            <p class="text-gray-600 font-medium" id="loadingMessage">Carregando...</p>
+        </div>
+    </div>
+    
+    <!-- Main Container -->
+    <div class="w-full max-w-5xl bg-white/10 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden slide-up">
+        <div class="flex flex-col md:flex-row">
+            
+            <!-- Left Side - Branding -->
+            <div class="md:w-1/2 bg-gradient-to-br from-[#667eea] to-[#764ba2] p-12 text-white flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center gap-3 mb-12">
+                        <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
+                            <i class="fas fa-clipboard-list text-2xl"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold">CheckList 2026</h2>
+                    </div>
+                    
+                    <h1 class="text-4xl font-bold mb-6">Bem-vindo de volta!</h1>
+                    <p class="text-white/80 text-lg mb-8">
+                        Acesse sua conta para gerenciar seus checklists e acompanhar seu desempenho.
+                    </p>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                                <i class="fas fa-check text-sm"></i>
+                            </div>
+                            <span>Checklists ilimitados</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                                <i class="fas fa-check text-sm"></i>
+                            </div>
+                            <span>Exportação para Excel e PDF</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                                <i class="fas fa-check text-sm"></i>
+                            </div>
+                            <span>Dados salvos na nuvem</span>
+                        </div>
+                    </div>
                 </div>
-
-                <!-- ========== ABA CONSULTOR ========== -->
-                <table class="excel-table">
-                    <!-- INFORMAÇÕES CONSULTOR -->
-                    <tr>
-                        <td colspan="8" class="subsection-title">INFORMAÇÕES DO CONSULTOR</td>
-                    </tr>
-                    <tr>
-                        <td colspan="2" style="width: 15%;"><strong>CONSULTOR(A):</strong></td>
-                        <td colspan="3" style="width: 40%;"><input type="text" id="consultor" class="excel-input"
-                                placeholder="Nome completo"></td>
-                        <td style="width: 10%;"><strong>REGIONAL:</strong></td>
-                        <td colspan="2" style="width: 25%;"><input type="text" id="regional" class="excel-input"
-                                placeholder="Regional"></td>
-                    </tr>
-                    <tr>
-                        <td colspan="2"><strong>DATA DE ADMISSÃO:</strong></td>
-                        <td colspan="3"><input type="date" id="dataAdmissao" class="excel-input"></td>
-                        <td><strong>CIDADE:</strong></td>
-                        <td colspan="2"><input type="text" id="cidade" class="excel-input" placeholder="Cidade">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2"><strong>UF:</strong></td>
-                        <td colspan="3"><input type="text" id="uf" maxlength="2" class="excel-input" placeholder="UF">
-                        </td>
-                        <td><strong>SUPERVISOR(A):</strong></td>
-                        <td colspan="2"><input type="text" id="supervisor" class="excel-input"
-                                placeholder="Nome do supervisor"></td>
-                    </tr>
-                    <tr>
-                        <td colspan="2"><strong>COORDENADOR(A):</strong></td>
-                        <td colspan="6"><input type="text" id="coordenador" class="excel-input"
-                                placeholder="Nome do coordenador"></td>
-                    </tr>
-
-                    <!-- CERTIFICAÇÃO -->
-                    <tr>
-                        <td colspan="8" class="subsection-title">CERTIFICAÇÃO</td>
-                    </tr>
-                    <tr>
-                        <td colspan="3"><strong>DATA DA ÚLTIMA CERTIFICAÇÃO:</strong></td>
-                        <td colspan="3"><input type="date" id="dataCertificacao" class="excel-input"></td>
-                        <td colspan="2"><strong>NOTA:</strong></td>
-                    </tr>
-                    <tr>
-                        <td colspan="3"></td>
-                        <td colspan="3"></td>
-                        <td colspan="2"><input type="number" step="0.1" min="0" max="10" id="notaCertificacao"
-                                class="excel-input" placeholder="0.0 a 10.0"></td>
-                    </tr>
-
-                    <!-- IDC -->
-                    <tr>
-                        <td colspan="8" class="subsection-title">IDC - ÍNDICE DE DESEMPENHO DO CONSULTOR</td>
-                    </tr>
-                    <tr>
-                        <th style="width: 15%;">MÊS</th>
-                        <th style="width: 10%;">NOTA</th>
-                        <th style="width: 75%;" colspan="6">APONTAMENTOS / OBSERVAÇÕES</th>
-                    </tr>
-                    <tr>
-                        <td>JANEIRO</td>
-                        <td><input type="number" step="0.1" id="notaJan" class="excel-input" placeholder="0-10">
-                        </td>
-                        <td colspan="6"><input type="text" id="apontJan" class="excel-input"
-                                placeholder="Observações..."></td>
-                    </tr>
-                    <tr>
-                        <td>FEVEREIRO</td>
-                        <td><input type="number" step="0.1" id="notaFev" class="excel-input" placeholder="0-10">
-                        </td>
-                        <td colspan="6"><input type="text" id="apontFev" class="excel-input"
-                                placeholder="Observações..."></td>
-                    </tr>
-                    <tr>
-                        <td>MARÇO</td>
-                        <td><input type="number" step="0.1" id="notaMar" class="excel-input" placeholder="0-10">
-                        </td>
-                        <td colspan="6"><input type="text" id="apontMar" class="excel-input"
-                                placeholder="Observações..."></td>
-                    </tr>
-                    <tr>
-                        <td>ABRIL</td>
-                        <td><input type="number" step="0.1" id="notaAbr" class="excel-input" placeholder="0-10">
-                        </td>
-                        <td colspan="6"><input type="text" id="apontAbr" class="excel-input"
-                                placeholder="Observações..."></td>
-                    </tr>
-                    <tr>
-                        <td>MAIO</td>
-                        <td><input type="number" step="0.1" id="notaMai" class="excel-input" placeholder="0-10">
-                        </td>
-                        <td colspan="6"><input type="text" id="apontMai" class="excel-input"
-                                placeholder="Observações..."></td>
-                    </tr>
-                    <tr>
-                        <td>JUNHO</td>
-                        <td><input type="number" step="0.1" id="notaJun" class="excel-input" placeholder="0-10">
-                        </td>
-                        <td colspan="6"><input type="text" id="apontJun" class="excel-input"
-                                placeholder="Observações..."></td>
-                    </tr>
-                    <tr>
-                        <td>JULHO</td>
-                        <td><input type="number" step="0.1" id="notaJul" class="excel-input" placeholder="0-10">
-                        </td>
-                        <td colspan="6"><input type="text" id="apontJul" class="excel-input"
-                                placeholder="Observações..."></td>
-                    </tr>
-                    <tr>
-                        <td>AGOSTO</td>
-                        <td><input type="number" step="0.1" id="notaAgo" class="excel-input" placeholder="0-10">
-                        </td>
-                        <td colspan="6"><input type="text" id="apontAgo" class="excel-input"
-                                placeholder="Observações..."></td>
-                    </tr>
-                    <tr>
-                        <td>SETEMBRO</td>
-                        <td><input type="number" step="0.1" id="notaSet" class="excel-input" placeholder="0-10">
-                        </td>
-                        <td colspan="6"><input type="text" id="apontSet" class="excel-input"
-                                placeholder="Observações..."></td>
-                    </tr>
-                    <tr>
-                        <td>OUTUBRO</td>
-                        <td><input type="number" step="0.1" id="notaOut" class="excel-input" placeholder="0-10">
-                        </td>
-                        <td colspan="6"><input type="text" id="apontOut" class="excel-input"
-                                placeholder="Observações..."></td>
-                    </tr>
-                    <tr>
-                        <td>NOVEMBRO</td>
-                        <td><input type="number" step="0.1" id="notaNov" class="excel-input" placeholder="0-10">
-                        </td>
-                        <td colspan="6"><input type="text" id="apontNov" class="excel-input"
-                                placeholder="Observações..."></td>
-                    </tr>
-                    <tr>
-                        <td>DEZEMBRO</td>
-                        <td><input type="number" step="0.1" id="notaDez" class="excel-input" placeholder="0-10">
-                        </td>
-                        <td colspan="6"><input type="text" id="apontDez" class="excel-input"
-                                placeholder="Observações..."></td>
-                    </tr>
-
-                    <!-- ANOTAÇÕES GERAIS -->
-                    <tr>
-                        <td colspan="8" class="subsection-title">ANOTAÇÕES GERAIS</td>
-                    </tr>
-                    <tr>
-                        <td colspan="8">
-                            <textarea id="anotacoesGerais" rows="4" class="excel-input"
-                                placeholder="Digite aqui as anotações gerais do consultor..."></textarea>
-                        </td>
-                    </tr>
-                </table>
-
-                <!-- ========== FRENTE CHECK LIST ========== -->
-                <div class="section-title" style="margin-top: 2px;">CHECK LIST VISITA - FRENTE</div>
-
-                <table class="excel-table">
-                    <!-- INFORMAÇÕES DA LOJA -->
-                    <tr>
-                        <td colspan="13" class="subsection-title">INFORMAÇÕES DA LOJA</td>
-                    </tr>
-                    <tr>
-                        <td colspan="2"><strong>REVENDA:</strong></td>
-                        <td colspan="3"><input type="text" id="revenda" class="excel-input"
-                                placeholder="Nome da revenda"></td>
-                        <td colspan="2"><strong>FILIAL:</strong></td>
-                        <td colspan="3"><input type="text" id="filial" class="excel-input" placeholder="Nº filial">
-                        </td>
-                        <td><strong>ID:</strong></td>
-                        <td><input type="text" id="idLoja" class="excel-input" placeholder="ID"></td>
-                    </tr>
-                    <tr>
-                        <td colspan="2"><strong>ENDEREÇO:</strong></td>
-                        <td colspan="6"><input type="text" id="endereco" class="excel-input"
-                                placeholder="Endereço completo"></td>
-                        <td colspan="2"><strong>CIDADE/UF:</strong></td>
-                        <td colspan="3"><input type="text" id="cidadeUf" class="excel-input" placeholder="Cidade/UF">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2"><strong>GERENTE:</strong></td>
-                        <td colspan="2"><input type="text" id="gerente" class="excel-input"
-                                placeholder="Nome do gerente"></td>
-                        <td colspan="2"><strong>CONTATO:</strong></td>
-                        <td colspan="2"><input type="text" id="contato" class="excel-input"
-                                placeholder="Telefone/email"></td>
-                        <td colspan="2"><strong>SUB GERENTE:</strong></td>
-                        <td colspan="3"><input type="text" id="subGerente" class="excel-input"
-                                placeholder="Nome sub gerente"></td>
-                    </tr>
-                    <tr>
-                        <td colspan="2"><strong>CNPJ:</strong></td>
-                        <td colspan="11"><input type="text" id="cnpj" class="excel-input"
-                                placeholder="00.000.000/0000-00"></td>
-                    </tr>
-
-                    <!-- FATURAMENTO DA LOJA -->
-                    <tr>
-                        <td colspan="13" class="subsection-title">FATURAMENTO DA LOJA</td>
-                    </tr>
-                    <tr>
-                        <td colspan="4"><strong>FATURAMENTO MENSAL LOJA R$:</strong></td>
-                        <td colspan="3"><input type="number" id="faturamentoLoja" class="excel-input"
-                                placeholder="0,00"></td>
-                        <td colspan="3"><strong>FATURAMENTO PANASONIC R$:</strong></td>
-                        <td colspan="3"><input type="number" id="faturamentoPanasonic" class="excel-input"
-                                placeholder="0,00"></td>
-                    </tr>
-                    <tr>
-                        <td colspan="4"><strong>RANKING NA REDE:</strong></td>
-                        <td colspan="9"><input type="text" id="ranking" class="excel-input"
-                                placeholder="Posição no ranking"></td>
-                    </tr>
-                    <tr>
-                        <td colspan="4"><strong>JUSTIFICATIVA (se não tiver info):</strong></td>
-                        <td colspan="9"><input type="text" id="justificativa" class="excel-input"
-                                placeholder="Por que não tem a informação?"></td>
-                    </tr>
-                    <tr>
-                        <td colspan="4"><strong>FLOOR SHARE PANASONIC %:</strong></td>
-                        <td colspan="9"><input type="number" step="0.1" id="floorShare" class="excel-input"
-                                placeholder="0.0%"></td>
-                    </tr>
-
-                    <!-- DESTAQUE DE VENDAS -->
-                    <tr>
-                        <td colspan="13" class="subsection-title">DESTAQUE DE VENDAS - LINHA BRANCA</td>
-                    </tr>
-                    <tr>
-                        <th colspan="2">GELADEIRA</th>
-                        <th colspan="2">MÁQUINA DE LAVAR</th>
-                        <th colspan="2">MICRO-ONDAS</th>
-                        <th colspan="7">OUTROS DESTAQUES</th>
-                    </tr>
-                    <tr>
-                        <td><strong>MARCA</strong></td>
-                        <td><strong>MODELO</strong></td>
-                        <td><strong>MARCA</strong></td>
-                        <td><strong>MODELO</strong></td>
-                        <td><strong>MARCA</strong></td>
-                        <td><strong>MODELO</strong></td>
-                        <td colspan="7" rowspan="2"><input type="text" id="outrosDestaques" class="excel-input"
-                                placeholder="OUTROS PRODUTOS EM DESTAQUE (opcional)" style="height: 100%;"></td>
-                    </tr>
-                    <tr>
-                        <td><input type="text" id="geladeiraMarca" class="excel-input" placeholder="Marca"></td>
-                        <td><input type="text" id="geladeiraModelo" class="excel-input" placeholder="Modelo"></td>
-                        <td><input type="text" id="lavadoraMarca" class="excel-input" placeholder="Marca"></td>
-                        <td><input type="text" id="lavadoraModelo" class="excel-input" placeholder="Modelo"></td>
-                        <td><input type="text" id="microondasMarca" class="excel-input" placeholder="Marca"></td>
-                        <td><input type="text" id="microondasModelo" class="excel-input" placeholder="Modelo"></td>
-                    </tr>
-                    <tr>
-                        <td colspan="2"><input type="number" id="geladeiraPreco" class="excel-input"
-                                placeholder="Preço R$"></td>
-                        <td colspan="2"><input type="number" id="lavadoraPreco" class="excel-input"
-                                placeholder="Preço R$"></td>
-                        <td colspan="2"><input type="number" id="microondasPreco" class="excel-input"
-                                placeholder="Preço R$"></td>
-                        <td colspan="7"></td>
-                    </tr>
-
-                    <!-- PANASONIC - CAMPANHAS -->
-                    <tr>
-                        <td colspan="13" style="background-color: #d9e1f2;"><strong>PANASONIC - PROGRAMA E
-                                CAMPANHAS</strong></td>
-                    </tr>
-                    <tr>
-                        <td colspan="13">
-                            <div class="checkbox-group">
-                                <span><strong>VENDEDORES/GERENTES CONHECEM O PROGRAMA E AS CAMPANHAS
-                                        VIGENTES?</strong></span>
-                                <div class="checkbox-item"><input type="radio" name="conhecemPrograma" value="SIM">
-                                    SIM
-                                </div>
-                                <div class="checkbox-item"><input type="radio" name="conhecemPrograma" value="NAO">
-                                    NÃO
-                                </div>
+                
+                <div class="text-sm text-white/60">
+                    © 2026 Panasonic. Todos os direitos reservados.
+                </div>
+            </div>
+            
+            <!-- Right Side - Forms -->
+            <div class="md:w-1/2 bg-white p-12">
+                
+                <!-- Tabs -->
+                <div class="flex gap-4 mb-8">
+                    <button id="loginTab" class="tab-btn active flex-1 py-3 text-center font-semibold text-gray-600 border-b-2 transition-all" style="border-color: #667eea; color: #667eea;">
+                        Entrar
+                    </button>
+                    <button id="registerTab" class="tab-btn flex-1 py-3 text-center font-semibold text-gray-400 border-b-2 border-transparent hover:text-gray-600 transition-all">
+                        Cadastrar
+                    </button>
+                </div>
+                
+                <!-- Login Form -->
+                <div id="loginForm" class="form-container space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-envelope mr-2 text-gray-400"></i>E-mail
+                        </label>
+                        <input type="email" id="loginEmail" placeholder="seu@email.com" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none input-focus-effect transition-all">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-lock mr-2 text-gray-400"></i>Senha
+                        </label>
+                        <div class="relative">
+                            <input type="password" id="loginPassword" placeholder="••••••••" 
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none input-focus-effect transition-all pr-12">
+                            <button type="button" onclick="togglePassword('loginPassword', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <label class="flex items-center gap-2">
+                            <input type="checkbox" class="rounded border-gray-300 text-[#667eea] focus:ring-[#667eea]">
+                            <span class="text-sm text-gray-600">Lembrar-me</span>
+                        </label>
+                        <button onclick="recuperarSenha()" class="text-sm text-[#667eea] hover:text-[#764ba2] transition-colors">
+                            Esqueceu a senha?
+                        </button>
+                    </div>
+                    
+                    <button onclick="fazerLogin()" class="btn-primary w-full py-4 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Entrar
+                    </button>
+                    
+                    <div class="relative">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-gray-300"></div>
+                        </div>
+                        <div class="relative flex justify-center text-sm">
+                            <span class="px-4 bg-white text-gray-500">ou continue com</span>
+                        </div>
+                    </div>
+                    
+                    <button onclick="loginGoogle()" class="w-full py-3 border-2 border-gray-300 rounded-xl font-medium text-gray-700 hover:bg-gray-50 transition-all flex items-center justify-center gap-3">
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="w-5 h-5">
+                        Google
+                    </button>
+                </div>
+                
+                <!-- Register Form -->
+                <div id="registerForm" class="form-container space-y-6 hidden">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-user mr-2 text-gray-400"></i>Nome Completo
+                        </label>
+                        <input type="text" id="regNome" placeholder="Seu nome" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none input-focus-effect transition-all">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-envelope mr-2 text-gray-400"></i>E-mail
+                        </label>
+                        <input type="email" id="regEmail" placeholder="seu@email.com" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none input-focus-effect transition-all">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-lock mr-2 text-gray-400"></i>Senha
+                        </label>
+                        <div class="relative">
+                            <input type="password" id="regPassword" placeholder="Mínimo 6 caracteres" onkeyup="checkPasswordStrength(this.value)" 
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none input-focus-effect transition-all pr-12">
+                            <button type="button" onclick="togglePassword('regPassword', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- Password Strength Meter -->
+                        <div class="mt-2 space-y-1">
+                            <div class="flex gap-1">
+                                <div id="strength1" class="password-strength flex-1 bg-gray-200 rounded-full"></div>
+                                <div id="strength2" class="password-strength flex-1 bg-gray-200 rounded-full"></div>
+                                <div id="strength3" class="password-strength flex-1 bg-gray-200 rounded-full"></div>
                             </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="13">
-                            <div class="checkbox-group">
-                                <span><strong>TODOS ESTÃO CADASTRADOS?</strong></span>
-                                <div class="checkbox-item"><input type="radio" name="cadastrados" value="SIM"> SIM
-                                </div>
-                                <div class="checkbox-item"><input type="radio" name="cadastrados" value="NAO"> NÃO
-                                </div>
-                                <span class="ml-4"><strong>ALGUMA PENDÊNCIA?</strong></span>
-                                <div class="checkbox-item"><input type="radio" name="pendencia" value="SIM"> SIM
-                                </div>
-                                <div class="checkbox-item"><input type="radio" name="pendencia" value="NAO"> NÃO
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2"><strong>OBS:</strong></td>
-                        <td colspan="11"><input type="text" id="obsCadastro" class="excel-input"
-                                placeholder="Observações sobre cadastros..."></td>
-                    </tr>
-
-                    <!-- LANÇAMENTOS -->
-                    <tr>
-                        <td colspan="13" class="subsection-title">LANÇAMENTO - INTRODUÇÃO DE PRODUTO NA LOJA</td>
-                    </tr>
-                    <tr>
-                        <th style="width: 10%;">DATA</th>
-                        <th style="width: 10%;">MARCA</th>
-                        <th colspan="2" style="width: 20%;">PRODUTO</th>
-                        <th colspan="3" style="width: 25%;">MODELO</th>
-                        <th colspan="5" style="width: 30%;">PREÇO</th>
-                        <th style="width: 5%;"></th>
-                    </tr>
-                    <tbody id="lancamentos">
-                        <!-- Linhas serão inseridas aqui -->
-                    </tbody>
-                    <tr>
-                        <td colspan="13">
-                            <button onclick="adicionarLancamento()" class="btn-excel" style="width: auto; margin: 10px;"
-                                type="button">+ ADICIONAR NOVO
-                                LANÇAMENTO</button>
-                        </td>
-                    </tr>
-
-                    <!-- META DE TREINAMENTO -->
-                    <tr>
-                        <td colspan="13" class="subsection-title">META DE TREINAMENTO ON THE JOB</td>
-                    </tr>
-                    <tr>
-                        <td colspan="4"><strong>META DE TREINAMENTO:</strong></td>
-                        <td colspan="9"><input type="text" id="metaTreinamento" class="excel-input"
-                                placeholder="Ex: Treinar todos os vendedores"></td>
-                    </tr>
-                    <tr>
-                        <td colspan="4"><strong>META DE PESSOAS TREINADAS:</strong></td>
-                        <td colspan="9"><input type="number" id="metaPessoas" class="excel-input"
-                                placeholder="Número de pessoas"></td>
-                    </tr>
-
-                    <!-- MERCHANDISING -->
-                    <tr>
-                        <td colspan="13" class="subsection-title">GUIA DE MERCHANDISING - MPV</td>
-                    </tr>
-                    <tr>
-                        <td colspan="13">
-                            <div class="checkbox-group">
-                                <span><strong>OS MPVs ESTÃO APLICADOS CORRETAMENTE?</strong></span>
-                                <div class="checkbox-item"><input type="radio" name="mpvAplicado" value="SIM"> SIM
-                                </div>
-                                <div class="checkbox-item"><input type="radio" name="mpvAplicado" value="NAO"> NÃO
-                                </div>
-                                <span><strong>MOTIVO:</strong></span>
-                                <input type="text" id="motivoMpv" class="excel-input" style="width: 300px;"
-                                    placeholder="Motivo se não aplicado">
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="13">
-                            <div class="checkbox-group">
-                                <span><strong>OS PRODUTOS ESTÃO LIMPOS?</strong></span>
-                                <div class="checkbox-item"><input type="radio" name="produtosLimpos" value="SIM">
-                                    SIM
-                                </div>
-                                <div class="checkbox-item"><input type="radio" name="produtosLimpos" value="NAO">
-                                    NÃO
-                                </div>
-                                <span><strong>MOTIVO:</strong></span>
-                                <input type="text" id="motivoLimpeza" class="excel-input" style="width: 300px;"
-                                    placeholder="Motivo se não limpos">
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-
-                <!-- ========== VERSO CHECK LIST ========== -->
-                <div class="section-title" style="margin-top: 2px;">VERSO CHECK LIST - VISITAS RECEBIDAS</div>
-
-                <table class="excel-table">
-                    <tr>
-                        <td colspan="13" class="subsection-title">VISITAS RECEBIDAS (PREENCHIDO PELO GESTOR)</td>
-                    </tr>
-                    <tr>
-                        <th>DATA</th>
-                        <th>NOME</th>
-                        <th>VISTO</th>
-                        <th>FERRAMENTA DE TRABALHO</th>
-                        <th>DOMÍNIO DA INFORMAÇÃO</th>
-                        <th>UNIFORME</th>
-                        <th>PDV/EXECUÇÃO</th>
-                        <th colspan="5">OBSERVAÇÃO</th>
-                        <th></th>
-                    </tr>
-                    <tbody id="visitas">
-                        <!-- As visitas serão inseridas aqui -->
-                    </tbody>
-                    <tr>
-                        <td colspan="13">
-                            <button onclick="adicionarVisita()" class="btn-excel" style="width: auto; margin: 10px;"
-                                type="button">+ ADICIONAR NOVA VISITA</button>
-                        </td>
-                    </tr>
-                </table>
-
-            </div> <!-- Fim .excel-container -->
-        </div> <!-- Fim .scrollable-content -->
-
-        <!-- BARRA DE AÇÕES MINIMALISTA -->
-<div class="action-bar">
-    <button onclick="salvarDados()" class="action-btn btn-save">
-        <i class="fas fa-save"></i>
-        <span>Salvar</span>
-    </button>
-
-    <button onclick="limparDadosLoja()" class="action-btn btn-plus">
-        <i class="fas fa-plus"></i>
-        <span>Novo</span>
-    </button>
-
-    <button onclick="exportarChecklistExcel()" class="action-btn btn-xls">
-        <i class="fas fa-file-excel"></i>
-        <span>Excel</span>
-    </button>
-
-    <button onclick="exportarChecklistPDF()" class="action-btn btn-pdf">
-        <i class="fas fa-file-pdf"></i>
-        <span>PDF</span>
-    </button>
-
-    <button onclick="window.location.href='index.html'" class="action-btn btn-off">
-        <i class="fas fa-sign-out-alt"></i>
-        <span>Sair</span>
-    </button>
-</div>
-    </div> <!-- Fim .main-container -->
-
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-
+                            <p id="strengthText" class="text-xs text-gray-500">Digite uma senha</p>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-lock mr-2 text-gray-400"></i>Confirmar Senha
+                        </label>
+                        <div class="relative">
+                            <input type="password" id="regConfirmPassword" placeholder="Digite novamente" 
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none input-focus-effect transition-all pr-12">
+                            <button type="button" onclick="togglePassword('regConfirmPassword', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-briefcase mr-2 text-gray-400"></i>Cargo
+                        </label>
+                        <select id="regCargo" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none input-focus-effect transition-all">
+                            <option value="">Selecione...</option>
+                            <option value="Consultor">Consultor</option>
+                            <option value="Supervisor">Supervisor</option>
+                            <option value="Coordenador">Coordenador</option>
+                            <option value="Gerente">Gerente</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-map-marker-alt mr-2 text-gray-400"></i>Regional
+                        </label>
+                        <input type="text" id="regRegional" placeholder="Sua regional" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none input-focus-effect transition-all">
+                    </div>
+                    
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox" id="termos" class="rounded border-gray-300 text-[#667eea] focus:ring-[#667eea]">
+                        <span class="text-sm text-gray-600">Li e aceito os <a href="#" class="text-[#667eea] hover:underline">Termos de Uso</a></span>
+                    </label>
+                    
+                    <button onclick="fazerCadastro()" class="btn-primary w-full py-4 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2">
+                        <i class="fas fa-user-plus"></i>
+                        Criar Conta
+                    </button>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    
+    <!-- Firebase Config -->
     <script>
-        // CONFIGURAÇÃO DO FIREBASE
+        // Configuração do Firebase (use a mesma do seu código principal)
         const firebaseConfig = {
             apiKey: "AIzaSyBdNPXscs1-ikMOLGCzL5igJDi989RRCCQ",
             authDomain: "checklist-94b12.firebaseapp.com",
@@ -785,983 +351,289 @@
 
         // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
         const database = firebase.database();
 
-        // Função para remover linha
-        function removerLinha(botao) {
-            if (confirm('Remover este item?')) {
-                const row = botao.closest('tr');
-                if (row) row.remove();
-            }
-        }
+        // Elementos DOM
+        const toast = document.getElementById('toast');
+        const toastIcon = document.getElementById('toastIcon');
+        const toastMessage = document.getElementById('toastMessage');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const loadingMessage = document.getElementById('loadingMessage');
 
-        // Função para adicionar lançamento
-        function adicionarLancamento(dados = null) {
-            const tbody = document.getElementById('lancamentos');
-            const novaLinha = document.createElement('tr');
-            novaLinha.className = 'lancamento-row';
-            novaLinha.innerHTML = `
-                <td><input type="date" class="excel-input lancamento-data" value="${dados?.data || ''}"></td>
-                <td><input type="text" class="excel-input lancamento-marca" placeholder="Marca" value="${dados?.marca || ''}"></td>
-                <td colspan="2"><input type="text" class="excel-input lancamento-produto" placeholder="Produto" value="${dados?.produto || ''}"></td>
-                <td colspan="3"><input type="text" class="excel-input lancamento-modelo" placeholder="Modelo" value="${dados?.modelo || ''}"></td>
-                <td colspan="5"><input type="number" class="excel-input lancamento-preco" placeholder="Preço R$" value="${dados?.preco || ''}"></td>
-                <td><button onclick="removerLinha(this)" class="btn-remove" type="button"><i class="fas fa-times"></i></button></td>
-            `;
-            tbody.appendChild(novaLinha);
-        }
+        // Toggle entre Login e Cadastro
+        document.getElementById('loginTab').addEventListener('click', () => {
+            document.getElementById('loginTab').style.borderColor = '#667eea';
+            document.getElementById('loginTab').style.color = '#667eea';
+            document.getElementById('registerTab').style.borderColor = 'transparent';
+            document.getElementById('registerTab').style.color = '#9ca3af';
+            document.getElementById('loginForm').classList.remove('hidden');
+            document.getElementById('registerForm').classList.add('hidden');
+        });
 
-        // Função para adicionar visita
-        function adicionarVisita(dados = null) {
-            const tbody = document.getElementById('visitas');
-            const novaLinha = document.createElement('tr');
-            novaLinha.className = 'visita-row';
+        document.getElementById('registerTab').addEventListener('click', () => {
+            document.getElementById('registerTab').style.borderColor = '#667eea';
+            document.getElementById('registerTab').style.color = '#667eea';
+            document.getElementById('loginTab').style.borderColor = 'transparent';
+            document.getElementById('loginTab').style.color = '#9ca3af';
+            document.getElementById('registerForm').classList.remove('hidden');
+            document.getElementById('loginForm').classList.add('hidden');
+        });
 
-            const checks = (tipo, valor) => {
-                if (!dados || !dados[tipo]) return '';
-                return dados[tipo].includes(valor) ? 'checked' : '';
-            };
-
-            novaLinha.innerHTML = `
-                <td><input type="date" class="excel-input visita-data" value="${dados?.data || ''}"></td>
-                <td><input type="text" class="excel-input visita-nome" placeholder="Nome" value="${dados?.nome || ''}"></td>
-                <td><input type="text" class="excel-input visita-visto" placeholder="Assinatura" value="${dados?.visto || ''}"></td>
-                <td>
-                    <div class="checkbox-group flex-col items-start">
-                        <label class="checkbox-item"><input type="checkbox" class="visita-ferramenta" value="CELULAR_BOM" ${checks('ferramenta', 'CELULAR_BOM')}> 📱 Celular OK</label>
-                        <label class="checkbox-item"><input type="checkbox" class="visita-ferramenta" value="CELULAR_DEFEITO" ${checks('ferramenta', 'CELULAR_DEFEITO')}> 📱 Celular Def.</label>
-                    </div>
-                </td>
-                <td>
-                    <div class="checkbox-group flex-col items-start">
-                        <label class="checkbox-item"><input type="checkbox" class="visita-dominio" value="FOCO_MENSAL" ${checks('dominio', 'FOCO_MENSAL')}> 🎯 Foco Mensal</label>
-                        <label class="checkbox-item"><input type="checkbox" class="visita-dominio" value="CAMPANHAS" ${checks('dominio', 'CAMPANHAS')}> 📢 Campanhas</label>
-                        <label class="checkbox-item"><input type="checkbox" class="visita-dominio" value="INFO_LOJA" ${checks('dominio', 'INFO_LOJA')}> 🏪 Info Loja</label>
-                    </div>
-                </td>
-                <td>
-                    <div class="checkbox-group flex-col items-start">
-                        <label class="checkbox-item"><input type="checkbox" class="visita-uniforme" value="COMPLETO" ${checks('uniforme', 'COMPLETO')}> 👔 Unif. OK</label>
-                        <label class="checkbox-item"><input type="checkbox" class="visita-uniforme" value="INCOMPLETO" ${checks('uniforme', 'INCOMPLETO')}> 👕 Incompleto</label>
-                    </div>
-                </td>
-                <td>
-                    <div class="checkbox-group flex-col items-start">
-                        <label class="checkbox-item"><input type="checkbox" class="visita-pdv" value="POSITIVACAO" ${checks('pdv', 'POSITIVACAO')}> 📦 Positivação</label>
-                        <label class="checkbox-item"><input type="checkbox" class="visita-pdv" value="LIMPEZA" ${checks('pdv', 'LIMPEZA')}> 🧹 Limpeza/Org.</label>
-                        <label class="checkbox-item"><input type="checkbox" class="visita-pdv" value="PRECIFICACAO" ${checks('pdv', 'PRECIFICACAO')}> 🏷️ Precificação</label>
-                    </div>
-                </td>
-                <td colspan="5"><textarea class="excel-input visita-obs" rows="2" placeholder="Observações...">${dados?.observacao || ''}</textarea></td>
-                <td><button onclick="removerLinha(this)" class="btn-remove" type="button"><i class="fas fa-trash"></i></button></td>
-            `;
-            tbody.appendChild(novaLinha);
-        }
-
-        // Função para coletar dados atuais
-        function coletarDadosAtuais() {
-            const dados = {
-                consultor: document.getElementById('consultor')?.value || '',
-                regional: document.getElementById('regional')?.value || '',
-                dataAdmissao: document.getElementById('dataAdmissao')?.value || '',
-                cidade: document.getElementById('cidade')?.value || '',
-                uf: document.getElementById('uf')?.value || '',
-                supervisor: document.getElementById('supervisor')?.value || '',
-                coordenador: document.getElementById('coordenador')?.value || '',
-                dataCertificacao: document.getElementById('dataCertificacao')?.value || '',
-                notaCertificacao: document.getElementById('notaCertificacao')?.value || '',
-                anotacoesGerais: document.getElementById('anotacoesGerais')?.value || '',
-                loja: {
-                    revenda: document.getElementById('revenda')?.value || '',
-                    filial: document.getElementById('filial')?.value || '',
-                    id: document.getElementById('idLoja')?.value || '',
-                    endereco: document.getElementById('endereco')?.value || '',
-                    cidadeUf: document.getElementById('cidadeUf')?.value || '',
-                    gerente: document.getElementById('gerente')?.value || '',
-                    contato: document.getElementById('contato')?.value || '',
-                    subGerente: document.getElementById('subGerente')?.value || '',
-                    cnpj: document.getElementById('cnpj')?.value || '',
-                    faturamentoLoja: document.getElementById('faturamentoLoja')?.value || '',
-                    faturamentoPanasonic: document.getElementById('faturamentoPanasonic')?.value || '',
-                    ranking: document.getElementById('ranking')?.value || '',
-                    justificativa: document.getElementById('justificativa')?.value || '',
-                    floorShare: document.getElementById('floorShare')?.value || ''
-                },
-                destaques: {
-                    geladeira: {
-                        marca: document.getElementById('geladeiraMarca')?.value || '',
-                        modelo: document.getElementById('geladeiraModelo')?.value || '',
-                        preco: document.getElementById('geladeiraPreco')?.value || ''
-                    },
-                    lavadora: {
-                        marca: document.getElementById('lavadoraMarca')?.value || '',
-                        modelo: document.getElementById('lavadoraModelo')?.value || '',
-                        preco: document.getElementById('lavadoraPreco')?.value || ''
-                    },
-                    microondas: {
-                        marca: document.getElementById('microondasMarca')?.value || '',
-                        modelo: document.getElementById('microondasModelo')?.value || '',
-                        preco: document.getElementById('microondasPreco')?.value || ''
-                    },
-                    outros: document.getElementById('outrosDestaques')?.value || ''
-                },
-                programas: {
-                    conhecemPrograma: document.querySelector('input[name="conhecemPrograma"]:checked')?.value || '',
-                    cadastrados: document.querySelector('input[name="cadastrados"]:checked')?.value || '',
-                    pendencia: document.querySelector('input[name="pendencia"]:checked')?.value || '',
-                    obsCadastro: document.getElementById('obsCadastro')?.value || ''
-                },
-                metas: {
-                    metaTreinamento: document.getElementById('metaTreinamento')?.value || '',
-                    metaPessoas: document.getElementById('metaPessoas')?.value || ''
-                },
-                merchandising: {
-                    mpvAplicado: document.querySelector('input[name="mpvAplicado"]:checked')?.value || '',
-                    motivoMpv: document.getElementById('motivoMpv')?.value || '',
-                    produtosLimpos: document.querySelector('input[name="produtosLimpos"]:checked')?.value || '',
-                    motivoLimpeza: document.getElementById('motivoLimpeza')?.value || ''
-                },
-                idc: {},
-                lancamentos: [],
-                visitas: []
-            };
-
-            // IDC
-            const meses = ['janeiro', 'fevereiro', 'marco', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
-            meses.forEach(mes => {
-                const notaId = `nota${mes.charAt(0).toUpperCase() + mes.slice(1)}`;
-                const apontId = `apont${mes.charAt(0).toUpperCase() + mes.slice(1)}`;
-                dados.idc[mes] = {
-                    nota: document.getElementById(notaId)?.value || '',
-                    apontamento: document.getElementById(apontId)?.value || ''
-                };
-            });
-
-            // Lançamentos
-            document.querySelectorAll('.lancamento-row').forEach(row => {
-                const data = row.querySelector('.lancamento-data')?.value;
-                if (data) {
-                    dados.lancamentos.push({
-                        data: data,
-                        marca: row.querySelector('.lancamento-marca')?.value || '',
-                        produto: row.querySelector('.lancamento-produto')?.value || '',
-                        modelo: row.querySelector('.lancamento-modelo')?.value || '',
-                        preco: row.querySelector('.lancamento-preco')?.value || ''
-                    });
-                }
-            });
-
-            // Visitas
-            document.querySelectorAll('.visita-row').forEach(row => {
-                const data = row.querySelector('.visita-data')?.value;
-                if (data) {
-                    dados.visitas.push({
-                        data: data,
-                        nome: row.querySelector('.visita-nome')?.value || '',
-                        visto: row.querySelector('.visita-visto')?.value || '',
-                        ferramenta: Array.from(row.querySelectorAll('.visita-ferramenta:checked')).map(cb => cb.value),
-                        dominio: Array.from(row.querySelectorAll('.visita-dominio:checked')).map(cb => cb.value),
-                        uniforme: Array.from(row.querySelectorAll('.visita-uniforme:checked')).map(cb => cb.value),
-                        pdv: Array.from(row.querySelectorAll('.visita-pdv:checked')).map(cb => cb.value),
-                        observacao: row.querySelector('.visita-obs')?.value || ''
-                    });
-                }
-            });
-
-            return dados;
-        }
-
-        // Função para salvar dados no Firebase
-        function salvarDados() {
-            const consultor = document.getElementById('consultor').value.trim();
-            if (!consultor) {
-                alert('❌ Por favor, preencha o nome do consultor!');
-                document.getElementById('consultor').focus();
-                return;
-            }
-
-            if (!confirm('Salvar checklist no Firebase?')) return;
-
-            const dados = coletarDadosAtuais();
-
-            const btn = event.target;
-            const textoOriginal = btn.innerHTML;
-            btn.innerHTML = '<span class="loading"></span> SALVANDO...';
-            btn.disabled = true;
-
-            // Normalizar ID (Sempre Maiúsculo para consistência)
-            const consultorId = consultor.replace(/\s+/g, '_').toUpperCase();
-            const now = new Date().toISOString();
-
-            // ===== CORREÇÃO PRINCIPAL =====
-            // 1. Adicionar timestamp único para garantir que não sobrescreva
-            const timestamp = Date.now(); // Milissegundos desde 1970 - GARANTE QUE SEJA ÚNICO
-            const dataVisita = dados.loja?.dataVisita || now.split('T')[0]; // Pega a data da visita se existir
-
-            // Criar ID composto: loja_data_timestamp para garantir unicidade
-            const lojaNome = (dados.loja?.revenda || 'loja').replace(/\s+/g, '_').substring(0, 20);
-            const checklistId = `${lojaNome}_${dataVisita}_${timestamp}`;
-
-            // 2. Estrutura correta: consultores/[ID]/checklists/[ID-ÚNICO]
-            const novoChecklistRef = database.ref(`consultores/${consultorId}/checklists/${checklistId}`);
-
-            // Adicionar metadados ao checklist
-            dados.id = checklistId;
-            dados.dataSalvamento = now;
-            dados.timestamp = timestamp;
-            dados.loja = dados.loja || {};
-            dados.loja.dataVisita = dataVisita;
-
-            // 3. SALVAR - Isso cria um NOVO registro, NÃO substitui o antigo
-            novoChecklistRef.set(dados, (error) => {
-                if (error) {
-                    btn.innerHTML = textoOriginal;
-                    btn.disabled = false;
-                    alert('❌ Erro ao salvar: ' + error.message);
-                } else {
-                    // 4. Atualizar perfil do consultor (separado dos checklists)
-                    const perfilRef = database.ref(`consultores/${consultorId}/perfil`);
-
-                    perfilRef.update({
-                        consultor: consultor,
-                        regional: dados.regional || '',
-                        cidade: dados.cidade || '',
-                        uf: dados.uf || '',
-                        supervisor: dados.supervisor || '',
-                        coordenador: dados.coordenador || '',
-                        dataAdmissao: dados.dataAdmissao || '',
-                        dataCertificacao: dados.dataCertificacao || '',
-                        notaCertificacao: dados.notaCertificacao || '',
-                        ultimaAtualizacao: now,
-                        online: true,
-                        ultimoChecklistId: checklistId // Referência ao último checklist
-                    });
-
-                    btn.innerHTML = textoOriginal;
-                    btn.disabled = false;
-
-                    // Mensagem de sucesso com informação do ID único
-                    alert(`✅ Checklist salvo com sucesso!\n\n📌 ID: ${checklistId}\n📅 Data: ${dataVisita}\n🏪 Loja: ${dados.loja?.revenda || 'Não informada'}`);
-
-                    // Opcional: Limpar apenas dados da loja para nova visita
-                    if (confirm('Deseja limpar os dados da loja para começar um novo checklist?')) {
-                        limparDadosLoja();
-                    }
-                }
-            });
-        }
-
-        // FUNÇÃO NOVA - Adicione após salvarDados()
-        function limparDadosLoja() {
-            // Limpar campos da loja
-            const camposLoja = [
-                'revenda', 'filial', 'idLoja', 'endereco', 'cidadeUf',
-                'gerente', 'contato', 'subGerente', 'cnpj',
-                'faturamentoLoja', 'faturamentoPanasonic', 'ranking',
-                'justificativa', 'floorShare', 'outrosDestaques'
-            ];
-
-            camposLoja.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.value = '';
-            });
-
-            // Limpar destaques
-            document.getElementById('geladeiraMarca').value = '';
-            document.getElementById('geladeiraModelo').value = '';
-            document.getElementById('geladeiraPreco').value = '';
-            document.getElementById('lavadoraMarca').value = '';
-            document.getElementById('lavadoraModelo').value = '';
-            document.getElementById('lavadoraPreco').value = '';
-            document.getElementById('microondasMarca').value = '';
-            document.getElementById('microondasModelo').value = '';
-            document.getElementById('microondasPreco').value = '';
-
-            // Limpar lançamentos (exceto manter uma linha vazia)
-            document.getElementById('lancamentos').innerHTML = '';
-            adicionarLancamento(); // Adiciona uma linha em branco
-
-            // Resetar checkboxes de programa
-            document.querySelectorAll('input[name="conhecemPrograma"]').forEach(r => r.checked = false);
-            document.querySelectorAll('input[name="cadastrados"]').forEach(r => r.checked = false);
-            document.querySelectorAll('input[name="pendencia"]').forEach(r => r.checked = false);
-            document.getElementById('obsCadastro').value = '';
-
-            // Limpar metas
-            document.getElementById('metaTreinamento').value = '';
-            document.getElementById('metaPessoas').value = '';
-
-            // Limpar merchandising
-            document.querySelectorAll('input[name="mpvAplicado"]').forEach(r => r.checked = false);
-            document.querySelectorAll('input[name="produtosLimpos"]').forEach(r => r.checked = false);
-            document.getElementById('motivoMpv').value = '';
-            document.getElementById('motivoLimpeza').value = '';
-
-            alert('✅ Dados da loja limpos! Pronto para novo checklist.');
-        }
-
-        function carregarDados(consultor) {
-            if (!consultor) return;
-
-            // APENAS mostrar mensagem, não carrega dados
-            console.log('Consultor selecionado: ' + consultor);
-
-            // Mostrando uma mensagem sutil
-            const statusDiv = document.createElement('div');
-            statusDiv.className = 'fixed top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-lg text-sm z-50 shadow-xl border border-white/20 animate-bounce';
-            statusDiv.innerHTML = '<i class="fas fa-check-circle mr-2"></i> Pronto para novo checklist';
-            document.body.appendChild(statusDiv);
+        // Função para mostrar toast
+        function showToast(message, type = 'success') {
+            toastIcon.className = type === 'success' ? 'fas fa-check-circle text-green-500 text-xl' :
+                                 type === 'error' ? 'fas fa-exclamation-circle text-red-500 text-xl' :
+                                 'fas fa-exclamation-triangle text-yellow-500 text-xl';
+            toast.className = `toast show ${type} flex items-center gap-3`;
+            toastMessage.textContent = message;
+            
             setTimeout(() => {
-                statusDiv.classList.remove('animate-bounce');
-                statusDiv.style.opacity = '0';
-                statusDiv.style.transition = 'opacity 0.5s';
-                setTimeout(() => statusDiv.remove(), 500);
+                toast.classList.remove('show');
             }, 3000);
         }
 
-        function preencherPerfil(profile) {
-            if (!profile) return;
-            document.getElementById('dataAdmissao').value = profile.dataAdmissao || '';
-            document.getElementById('cidade').value = profile.cidade || '';
-            document.getElementById('uf').value = profile.uf || '';
-            document.getElementById('supervisor').value = profile.supervisor || '';
-            document.getElementById('coordenador').value = profile.coordenador || '';
-            document.getElementById('regional').value = profile.regional || '';
-            document.getElementById('dataCertificacao').value = profile.dataCertificacao || '';
-            document.getElementById('notaCertificacao').value = profile.notaCertificacao || '';
-        }
-
-        function preencherFormulario(data) {
-            if (!data) return;
-
-            document.getElementById('anotacoesGerais').value = data.anotacoesGerais || '';
-
-            // IDC
-            if (data.idc) {
-                const meses = ['janeiro', 'fevereiro', 'marco', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
-                meses.forEach(mes => {
-                    const notaId = `nota${mes.charAt(0).toUpperCase() + mes.slice(1)}`;
-                    const apontId = `apont${mes.charAt(0).toUpperCase() + mes.slice(1)}`;
-                    if (document.getElementById(notaId)) document.getElementById(notaId).value = data.idc[mes]?.nota || '';
-                    if (document.getElementById(apontId)) document.getElementById(apontId).value = data.idc[mes]?.apontamento || '';
-                });
-            }
-
-            // Loja
-            if (data.loja) {
-                document.getElementById('revenda').value = data.loja.revenda || '';
-                document.getElementById('filial').value = data.loja.filial || '';
-                document.getElementById('idLoja').value = data.loja.id || '';
-                document.getElementById('endereco').value = data.loja.endereco || '';
-                document.getElementById('cidadeUf').value = data.loja.cidadeUf || '';
-                document.getElementById('gerente').value = data.loja.gerente || '';
-                document.getElementById('contato').value = data.loja.contato || '';
-                document.getElementById('subGerente').value = data.loja.subGerente || '';
-                document.getElementById('cnpj').value = data.loja.cnpj || '';
-                document.getElementById('faturamentoLoja').value = data.loja.faturamentoLoja || '';
-                document.getElementById('faturamentoPanasonic').value = data.loja.faturamentoPanasonic || '';
-                document.getElementById('ranking').value = data.loja.ranking || '';
-                document.getElementById('justificativa').value = data.loja.justificativa || '';
-                document.getElementById('floorShare').value = data.loja.floorShare || '';
-            }
-
-            // Destaques
-            if (data.destaques) {
-                document.getElementById('geladeiraMarca').value = data.destaques.geladeira?.marca || '';
-                document.getElementById('geladeiraModelo').value = data.destaques.geladeira?.modelo || '';
-                document.getElementById('geladeiraPreco').value = data.destaques.geladeira?.preco || '';
-                document.getElementById('lavadoraMarca').value = data.destaques.lavadora?.marca || '';
-                document.getElementById('lavadoraModelo').value = data.destaques.lavadora?.modelo || '';
-                document.getElementById('lavadoraPreco').value = data.destaques.lavadora?.preco || '';
-                document.getElementById('microondasMarca').value = data.destaques.microondas?.marca || '';
-                document.getElementById('microondasModelo').value = data.destaques.microondas?.modelo || '';
-                document.getElementById('microondasPreco').value = data.destaques.microondas?.preco || '';
-                document.getElementById('outrosDestaques').value = data.destaques.outros || '';
-            }
-
-            // Programas
-            if (data.programas) {
-                const setRadio = (name, val) => {
-                    const radios = document.querySelectorAll(`input[name="${name}"]`);
-                    radios.forEach(r => { if (r.value === val) r.checked = true; });
-                };
-                setRadio('conhecemPrograma', data.programas.conhecemPrograma);
-                setRadio('cadastrados', data.programas.cadastrados);
-                setRadio('pendencia', data.programas.pendencia);
-                document.getElementById('obsCadastro').value = data.programas.obsCadastro || '';
-            }
-
-            // Metas
-            if (data.metas) {
-                document.getElementById('metaTreinamento').value = data.metas.metaTreinamento || '';
-                document.getElementById('metaPessoas').value = data.metas.metaPessoas || '';
-            }
-
-            // Merchandising
-            if (data.merchandising) {
-                const setRadio = (name, val) => {
-                    const radios = document.querySelectorAll(`input[name="${name}"]`);
-                    radios.forEach(r => { if (r.value === val) r.checked = true; });
-                };
-                setRadio('mpvAplicado', data.merchandising.mpvAplicado);
-                setRadio('produtosLimpos', data.merchandising.produtosLimpos);
-                document.getElementById('motivoMpv').value = data.merchandising.motivoMpv || '';
-                document.getElementById('motivoLimpeza').value = data.merchandising.motivoLimpeza || '';
-            }
-
-            // Lançamentos e Visitas
-            document.getElementById('lancamentos').innerHTML = '';
-            if (data.lancamentos) {
-                data.lancamentos.forEach(l => adicionarLancamento(l));
+        // Função para mostrar loading
+        function showLoading(show, message = 'Carregando...') {
+            if (show) {
+                loadingMessage.textContent = message;
+                loadingOverlay.classList.remove('hidden');
+                loadingOverlay.classList.add('flex');
             } else {
-                adicionarLancamento();
-            }
-
-            document.getElementById('visitas').innerHTML = '';
-            if (data.visitas) {
-                data.visitas.forEach(v => adicionarVisita(v));
-            } else {
-                adicionarVisita();
+                loadingOverlay.classList.add('hidden');
+                loadingOverlay.classList.remove('flex');
             }
         }
 
-        // FUNÇÃO PARA EXPORTAR EXCEL (MELHORADA COM LARGURA AUTOMÁTICA E MESCLAGEM)
-        function exportarChecklistExcel() {
-            const consultor = document.getElementById('consultor').value.trim();
-            if (!consultor) {
-                alert('❌ Preencha o nome do consultor primeiro!');
+        // Função para toggle password visibility
+        function togglePassword(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const icon = btn.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
+        }
+
+        // Função para verificar força da senha
+        function checkPasswordStrength(password) {
+            const strength1 = document.getElementById('strength1');
+            const strength2 = document.getElementById('strength2');
+            const strength3 = document.getElementById('strength3');
+            const strengthText = document.getElementById('strengthText');
+            
+            let strength = 0;
+            
+            if (password.length >= 6) strength++;
+            if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength++;
+            if (password.match(/[0-9]/) && password.match(/[^a-zA-Z0-9]/)) strength++;
+            
+            const colors = ['#ef4444', '#f59e0b', '#10b981'];
+            const texts = ['Fraca', 'Média', 'Forte'];
+            
+            strength1.style.backgroundColor = strength >= 1 ? colors[0] : '#e5e7eb';
+            strength2.style.backgroundColor = strength >= 2 ? colors[1] : '#e5e7eb';
+            strength3.style.backgroundColor = strength >= 3 ? colors[2] : '#e5e7eb';
+            
+            strengthText.textContent = strength > 0 ? `Senha ${texts[strength-1]}` : 'Digite uma senha';
+            strengthText.style.color = strength > 0 ? colors[strength-1] : '#6b7280';
+        }
+
+        // Função de Login
+        function fazerLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                showToast('Preencha todos os campos!', 'error');
                 return;
             }
-
-            const btn = event.target.closest('button');
-            const textoOriginal = btn.innerHTML;
-            btn.innerHTML = '<span class="loading"></span> GERANDO EXCEL...';
-            btn.disabled = true;
-
-            const dados = coletarDadosAtuais();
-
-            const wb = XLSX.utils.book_new();
-            const planilha = [];
-
-            // CABEÇALHO PRINCIPAL
-            planilha.push(['CHECK LIST - 2026 | PANASONIC', '', '', '', '', '', '', '', '', '', '', '', '']);
-            planilha.push([]);
-
-            // INFORMAÇÕES CONSULTOR
-            planilha.push(['INFORMAÇÕES DO CONSULTOR', '', '', '', '', '', '', '', '', '', '', '', '']);
-            planilha.push(['CONSULTOR(A):', dados.consultor, '', 'REGIONAL:', dados.regional, '', '', '', '', '', '', '', '']);
-            planilha.push(['DATA DE ADMISSÃO:', dados.dataAdmissao, '', 'CIDADE:', dados.cidade, 'UF:', dados.uf, '', '', '', '', '', '']);
-            planilha.push(['SUPERVISOR(A):', dados.supervisor, '', 'COORDENADOR(A):', dados.coordenador, '', '', '', '', '', '', '', '']);
-            planilha.push([]);
-
-            // CERTIFICAÇÃO
-            planilha.push(['CERTIFICAÇÃO', '', '', '', '', '', '', '', '', '', '', '', '']);
-            planilha.push(['DATA DA ÚLTIMA CERTIFICAÇÃO:', dados.dataCertificacao, '', 'NOTA DA CERTIFICAÇÃO:', dados.notaCertificacao, '', '', '', '', '', '', '', '']);
-            planilha.push([]);
-
-            // IDC
-            planilha.push(['IDC - ÍNDICE DE DESEMPENHO DO CONSULTOR', '', '', '', '', '', '', '', '', '', '', '', '']);
-            planilha.push(['MÊS', 'NOTA', 'APONTAMENTOS / OBSERVAÇÕES', '', '', '', '', '', '', '', '', '', '']);
-
-            const meses = ['JANEIRO', 'FEVEREIRO', 'MARÇO', 'ABRIL', 'MAIO', 'JUNHO', 'JULHO', 'AGOSTO', 'SETEMBRO', 'OUTUBRO', 'NOVEMBRO', 'DEZEMBRO'];
-            const campos = ['janeiro', 'fevereiro', 'marco', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
-
-            for (let i = 0; i < meses.length; i++) {
-                const dadosMes = dados.idc[campos[i]] || { nota: '', apontamento: '' };
-                planilha.push([meses[i], dadosMes.nota || '', dadosMes.apontamento || '', '', '', '', '', '', '', '', '', '', '']);
-            }
-
-            planilha.push([]);
-            planilha.push(['ANOTAÇÕES GERAIS', '', '', '', '', '', '', '', '', '', '', '', '']);
-            planilha.push([dados.anotacoesGerais, '', '', '', '', '', '', '', '', '', '', '', '']);
-            planilha.push([]);
-            planilha.push(['CHECK LIST VISITA - FRENTE', '', '', '', '', '', '', '', '', '', '', '', '']);
-
-            // LOJA
-            if (dados.loja) {
-                planilha.push(['INFORMAÇÕES DA LOJA', '', '', '', '', '', '', '', '', '', '', '', '']);
-                planilha.push(['REVENDA:', dados.loja.revenda, '', 'FILIAL:', dados.loja.filial, '', 'ID:', dados.loja.id, '', '', '', '', '']);
-                planilha.push(['ENDEREÇO:', dados.loja.endereco, '', '', '', 'CIDADE/UF:', dados.loja.cidadeUf, '', '', '', '', '', '']);
-                planilha.push(['GERENTE:', dados.loja.gerente, '', 'CONTATO:', dados.loja.contato, '', 'SUB GERENTE:', dados.loja.subGerente, '', '', '', '', '']);
-                planilha.push(['CNPJ:', dados.loja.cnpj, '', '', '', '', '', '', '', '', '', '', '']);
-                planilha.push([]);
-
-                planilha.push(['FATURAMENTO DA LOJA', '', '', '', '', '', '', '', '', '', '', '', '']);
-                planilha.push(['FATURAMENTO MENSAL LOJA R$:', dados.loja.faturamentoLoja, '', 'FATURAMENTO PANASONIC R$:', dados.loja.faturamentoPanasonic, '', '', '', '', '', '', '', '']);
-                planilha.push(['RANKING NA REDE:', dados.loja.ranking, '', 'JUSTIFICATIVA:', dados.loja.justificativa, '', 'FLOOR SHARE %:', dados.loja.floorShare, '', '', '', '', '']);
-                planilha.push([]);
-            }
-
-            // DESTAQUES
-            if (dados.destaques) {
-                planilha.push(['DESTAQUE DE VENDAS - LINHA BRANCA', '', '', '', '', '', '', '', '', '', '', '', '']);
-                planilha.push(['GELADEIRA', 'PRODUTO', 'PREÇO', 'LAVADORA', 'PRODUTO', 'PREÇO', 'MICRO-ONDAS', 'PRODUTO', 'PREÇO', 'OUTROS', '', '', '']);
-                planilha.push([
-                    dados.destaques.geladeira.marca, dados.destaques.geladeira.modelo, 'R$ ' + dados.destaques.geladeira.preco,
-                    dados.destaques.lavadora.marca, dados.destaques.lavadora.modelo, 'R$ ' + dados.destaques.lavadora.preco,
-                    dados.destaques.microondas.marca, dados.destaques.microondas.modelo, 'R$ ' + dados.destaques.microondas.preco,
-                    dados.destaques.outros, '', '', ''
-                ]);
-                planilha.push([]);
-            }
-
-            // PROGRAMAS
-            if (dados.programas) {
-                planilha.push(['PANASONIC - PROGRAMA E CAMPANHAS', '', '', '', '', '', '', '', '', '', '', '', '']);
-                planilha.push([
-                    'Vendedores conhecem o programa?', dados.programas.conhecemPrograma,
-                    'Todos cadastrados?', dados.programas.cadastrados,
-                    'Alguma pendência?', dados.programas.pendencia,
-                    '', '', '', '', '', '', ''
-                ]);
-                planilha.push(['OBSERVAÇÕES:', dados.programas.obsCadastro, '', '', '', '', '', '', '', '', '', '', '']);
-                planilha.push([]);
-            }
-
-            // LANÇAMENTOS
-            if (dados.lancamentos.length > 0) {
-                planilha.push(['LANÇAMENTO - INTRODUÇÃO DE PRODUTO NA LOJA', '', '', '', '', '', '', '', '', '', '', '', '']);
-                planilha.push(['DATA', 'MARCA', 'PRODUTO', 'MODELO', 'PREÇO', '', '', '', '', '', '', '', '']);
-                dados.lancamentos.forEach(l => {
-                    planilha.push([l.data, l.marca, l.produto, l.modelo, 'R$ ' + l.preco, '', '', '', '', '', '', '', '']);
+            
+            showLoading(true, 'Entrando...');
+            
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    showLoading(false);
+                    showToast('Login realizado com sucesso!', 'success');
+                    
+                    // Salvar dados do usuário
+                    localStorage.setItem('user', JSON.stringify({
+                        uid: userCredential.user.uid,
+                        email: userCredential.user.email
+                    }));
+                    
+                    // Redirecionar para o checklist
+                    setTimeout(() => {
+                        window.location.href = 'checklist.html';
+                    }, 1000);
+                })
+                .catch((error) => {
+                    showLoading(false);
+                    let mensagem = 'Erro ao fazer login!';
+                    
+                    if (error.code === 'auth/user-not-found') {
+                        mensagem = 'Usuário não encontrado!';
+                    } else if (error.code === 'auth/wrong-password') {
+                        mensagem = 'Senha incorreta!';
+                    } else if (error.code === 'auth/invalid-email') {
+                        mensagem = 'E-mail inválido!';
+                    }
+                    
+                    showToast(mensagem, 'error');
                 });
-                planilha.push([]);
-            }
-
-            // METAS
-            if (dados.metas) {
-                planilha.push(['META DE TREINAMENTO ON THE JOB', '', '', '', '', '', '', '', '', '', '', '', '']);
-                planilha.push(['META:', dados.metas.metaTreinamento, '', 'PESSOAS TREINADAS:', dados.metas.metaPessoas, '', '', '', '', '', '', '', '']);
-                planilha.push([]);
-            }
-
-            // MERCHANDISING
-            if (dados.merchandising) {
-                planilha.push(['GUIA DE MERCHANDISING - MPV', '', '', '', '', '', '', '', '', '', '', '', '']);
-                planilha.push(['MPV APLICADO?', dados.merchandising.mpvAplicado, '', 'MOTIVO:', dados.merchandising.motivoMpv, '', '', '', '', '', '', '', '']);
-                planilha.push(['PRODUTOS LIMPOS?', dados.merchandising.produtosLimpos, '', 'MOTIVO:', dados.merchandising.motivoLimpeza, '', '', '', '', '', '', '', '']);
-                planilha.push([]);
-            }
-
-            // VERSO
-            if (dados.visitas.length > 0) {
-                planilha.push(['VERSO CHECK LIST - VISITAS RECEBIDAS', '', '', '', '', '', '', '', '', '', '', '', '']);
-                planilha.push(['DATA', 'NOME', 'VISTO', 'FERRAMENTA', 'DOMÍNIO', 'UNIFORME', 'PDV', 'OBSERVAÇÃO', '', '', '', '', '']);
-                dados.visitas.forEach(v => {
-                    const ferramenta = Array.isArray(v.ferramenta) ? v.ferramenta.join(', ') : v.ferramenta;
-                    const dominio = Array.isArray(v.dominio) ? v.dominio.join(', ') : v.dominio;
-                    const uniforme = Array.isArray(v.uniforme) ? v.uniforme.join(', ') : v.uniforme;
-                    const pdv = Array.isArray(v.pdv) ? v.pdv.join(', ') : v.pdv;
-                    planilha.push([v.data, v.nome, v.visto, ferramenta, dominio, uniforme, pdv, v.observacao, '', '', '', '', '']);
-                });
-            }
-
-            const ws = XLSX.utils.aoa_to_sheet(planilha);
-
-            // MESCLAGEM DE CÉLULAS (MERGES)
-            ws['!merges'] = [
-                { s: { r: 0, c: 0 }, e: { r: 0, c: 12 } } // Título Principal
-            ];
-
-            // Adicionar merges para as seções
-            for (let r = 0; r < planilha.length; r++) {
-                if (planilha[r] && planilha[r][0] && (
-                    planilha[r][0].includes('INFORMAÇÕES') ||
-                    planilha[r][0].includes('CERTIFICAÇÃO') ||
-                    planilha[r][0].includes('IDC') ||
-                    planilha[r][0].includes('ANOTAÇÕES') ||
-                    planilha[r][0].includes('FRENTE') ||
-                    planilha[r][0].includes('FATURAMENTO') ||
-                    planilha[r][0].includes('DESTAQUE') ||
-                    planilha[r][0].includes('PROGRAMA') ||
-                    planilha[r][0].includes('LANÇAMENTO') ||
-                    planilha[r][0].includes('META') ||
-                    planilha[r][0].includes('GUIA') ||
-                    planilha[r][0].includes('VERSO')
-                ) && planilha[r][1] === '') {
-                    ws['!merges'].push({ s: { r: r, c: 0 }, e: { r: r, c: 12 } });
-                }
-
-                // Mesclar observações do IDC
-                if (r >= 10 && r <= 21) {
-                    ws['!merges'].push({ s: { r: r, c: 2 }, e: { r: r, c: 12 } });
-                }
-
-                // Mesclar Anotações Gerais
-                if (planilha[r] && planilha[r][0] === dados.anotacoesGerais) {
-                    ws['!merges'].push({ s: { r: r, c: 0 }, e: { r: r, c: 12 } });
-                }
-            }
-
-            // APLICAR ESTILOS E CALCULAR LARGURAS
-            const range = XLSX.utils.decode_range(ws['!ref']);
-            const colWidths = [];
-
-            for (let C = range.s.c; C <= range.e.c; C++) {
-                let maxLen = 10;
-                for (let R = range.s.r; R <= range.e.r; R++) {
-                    const cellRef = XLSX.utils.encode_cell({ r: R, c: C });
-                    if (!ws[cellRef]) continue;
-
-                    const cellValue = String(ws[cellRef].v || '');
-                    maxLen = Math.max(maxLen, cellValue.length);
-
-                    ws[cellRef].s = {
-                        border: {
-                            top: { style: 'thin', color: { rgb: '000000' } },
-                            bottom: { style: 'thin', color: { rgb: '000000' } },
-                            left: { style: 'thin', color: { rgb: '000000' } },
-                            right: { style: 'thin', color: { rgb: '000000' } }
-                        },
-                        font: { name: 'Arial', sz: 10 },
-                        alignment: { vertical: 'center', wrapText: true, horizontal: 'left' }
-                    };
-
-                    // Estilo Título Principal
-                    if (R === 0) {
-                        ws[cellRef].s.fill = { fgColor: { rgb: '1e3c72' } };
-                        ws[cellRef].s.font = { color: { rgb: 'FFFFFF' }, bold: true, sz: 14 };
-                        ws[cellRef].s.alignment = { horizontal: 'center' };
-                    }
-
-                    // Estilo Títulos de Seção
-                    if (planilha[R] && planilha[R][0] &&
-                        (planilha[R][0].includes('INFORMAÇÕES') ||
-                            planilha[R][0].includes('CERTIFICAÇÃO') ||
-                            planilha[R][0].includes('IDC') ||
-                            planilha[R][0].includes('ANOTAÇÕES') ||
-                            planilha[R][0].includes('FRENTE') ||
-                            planilha[R][0].includes('FATURAMENTO') ||
-                            planilha[R][0].includes('DESTAQUE') ||
-                            planilha[R][0].includes('PROGRAMA') ||
-                            planilha[R][0].includes('LANÇAMENTO') ||
-                            planilha[R][0].includes('META') ||
-                            planilha[R][0].includes('GUIA') ||
-                            planilha[R][0].includes('VERSO')) && planilha[R][1] === '') {
-                        ws[cellRef].s.fill = { fgColor: { rgb: '4472c4' } };
-                        ws[cellRef].s.font = { color: { rgb: 'FFFFFF' }, bold: true, sz: 12 };
-                    }
-
-                    // Estilo Cabeçalhos de Tabela
-                    if (planilha[R] && (planilha[R][0] === 'MÊS' || planilha[R][0] === 'DATA' || (planilha[R][0] === 'GELADEIRA' && C < 10))) {
-                        ws[cellRef].s.fill = { fgColor: { rgb: '1e3c72' } };
-                        ws[cellRef].s.font = { color: { rgb: 'FFFFFF' }, bold: true };
-                        ws[cellRef].s.alignment = { horizontal: 'center' };
-                    }
-                }
-                colWidths.push({ wch: Math.min(maxLen + 2, 50) });
-            }
-
-            ws['!cols'] = colWidths;
-
-            XLSX.utils.book_append_sheet(wb, ws, "CHECKLIST");
-
-            const nomeArquivo = `Checklist_${dados.consultor.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`;
-            XLSX.writeFile(wb, nomeArquivo);
-
-            btn.innerHTML = textoOriginal;
-            btn.disabled = false;
         }
 
-        // FUNÇÃO PARA EXPORTAR PDF - OTIMIZADA PARA A4
-        function exportarChecklistPDF() {
-            const consultor = document.getElementById('consultor').value.trim();
-            if (!consultor) {
-                alert('❌ Preencha o nome do consultor primeiro!');
+        // Função de Cadastro
+        function fazerCadastro() {
+            const nome = document.getElementById('regNome').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regConfirmPassword').value;
+            const cargo = document.getElementById('regCargo').value;
+            const regional = document.getElementById('regRegional').value;
+            const termos = document.getElementById('termos').checked;
+            
+            // Validações
+            if (!nome || !email || !password || !confirmPassword || !cargo || !regional) {
+                showToast('Preencha todos os campos!', 'error');
                 return;
             }
-
-            const btn = event.target.closest('button');
-            const textoOriginal = btn.innerHTML;
-            btn.innerHTML = '<span class="loading"></span> GERANDO PDF...';
-            btn.disabled = true;
-
-            try {
-                const dados = coletarDadosAtuais();
-
-                // Criar container temporário visível para renderização correta
-                const tempDiv = document.createElement('div');
-                tempDiv.style.position = 'fixed';
-                tempDiv.style.left = '0';
-                tempDiv.style.top = '0';
-                tempDiv.style.width = '210mm'; // Largura A4
-                tempDiv.style.zIndex = '-9999';
-                tempDiv.style.background = 'white';
-                tempDiv.innerHTML = gerarHTMLPDFRetrato(dados);
-                document.body.appendChild(tempDiv);
-
-                // Pequeno delay para garantir renderização de fontes
-                setTimeout(() => {
-                    html2canvas(tempDiv, {
-                        scale: 2,
-                        backgroundColor: '#ffffff',
-                        logging: false,
-                        useCORS: true,
-                        width: tempDiv.offsetWidth,
-                        windowWidth: tempDiv.offsetWidth
-                    }).then((canvas) => {
-                        const imgData = canvas.toDataURL('image/jpeg', 0.95);
-
-                        // Criar PDF em formato A4 fixo
-                        const pdf = new jspdf.jsPDF({
-                            orientation: 'portrait',
-                            unit: 'mm',
-                            format: 'a4'
+            
+            if (password.length < 6) {
+                showToast('A senha deve ter no mínimo 6 caracteres!', 'error');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showToast('As senhas não coincidem!', 'error');
+                return;
+            }
+            
+            if (!termos) {
+                showToast('Você precisa aceitar os termos de uso!', 'error');
+                return;
+            }
+            
+            showLoading(true, 'Criando conta...');
+            
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Atualizar perfil com nome
+                    return userCredential.user.updateProfile({
+                        displayName: nome
+                    }).then(() => {
+                        // Salvar dados adicionais no Realtime Database
+                        return database.ref(`usuarios/${userCredential.user.uid}`).set({
+                            nome: nome,
+                            email: email,
+                            cargo: cargo,
+                            regional: regional,
+                            dataCadastro: new Date().toISOString(),
+                            uid: userCredential.user.uid
                         });
-
-                        const pdfWidth = pdf.internal.pageSize.getWidth();
-                        const pdfHeight = pdf.internal.pageSize.getHeight();
-
-                        // Calcular escala para caber na página A4 (mantendo proporção)
-                        let imgWidth = pdfWidth;
-                        let imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-                        // Se a imagem for mais alta que a página A4, redimensionamos pela altura
-                        if (imgHeight > pdfHeight) {
-                            imgHeight = pdfHeight;
-                            imgWidth = (canvas.width * imgHeight) / canvas.height;
-                        }
-
-                        // Centralizar na folha
-                        const posX = (pdfWidth - imgWidth) / 2;
-                        const posY = 0;
-
-                        pdf.addImage(imgData, 'JPEG', posX, posY, imgWidth, imgHeight);
-
-                        pdf.save(`Checklist_${dados.consultor.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`);
-
-                        document.body.removeChild(tempDiv);
-                        btn.innerHTML = textoOriginal;
-                        btn.disabled = false;
-                    }).catch(error => {
-                        console.error('Erro ao gerar PDF:', error);
-                        alert('Erro ao gerar PDF: ' + error.message);
-                        btn.innerHTML = textoOriginal;
-                        btn.disabled = false;
-                        if (tempDiv.parentNode) document.body.removeChild(tempDiv);
-                    });
-                }, 500);
-
-            } catch (error) {
-                console.error('Erro ao preparar PDF:', error);
-                alert('Erro ao preparar PDF: ' + error.message);
-                btn.innerHTML = textoOriginal;
-                btn.disabled = false;
-            }
-        }
-
-        // FUNÇÃO PARA GERAR HTML DO PDF EM RETRATO (ESTILIZADA)
-        function gerarHTMLPDFRetrato(dados) {
-            const meses = ['JANEIRO', 'FEVEREIRO', 'MARÇO', 'ABRIL', 'MAIO', 'JUNHO', 'JULHO', 'AGOSTO', 'SETEMBRO', 'OUTUBRO', 'NOVEMBRO', 'DEZEMBRO'];
-            const campos = ['janeiro', 'fevereiro', 'marco', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
-
-            let linhasIDC = '';
-            for (let i = 0; i < meses.length; i++) {
-                const dadosMes = dados.idc[campos[i]] || { nota: '', apontamento: '' };
-                linhasIDC += `<tr><td style="border: 1px solid #333; padding: 4px; font-weight: 500;">${meses[i]}</td><td style="border: 1px solid #333; padding: 4px; text-align: center;">${dadosMes.nota || '-'}</td><td style="border: 1px solid #333; padding: 4px;" colspan="2">${dadosMes.apontamento || ''}</td></tr>`;
-            }
-
-            let lancamentosHTML = '';
-            dados.lancamentos.forEach(l => {
-                lancamentosHTML += `<tr><td style="border: 1px solid #333; padding: 4px;">${l.data}</td><td style="border: 1px solid #333; padding: 4px;">${l.marca}</td><td style="border: 1px solid #333; padding: 4px;">${l.produto}</td><td style="border: 1px solid #333; padding: 4px;">${l.modelo}</td><td style="border: 1px solid #333; padding: 4px; text-align: right;">R$ ${l.preco}</td></tr>`;
-            });
-
-            let visitasHTML = '';
-            dados.visitas.forEach(v => {
-                const ferramenta = Array.isArray(v.ferramenta) ? v.ferramenta.join(', ') : v.ferramenta;
-                const dominio = Array.isArray(v.dominio) ? v.dominio.join(', ') : v.dominio;
-                const uniforme = Array.isArray(v.uniforme) ? v.uniforme.join(', ') : v.uniforme;
-                const pdv = Array.isArray(v.pdv) ? v.pdv.join(', ') : v.pdv;
-                visitasHTML += `<tr>
-                    <td style="border: 1px solid #333; padding: 4px;">${v.data}</td>
-                    <td style="border: 1px solid #333; padding: 4px;">${v.nome}</td>
-                    <td style="border: 1px solid #333; padding: 4px;">${v.visto}</td>
-                    <td style="border: 1px solid #333; padding: 4px;">${ferramenta}</td>
-                    <td style="border: 1px solid #333; padding: 4px;">${dominio}</td>
-                    <td style="border: 1px solid #333; padding: 4px;">${uniforme}</td>
-                    <td style="border: 1px solid #333; padding: 4px;">${pdv}</td>
-                    <td style="border: 1px solid #333; padding: 4px;" colspan="2">${v.observacao}</td>
-                </tr>`;
-            });
-
-            return `
-                <div style="font-family: 'Inter', Arial, sans-serif; padding: 10mm; color: #333; background: white;">
-                    <div style="background-color: #1e3c72; color: white; padding: 10px; text-align: center; border: 2px solid #000; margin-bottom: 10px;">
-                        <h1 style="margin: 0; font-size: 18px; text-transform: uppercase;">Check List - 2026 | Panasonic</h1>
-                    </div>
-                    
-                    <div style="margin-bottom: 10px;">
-                        <div style="background-color: #4472c4; color: white; padding: 5px 10px; font-weight: bold; border: 1px solid #000; font-size: 11px; text-transform: uppercase;">Informações do Consultor</div>
-                        <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
-                            <tr><td style="border: 1px solid #333; padding: 5px; width: 15%; background-color: #f8f9fa;"><strong>Consultor:</strong></td><td style="border: 1px solid #333; padding: 5px; width: 45%;">${dados.consultor}</td><td style="border: 1px solid #333; padding: 5px; width: 15%; background-color: #f8f9fa;"><strong>Regional:</strong></td><td style="border: 1px solid #333; padding: 5px; width: 25%;">${dados.regional}</td></tr>
-                            <tr><td style="border: 1px solid #333; padding: 5px; background-color: #f8f9fa;"><strong>Data Admissão:</strong></td><td style="border: 1px solid #333; padding: 5px;">${dados.dataAdmissao}</td><td style="border: 1px solid #333; padding: 5px; background-color: #f8f9fa;"><strong>Cidade/UF:</strong></td><td style="border: 1px solid #333; padding: 5px;">${dados.cidade} / ${dados.uf}</td></tr>
-                            <tr><td style="border: 1px solid #333; padding: 5px; background-color: #f8f9fa;"><strong>Supervisor:</strong></td><td style="border: 1px solid #333; padding: 5px;">${dados.supervisor}</td><td style="border: 1px solid #333; padding: 5px; background-color: #f8f9fa;"><strong>Coordenador:</strong></td><td style="border: 1px solid #333; padding: 5px;">${dados.coordenador}</td></tr>
-                        </table>
-                    </div>
-                    
-                    <div style="margin-bottom: 10px;">
-                        <div style="background-color: #4472c4; color: white; padding: 5px 10px; font-weight: bold; border: 1px solid #000; font-size: 11px; text-transform: uppercase;">Certificação</div>
-                        <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
-                            <tr><td style="border: 1px solid #333; padding: 5px; width: 30%; background-color: #f8f9fa;"><strong>Data Última Certificação:</strong></td><td style="border: 1px solid #333; padding: 5px; width: 30%;">${dados.dataCertificacao}</td><td style="border: 1px solid #333; padding: 5px; width: 15%; background-color: #f8f9fa;"><strong>Nota:</strong></td><td style="border: 1px solid #333; padding: 5px; width: 25%; font-weight: bold; color: #1e3c72;">${dados.notaCertificacao}</td></tr>
-                        </table>
-                    </div>
-                    
-                    <div style="margin-bottom: 10px;">
-                        <div style="background-color: #4472c4; color: white; padding: 5px 10px; font-weight: bold; border: 1px solid #000; font-size: 11px; text-transform: uppercase;">IDC - Índice de Desempenho do Consultor</div>
-                        <table style="width: 100%; border-collapse: collapse; font-size: 9px;">
-                            <thead>
-                                <tr style="background-color: #1e3c72; color: white;">
-                                    <th style="border: 1px solid #333; padding: 5px; text-align: left; width: 15%;">Mês</th>
-                                    <th style="border: 1px solid #333; padding: 5px; width: 10%;">Nota</th>
-                                    <th style="border: 1px solid #333; padding: 5px; text-align: left;" colspan="2">Apontamentos / Observações</th>
-                                </tr>
-                            </thead>
-                            <tbody>${linhasIDC}</tbody>
-                        </table>
-                    </div>
-                    
-                    <div style="margin-bottom: 10px;">
-                        <div style="background-color: #4472c4; color: white; padding: 5px 10px; font-weight: bold; border: 1px solid #000; font-size: 11px; text-transform: uppercase;">Anotações Gerais</div>
-                        <div style="border: 1px solid #333; padding: 8px; font-size: 9px; min-height: 30px; background-color: #fff; line-height: 1.3;">${dados.anotacoesGerais || '<i>Nenhuma anotação registrada.</i>'}</div>
-                    </div>
-
-                    <div style="padding-top: 5mm;">
-                        <div style="background-color: #1e3c72; color: white; padding: 8px; text-align: center; border: 2px solid #000; margin-bottom: 10px;">
-                            <h2 style="margin: 0; font-size: 16px; text-transform: uppercase;">Check List Visita - Loose / Frente</h2>
-                        </div>
+                    }).then(() => {
+                        showLoading(false);
+                        showToast('Conta criada com sucesso!', 'success');
                         
-                        <div style="margin-bottom: 10px;">
-                            <div style="background-color: #4472c4; color: white; padding: 5px 10px; font-weight: bold; border: 1px solid #000; font-size: 11px;">INFORMAÇÕES DA LOJA</div>
-                            <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
-                                <tr><td style="border: 1px solid #333; padding: 4px; width: 15%; background-color: #f8f9fa;"><strong>Revenda:</strong></td><td style="border: 1px solid #333; padding: 4px; width: 35%;">${dados.loja.revenda}</td><td style="border: 1px solid #333; padding: 4px; width: 10%; background-color: #f8f9fa;"><strong>Filial:</strong></td><td style="border: 1px solid #333; padding: 4px; width: 15%;">${dados.loja.filial}</td><td style="border: 1px solid #333; padding: 4px; width: 10%; background-color: #f8f9fa;"><strong>ID:</strong></td><td style="border: 1px solid #333; padding: 4px; width: 15%;">${dados.loja.id}</td></tr>
-                                <tr><td style="border: 1px solid #333; padding: 4px; background-color: #f8f9fa;"><strong>Endereço:</strong></td><td style="border: 1px solid #333; padding: 4px;" colspan="3">${dados.loja.endereco}</td><td style="border: 1px solid #333; padding: 4px; background-color: #f8f9fa;"><strong>Cidade/UF:</strong></td><td style="border: 1px solid #333; padding: 4px;">${dados.loja.cidadeUf}</td></tr>
-                                <tr><td style="border: 1px solid #333; padding: 4px; background-color: #f8f9fa;"><strong>Gerente:</strong></td><td style="border: 1px solid #333; padding: 4px;">${dados.loja.gerente}</td><td style="border: 1px solid #333; padding: 4px; background-color: #f8f9fa;"><strong>Contato:</strong></td><td style="border: 1px solid #333; padding: 4px;">${dados.loja.contato}</td><td style="border: 1px solid #333; padding: 4px; background-color: #f8f9fa;"><strong>Sub Gerente:</strong></td><td style="border: 1px solid #333; padding: 4px;">${dados.loja.subGerente}</td></tr>
-                            </table>
-                        </div>
-
-                        <div style="margin-bottom: 10px;">
-                            <div style="background-color: #4472c4; color: white; padding: 5px 10px; font-weight: bold; border: 1px solid #000; font-size: 11px;">FATURAMENTO DA LOJA</div>
-                            <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
-                                <tr><td style="border: 1px solid #333; padding: 4px; width: 35%; background-color: #f8f9fa;"><strong>Fat. Mensal Loja R$:</strong></td><td style="border: 1px solid #333; padding: 4px; width: 15%;">${dados.loja.faturamentoLoja}</td><td style="border: 1px solid #333; padding: 4px; width: 35%; background-color: #f8f9fa;"><strong>Fat. Panasonic R$:</strong></td><td style="border: 1px solid #333; padding: 4px; width: 15%;">${dados.loja.faturamentoPanasonic}</td></tr>
-                                <tr><td style="border: 1px solid #333; padding: 4px; background-color: #f8f9fa;"><strong>Ranking na Rede:</strong></td><td style="border: 1px solid #333; padding: 4px;" colspan="3">${dados.loja.ranking}</td></tr>
-                            </table>
-                        </div>
-
-                        <div style="margin-bottom: 10px;">
-                            <div style="background-color: #4472c4; color: white; padding: 5px 10px; font-weight: bold; border: 1px solid #000; font-size: 11px;">DESTAQUE DE VENDAS - LINHA BRANCA</div>
-                            <table style="width: 100%; border-collapse: collapse; font-size: 9px; table-layout: fixed;">
-                                <thead>
-                                    <tr style="background-color: #1e3c72; color: white;">
-                                        <th style="border: 1px solid #333; padding: 4px;">GELADEIRA</th>
-                                        <th style="border: 1px solid #333; padding: 4px;">LAVADORA</th>
-                                        <th style="border: 1px solid #333; padding: 4px;">MICRO-ONDAS</th>
-                                        <th style="border: 1px solid #333; padding: 4px;">OUTROS</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td style="border: 1px solid #333; padding: 4px;">${dados.destaques.geladeira.marca} / ${dados.destaques.geladeira.modelo}<br><strong>R$ ${dados.destaques.geladeira.preco}</strong></td>
-                                        <td style="border: 1px solid #333; padding: 4px;">${dados.destaques.lavadora.marca} / ${dados.destaques.lavadora.modelo}<br><strong>R$ ${dados.destaques.lavadora.preco}</strong></td>
-                                        <td style="border: 1px solid #333; padding: 4px;">${dados.destaques.microondas.marca} / ${dados.destaques.microondas.modelo}<br><strong>R$ ${dados.destaques.microondas.preco}</strong></td>
-                                        <td style="border: 1px solid #333; padding: 4px;">${dados.destaques.outros}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div style="margin-bottom: 10px; border: 1px solid #333; background-color: #d9e1f2; padding: 5px; font-size: 10px;">
-                            <strong>Panasonic - Programa e Campanhas:</strong> ${dados.programas.conhecemPrograma} | Cadastrados: ${dados.programas.cadastrados} | Pendência: ${dados.programas.pendencia} | Obs: ${dados.programas.obsCadastro || '-'}
-                        </div>
-
-                        ${dados.lancamentos.length > 0 ? `
-                        <div style="margin-bottom: 10px;">
-                            <div style="background-color: #4472c4; color: white; padding: 5px 10px; font-weight: bold; border: 1px solid #000; font-size: 11px;">LANÇAMENTOS - INTRODUÇÃO DE PRODUTO NA LOJA</div>
-                            <table style="width: 100%; border-collapse: collapse; font-size: 9px;">
-                                <thead>
-                                    <tr style="background-color: #1e3c72; color: white;">
-                                        <th style="border: 1px solid #333; padding: 4px;">DATA</th>
-                                        <th style="border: 1px solid #333; padding: 4px;">MARCA</th>
-                                        <th style="border: 1px solid #333; padding: 4px;">PRODUTO</th>
-                                        <th style="border: 1px solid #333; padding: 4px;">MODELO</th>
-                                        <th style="border: 1px solid #333; padding: 4px;">PREÇO</th>
-                                    </tr>
-                                </thead>
-                                <tbody>${lancamentosHTML}</tbody>
-                            </table>
-                        </div>
-                        ` : ''}
-
-                        <div style="margin-bottom: 10px;">
-                            <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
-                                <tr>
-                                    <td style="width: 50%; padding-right: 5px; vertical-align: top;">
-                                        <div style="background-color: #4472c4; color: white; padding: 4px 8px; font-weight: bold; border: 1px solid #000; font-size: 11px;">META DE TREINAMENTO</div>
-                                        <div style="border: 1px solid #333; padding: 6px; height: 40px;">
-                                            Meta: ${dados.metas.metaTreinamento} | Treinadas: <strong>${dados.metas.metaPessoas}</strong>
-                                        </div>
-                                    </td>
-                                    <td style="width: 50%; padding-left: 5px; vertical-align: top;">
-                                        <div style="background-color: #4472c4; color: white; padding: 4px 8px; font-weight: bold; border: 1px solid #000; font-size: 11px;">MERCHANDISING - MPV</div>
-                                        <div style="border: 1px solid #333; padding: 6px; height: 40px;">
-                                            MPV: ${dados.merchandising.mpvAplicado} | Limpeza: ${dados.merchandising.produtosLimpos}
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-
-                        ${dados.visitas.length > 0 ? `
-                        <div style="margin-top: 5mm;">
-                            <div style="background-color: #1e3c72; color: white; padding: 8px; text-align: center; border: 2px solid #000; margin-bottom: 10px;">
-                                <h2 style="margin: 0; font-size: 16px; text-transform: uppercase;">Visitas Recebidas</h2>
-                            </div>
-                            <table style="width: 100%; border-collapse: collapse; font-size: 8px;">
-                                <thead>
-                                    <tr style="background-color: #1e3c72; color: white;">
-                                        <th style="border: 1px solid #333; padding: 3px;">DATA</th>
-                                        <th style="border: 1px solid #333; padding: 3px;">NOME</th>
-                                        <th style="border: 1px solid #333; padding: 3px;">VISTO</th>
-                                        <th style="border: 1px solid #333; padding: 3px;">PDV</th>
-                                        <th style="border: 1px solid #333; padding: 3px;" colspan="5">OBSERVAÇÃO</th>
-                                    </tr>
-                                </thead>
-                                <tbody>${visitasHTML}</tbody>
-                            </table>
-                        </div>
-                        ` : ''}
-                    </div>
+                        // Redirecionar para o checklist
+                        setTimeout(() => {
+                            window.location.href = 'checklist.html';
+                        }, 1000);
+                    });
+                })
+                .catch((error) => {
+                    showLoading(false);
+                    let mensagem = 'Erro ao criar conta!';
                     
-                    <div style="margin-top: 15px; border-top: 1px solid #ccc; padding-top: 5px; text-align: center; font-size: 8px; color: #999;">
-                        Gerado eletronicamente em ${new Date().toLocaleString()}
-                    </div>
-                </div>
-            `;
+                    if (error.code === 'auth/email-already-in-use') {
+                        mensagem = 'E-mail já está em uso!';
+                    } else if (error.code === 'auth/invalid-email') {
+                        mensagem = 'E-mail inválido!';
+                    } else if (error.code === 'auth/weak-password') {
+                        mensagem = 'Senha muito fraca!';
+                    }
+                    
+                    showToast(mensagem, 'error');
+                });
         }
 
-        // Event listener para NÃO carregar dados automaticamente
-        document.getElementById('consultor').addEventListener('blur', function () {
-            // APENAS validação simples, SEM carregar dados
-            if (this.value) {
-                console.log('Consultor definido: ' + this.value);
-                // Não carrega mais os dados antigos!
+        // Login com Google
+        function loginGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            
+            showLoading(true, 'Entrando com Google...');
+            
+            auth.signInWithPopup(provider)
+                .then((result) => {
+                    showLoading(false);
+                    showToast('Login realizado com sucesso!', 'success');
+                    
+                    // Verificar se usuário já existe no database
+                    const userRef = database.ref(`usuarios/${result.user.uid}`);
+                    
+                    userRef.once('value', (snapshot) => {
+                        if (!snapshot.exists()) {
+                            // Criar registro do usuário
+                            userRef.set({
+                                nome: result.user.displayName,
+                                email: result.user.email,
+                                cargo: 'Consultor',
+                                regional: 'Não definido',
+                                dataCadastro: new Date().toISOString(),
+                                uid: result.user.uid
+                            });
+                        }
+                    });
+                    
+                    localStorage.setItem('user', JSON.stringify({
+                        uid: result.user.uid,
+                        email: result.user.email,
+                        nome: result.user.displayName
+                    }));
+                    
+                    setTimeout(() => {
+                        window.location.href = 'checklist.html';
+                    }, 1000);
+                })
+                .catch((error) => {
+                    showLoading(false);
+                    showToast('Erro ao fazer login com Google!', 'error');
+                });
+        }
+
+        // Recuperar senha
+        function recuperarSenha() {
+            const email = document.getElementById('loginEmail').value;
+            
+            if (!email) {
+                showToast('Digite seu e-mail primeiro!', 'warning');
+                return;
+            }
+            
+            showLoading(true, 'Enviando e-mail...');
+            
+            auth.sendPasswordResetEmail(email)
+                .then(() => {
+                    showLoading(false);
+                    showToast('E-mail de recuperação enviado!', 'success');
+                })
+                .catch((error) => {
+                    showLoading(false);
+                    showToast('Erro ao enviar e-mail!', 'error');
+                });
+        }
+
+        // Verificar se já está logado
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                // Se já estiver logado, redirecionar para o checklist
+                window.location.href = 'checklist.html';
             }
         });
-
-        // Inicializar
-        window.onload = function () {
-            // Adicionar linhas iniciais
-            adicionarVisita();
-            adicionarLancamento();
-
-            // Preencher datas atuais
-            const hoje = new Date().toISOString().split('T')[0];
-            document.querySelectorAll('input[type="date"]').forEach(input => {
-                if (!input.value) {
-                    input.value = hoje;
-                }
-            });
-        };
     </script>
 </body>
-
-</html>
+        </html>
