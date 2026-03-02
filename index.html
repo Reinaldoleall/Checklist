@@ -137,43 +137,53 @@
     <div class="w-full max-w-5xl bg-white/10 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden slide-up">
         <div class="flex flex-col md:flex-row">
             
-            <!-- Left Side - Branding -->
-            <div class="md:w-1/2 bg-gradient-to-br from-[#667eea] to-[#764ba2] p-12 text-white flex flex-col justify-between">
-                <div>
-                    <div class="flex items-center gap-3 mb-12">
-                        <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
-                            <i class="fas fa-clipboard-list text-2xl"></i>
-                        </div>
-                        <h2 class="text-2xl font-bold">CheckList 2026</h2>
-                    </div>
-                    
-                    <h1 class="text-4xl font-bold mb-6">Bem-vindo!</h1>
-                    <p class="text-white/80 text-lg mb-8">
-                    </p>
-                    
-                    <div class="space-y-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                                <i class="fas fa-check text-sm"></i>
-                            </div>
-                            <span></span>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                                <i class="fas fa-check text-sm"></i>
-                            </div>
-                            <span></span>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                                <i class="fas fa-check text-sm"></i>
-                            </div>
-                            <span></span>
-                        </div>
-                    </div>
-                </div>
+            <!-- Left Side - Branding com Imagem de Fundo -->
+            <div class="md:w-1/2 relative overflow-hidden p-12 text-white flex flex-col justify-between min-h-[500px] md:min-h-full" 
+                 style="background-image: url('https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80'); background-size: cover; background-position: center;">
                 
-                <div class="text-sm text-white/60">
+                <!-- Overlay escuro para melhor legibilidade -->
+                <div class="absolute inset-0 bg-gradient-to-br from-[#1e3c72]/95 to-[#2a5298]/95"></div>
+                
+                <!-- Conteúdo (com z-index para ficar acima do overlay) -->
+                <div class="relative z-10 flex flex-col h-full">
+                    <div>
+                        <div class="flex items-center gap-3 mb-12">
+                            <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/30">
+                                <i class="fas fa-clipboard-list text-2xl"></i>
+                            </div>
+                            <h2 class="text-2xl font-bold">CheckList 2026</h2>
+                        </div>
+                        
+                        <h1 class="text-4xl font-bold mb-6">Bem-vindo!</h1>
+                        <p class="text-white/90 text-lg mb-8">
+                            Gerencie seus checklists de forma simples e eficiente
+                        </p>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30">
+                                    <i class="fas fa-check text-sm"></i>
+                                </div>
+                                <span>Checklists ilimitados</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30">
+                                    <i class="fas fa-check text-sm"></i>
+                                </div>
+                                <span>Exportação para Excel e PDF</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30">
+                                    <i class="fas fa-check text-sm"></i>
+                                </div>
+                                <span>Dados salvos na nuvem</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-sm text-white/60 mt-auto pt-8">
+                        © 2026 Panasonic. Todos os direitos reservados.
+                    </div>
                 </div>
             </div>
             
