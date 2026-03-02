@@ -164,94 +164,100 @@
             border: 1px solid #000;
         }
 
-        /* ESTILOS MELHORADOS PARA BOTÕES */
-        .btn-excel,
-        .btn-excel-green,
-        .btn-pdf {
-            padding: 12px 24px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            border: none;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            display: inline-flex;
+        /* ESTILOS MINIMALISTAS PARA BOTÕES (SÓ ÍCONES) */
+        .action-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
-        .btn-excel {
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
-            color: white;
+        .action-btn:hover {
+            transform: scale(1.1);
+            color: #1e3c72;
+            border-color: #1e3c72;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
-        .btn-excel:hover {
-            background: linear-gradient(135deg, #2a5298, #1e3c72);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(30, 60, 114, 0.3);
+        /* Cores discretas no hover */
+        .btn-save:hover {
+            background-color: #f0fdf4;
+            border-color: #22c55e;
+            color: #166534;
         }
 
-        .btn-pdf {
-            background: linear-gradient(135deg, #d32f2f, #b71c1c);
-            color: white;
+        .btn-plus:hover {
+            background-color: #eff6ff;
+            border-color: #3b82f6;
+            color: #1d4ed8;
+        }
+
+        .btn-xls:hover {
+            background-color: #f0fdf4;
+            border-color: #166534;
+            color: #15803d;
         }
 
         .btn-pdf:hover {
-            background: linear-gradient(135deg, #b71c1c, #d32f2f);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(211, 47, 47, 0.3);
+            background-color: #fef2f2;
+            border-color: #ef4444;
+            color: #dc2626;
         }
 
-        .btn-excel-green {
-            background: linear-gradient(135deg, #2e7d32, #1b5e20);
-            color: white;
-            width: 100%;
-            font-size: 16px;
-            padding: 16px;
+        .btn-off:hover {
+            background-color: #f8fafc;
+            border-color: #64748b;
+            color: #334155;
         }
 
-        .btn-excel-green:hover {
-            background: linear-gradient(135deg, #1b5e20, #2e7d32);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(46, 125, 50, 0.3);
-        }
-
-        .btn-excel:active,
-        .btn-pdf:active,
-        .btn-excel-green:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .btn-remove {
-            background-color: #d32f2f;
-            color: white;
-            border: 1px solid #000;
-            padding: 4px 8px;
-            font-size: 11px;
-            cursor: pointer;
-            font-weight: bold;
-            border-radius: 4px;
-            transition: all 0.2s;
-        }
-
-        .btn-remove:hover {
-            background-color: #b71c1c;
-            transform: scale(1.05);
-        }
-
-        /* Barra de ações */
+        /* Barra de ações MINIMALISTA E FIXA */
         .action-bar {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
-            justify-content: flex-end;
-            gap: 16px;
-            padding: 16px;
-            background: linear-gradient(to right, #f8f9fa, #e9ecef);
-            border-bottom: 2px solid #000;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 30px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            z-index: 9999;
+        }
+
+        /* Tooltip minimalista */
+        .action-btn::after {
+            content: attr(data-label);
+            position: absolute;
+            bottom: 55px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #334155;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 600;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+
+        .action-btn:hover::after {
+            opacity: 1;
         }
 
         /* Loading spinner */
@@ -768,36 +774,31 @@
                     </tr>
                 </table>
 
-                <!-- BARRA DE AÇÕES -->
-                <div class="action-bar">
-                    <!-- BOTÃO SALVAR -->
-                    <div class="p-4"
-                        style="border-top: 2px solid transparent; background: linear-gradient(to right, #f8f9fa, #ffffff);">
-                        <button onclick="salvarDados()" class="btn-excel-green" type="button">
-                            <i class="fas fa-cloud-upload-alt"></i> SALVAR CHECKLIST
-                        </button>
-                    </div>
-                    <div class="flex flex-col sm:flex-row gap-2 mt-4 sm:mt-0">
-                        <button onclick="limparDadosLoja()"
-                            class="bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all border border-blue-500/20">
-                            <i class="fas fa-plus mr-1"></i> Novo Checklist
-                        </button>
-                        <button onclick="window.location.href='index.html'"
-                            class="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all border border-white/20">
-                            <i class="fas fa-arrow-left mr-1"></i> Sair
-                        </button>
-                    </div>
-                    <button onclick="exportarChecklistExcel()" class="btn-excel" type="button">
-                        <i class="fas fa-file-excel"></i> EXPORTAR EXCEL
-                    </button>
-                    <button onclick="exportarChecklistPDF()" class="btn-pdf" type="button">
-                        <i class="fas fa-file-pdf"></i> EXPORTAR PDF
-                    </button>
-                </div>
-
-
             </div> <!-- Fim .excel-container -->
         </div> <!-- Fim .scrollable-content -->
+
+        <!-- BARRA DE AÇÕES MINIMALISTA -->
+        <div class="action-bar">
+            <button onclick="salvarDados()" class="action-btn btn-save" data-label="Salvar Checklist">
+                <i class="fas fa-save text-xl"></i>
+            </button>
+
+            <button onclick="limparDadosLoja()" class="action-btn btn-plus" data-label="Novo Checklist">
+                <i class="fas fa-plus text-xl"></i>
+            </button>
+
+            <button onclick="exportarChecklistExcel()" class="action-btn btn-xls" data-label="Exportar Excel">
+                <i class="fas fa-file-excel text-xl"></i>
+            </button>
+
+            <button onclick="exportarChecklistPDF()" class="action-btn btn-pdf" data-label="Exportar PDF">
+                <i class="fas fa-file-pdf text-xl"></i>
+            </button>
+
+            <button onclick="window.location.href='index.html'" class="action-btn btn-off" data-label="Sair">
+                <i class="fas fa-sign-out-alt text-xl"></i>
+            </button>
+        </div>
     </div> <!-- Fim .main-container -->
 
     <!-- Firebase SDK -->
@@ -1137,47 +1138,20 @@
         function carregarDados(consultor) {
             if (!consultor) return;
 
-            const consultorIdUpper = consultor.replace(/\s+/g, '_').toUpperCase();
-            const consultorIdLower = consultor.replace(/\s+/g, '_').toLowerCase();
+            // APENAS mostrar mensagem, não carrega dados
+            console.log('Consultor selecionado: ' + consultor);
 
-            // Tentar carregar perfil (Uppercase primeiro)
-            database.ref('consultores/' + consultorIdUpper + '/perfil').once('value', (snapshot) => {
-                let profile = snapshot.val();
-
-                // Se não achou em Upper, tenta em Lower (Legado)
-                if (!profile) {
-                    database.ref('consultores/' + consultorIdLower + '/perfil').once('value', (snapLower) => {
-                        profile = snapLower.val();
-                        if (profile) preencherPerfil(profile);
-                    });
-                } else {
-                    preencherPerfil(profile);
-                }
-            });
-
-            // Tentar carregar checklists (Historico Novo)
-            database.ref('consultores/' + consultorIdUpper + '/checklists').orderByChild('dataSalvamento').limitToLast(1).once('value', (snapshot) => {
-                const results = snapshot.val();
-                if (results) {
-                    const keys = Object.keys(results);
-                    preencherFormulario(results[keys[0]]);
-                } else {
-                    // Fallback para Legado (Root) - Tenta Upper e Lower
-                    database.ref('consultores/' + consultorIdUpper).once('value', (snapUpper) => {
-                        const dataUpper = snapUpper.val();
-                        if (dataUpper && !dataUpper.checklists && !dataUpper.perfil) {
-                            preencherFormulario(dataUpper);
-                        } else {
-                            database.ref('consultores/' + consultorIdLower).once('value', (snapLower) => {
-                                const dataLower = snapLower.val();
-                                if (dataLower && !dataLower.checklists && !dataLower.perfil) {
-                                    preencherFormulario(dataLower);
-                                }
-                            });
-                        }
-                    });
-                }
-            });
+            // Mostrando uma mensagem sutil
+            const statusDiv = document.createElement('div');
+            statusDiv.className = 'fixed top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-lg text-sm z-50 shadow-xl border border-white/20 animate-bounce';
+            statusDiv.innerHTML = '<i class="fas fa-check-circle mr-2"></i> Pronto para novo checklist';
+            document.body.appendChild(statusDiv);
+            setTimeout(() => {
+                statusDiv.classList.remove('animate-bounce');
+                statusDiv.style.opacity = '0';
+                statusDiv.style.transition = 'opacity 0.5s';
+                setTimeout(() => statusDiv.remove(), 500);
+            }, 3000);
         }
 
         function preencherPerfil(profile) {
@@ -1799,10 +1773,12 @@
             `;
         }
 
-        // Event listener para carregar dados
+        // Event listener para NÃO carregar dados automaticamente
         document.getElementById('consultor').addEventListener('blur', function () {
+            // APENAS validação simples, SEM carregar dados
             if (this.value) {
-                carregarDados(this.value);
+                console.log('Consultor definido: ' + this.value);
+                // Não carrega mais os dados antigos!
             }
         });
 
