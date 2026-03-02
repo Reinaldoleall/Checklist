@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Check List Consultor - Login</title>
+    <title>CheckList 2026 - Acesso</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -12,93 +12,71 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        
-        * {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         
         body {
-            background-color: #f8fafc;
-            background-image: radial-gradient(at 0% 0%, hsla(228,100%,74%,0.15) 0px, transparent 50%),
-                              radial-gradient(at 100% 100%, hsla(253,100%,74%,0.15) 0px, transparent 50%);
-            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            background-color: #FAFAFA;
+            color: #111827;
         }
 
-        .input-modern {
-            background-color: #f8fafc;
-            border: 1px solid #e2e8f0;
+        .input-clean {
+            background-color: #F3F4F6;
+            border: 1px solid transparent;
             transition: all 0.2s ease;
         }
         
-        .input-modern:focus {
-            background-color: #ffffff;
-            border-color: #4f46e5;
-            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        .input-clean:focus {
+            background-color: #FFFFFF;
+            border-color: #111827;
+            box-shadow: 0 0 0 1px #111827;
+            outline: none;
         }
 
-        .icon-container {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #94a3b8;
-            transition: color 0.2s ease;
+        .btn-black {
+            background-color: #111827;
+            color: #FFFFFF;
+            transition: background-color 0.2s ease;
+        }
+        
+        .btn-black:hover {
+            background-color: #374151;
         }
 
-        .input-modern:focus + .icon-container,
-        .input-modern:focus ~ .icon-container {
-            color: #4f46e5;
+        .tab-active {
+            color: #111827;
+            border-bottom: 2px solid #111827;
+        }
+
+        .tab-inactive {
+            color: #9CA3AF;
+            border-bottom: 2px solid transparent;
         }
         
-        .btn-primary {
-            background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
-            transition: all 0.3s ease;
+        .tab-inactive:hover {
+            color: #4B5563;
         }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.4);
-        }
-        
-        .slide-up {
-            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .password-strength {
-            height: 4px;
-            transition: all 0.3s ease;
-        }
-        
+
+        /* Toast notifications */
         .toast {
             position: fixed;
             top: 24px;
             right: 24px;
             padding: 16px 24px;
             background: white;
-            border-radius: 16px;
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
             transform: translateX(120%);
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            z-index: 9999;
+            transition: transform 0.3s ease;
+            z-index: 50;
+            border: 1px solid #F3F4F6;
         }
         
         .toast.show {
             transform: translateX(0);
         }
 
-        /* Oculta scrollbar mas permite rolar no container da direita */
+        /* Esconder scrollbar no cadastro */
         .no-scrollbar::-webkit-scrollbar {
             display: none;
         }
@@ -108,170 +86,123 @@
         }
     </style>
 </head>
-<body class="flex items-center justify-center p-4 sm:p-8">
-    
+<body class="min-h-screen flex items-center justify-center p-4">
+
     <div id="toast" class="toast flex items-center gap-3">
-        <i id="toastIcon" class="fas fa-check-circle text-emerald-500 text-xl"></i>
-        <span id="toastMessage" class="text-slate-700 font-semibold text-sm"></span>
+        <i id="toastIcon" class="fas fa-check-circle text-green-500"></i>
+        <span id="toastMessage" class="text-sm font-medium"></span>
     </div>
-    
-    <div id="loadingOverlay" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden items-center justify-center transition-all">
-        <div class="bg-white rounded-2xl p-8 flex flex-col items-center gap-5 shadow-2xl">
-            <div class="w-12 h-12 border-4 border-slate-100 border-t-indigo-600 rounded-full animate-spin"></div>
-            <p class="text-slate-700 font-semibold" id="loadingMessage">Processando...</p>
+
+    <div id="loadingOverlay" class="fixed inset-0 bg-white/80 backdrop-blur-sm z-40 hidden items-center justify-center">
+        <div class="flex flex-col items-center gap-3">
+            <div class="w-8 h-8 border-2 border-gray-200 border-t-black rounded-full animate-spin"></div>
+            <p class="text-sm font-medium text-gray-600" id="loadingMessage">Aguarde...</p>
         </div>
     </div>
-    
-    <div class="w-full max-w-5xl bg-white rounded-[2rem] shadow-2xl shadow-indigo-900/10 overflow-hidden slide-up flex flex-col md:flex-row min-h-[650px]">
-            
-        <div class="md:w-1/2 relative overflow-hidden text-white flex flex-col items-center justify-center p-12 min-h-[300px] md:min-h-full">
-            <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')] bg-cover bg-center"></div>
-            
-            <div class="absolute inset-0 bg-gradient-to-br from-indigo-900/90 via-indigo-800/80 to-purple-900/90 mix-blend-multiply"></div>
-            
-            <div class="relative z-10 w-full max-w-sm text-center">
-                <div class="bg-white/10 backdrop-blur-md border border-white/20 p-8 rounded-3xl shadow-2xl">
-                    <div class="w-20 h-20 mx-auto bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/30 mb-6 shadow-inner">
-                        <i class="fas fa-layer-group text-4xl text-white"></i>
-                    </div>
-                    <h1 class="text-3xl font-bold tracking-tight mb-2">CheckList</h1>
-                    <h2 class="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-white/60">2026</h2>
-                    <p class="mt-6 text-indigo-100/80 text-sm font-medium"></p>
-                </div>
-            </div>
-        </div>
+
+    <div class="w-full max-w-[420px] bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 p-8 sm:p-10">
         
-        <div class="md:w-1/2 bg-white flex flex-col">
-            
-            <div class="p-8 md:p-12 flex-1 overflow-y-auto no-scrollbar">
-                
-                <div class="flex p-1 mb-8 bg-slate-100/80 rounded-xl">
-                    <button id="loginTab" class="flex-1 py-2.5 text-center text-sm font-bold rounded-lg bg-white shadow-sm text-indigo-600 transition-all">
-                        Acessar Conta
-                    </button>
-                    <button id="registerTab" class="flex-1 py-2.5 text-center text-sm font-semibold rounded-lg text-slate-500 hover:text-slate-700 transition-all">
-                        Novo Cadastro
-                    </button>
-                </div>
-                
-                <div id="loginForm" class="form-container space-y-5">
-                    <div class="text-center mb-8">
-                        <h3 class="text-2xl font-bold text-slate-800">Bem-vindo de volta!</h3>
-                        <p class="text-slate-500 text-sm mt-1">Insira suas credenciais para continuar.</p>
-                    </div>
-
-                    <div class="relative">
-                        <input type="email" id="loginEmail" placeholder="seu@email.com" 
-                               class="w-full pl-11 pr-4 py-3.5 input-modern rounded-xl focus:outline-none text-slate-700 font-medium placeholder:font-normal">
-                        <i class="fas fa-envelope icon-container"></i>
-                    </div>
-                    
-                    <div class="relative">
-                        <input type="password" id="loginPassword" placeholder="Sua senha" 
-                               class="w-full pl-11 pr-12 py-3.5 input-modern rounded-xl focus:outline-none text-slate-700 font-medium placeholder:font-normal">
-                        <i class="fas fa-lock icon-container"></i>
-                        <button type="button" onclick="togglePassword('loginPassword', this)" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-600 transition-colors">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                    </div>
-                    
-                    <div class="flex items-center justify-between pt-2 pb-4">
-                        <label class="flex items-center gap-2 cursor-pointer group">
-                            <input type="checkbox" class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-600 focus:ring-offset-0">
-                            <span class="text-sm font-medium text-slate-600 group-hover:text-slate-800 transition-colors">Lembrar acesso</span>
-                        </label>
-                        <button onclick="recuperarSenha()" class="text-sm font-bold text-indigo-600 hover:text-indigo-800 transition-colors">
-                            Esqueceu a senha?
-                        </button>
-                    </div>
-                    
-                    <button onclick="fazerLogin()" class="btn-primary w-full py-4 text-white font-bold text-sm rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20">
-                        Entrar na Plataforma
-                        <i class="fas fa-arrow-right ml-1"></i>
-                    </button>
-                </div>
-                
-                <div id="registerForm" class="form-container space-y-5 hidden">
-                    <div class="text-center mb-8">
-                        <h3 class="text-2xl font-bold text-slate-800">Crie sua conta</h3>
-                        <p class="text-slate-500 text-sm mt-1">Preencha os dados para solicitar seu acesso.</p>
-                    </div>
-
-                    <div class="relative">
-                        <input type="text" id="regNome" placeholder="Nome completo" 
-                               class="w-full pl-11 pr-4 py-3.5 input-modern rounded-xl focus:outline-none text-slate-700 font-medium placeholder:font-normal">
-                        <i class="fas fa-user icon-container"></i>
-                    </div>
-                    
-                    <div class="relative">
-                        <input type="email" id="regEmail" placeholder="E-mail profissional" 
-                               class="w-full pl-11 pr-4 py-3.5 input-modern rounded-xl focus:outline-none text-slate-700 font-medium placeholder:font-normal">
-                        <i class="fas fa-envelope icon-container"></i>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="relative">
-                            <select id="regCargo" class="w-full pl-11 pr-4 py-3.5 input-modern rounded-xl focus:outline-none text-slate-700 font-medium appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:0.7rem] bg-[right_1rem_center] bg-no-repeat">
-                                <option value="" disabled selected>Cargo</option>
-                                <option value="Consultor">Consultor</option>
-                                <option value="Supervisor">Supervisor</option>
-                                <option value="Coordenador">Coordenador</option>
-                                <option value="Gerente">Gerente</option>
-                            </select>
-                            <i class="fas fa-briefcase icon-container"></i>
-                        </div>
-                        
-                        <div class="relative">
-                            <input type="text" id="regRegional" placeholder="Sua Regional" 
-                                   class="w-full pl-11 pr-4 py-3.5 input-modern rounded-xl focus:outline-none text-slate-700 font-medium placeholder:font-normal">
-                            <i class="fas fa-map-marker-alt icon-container"></i>
-                        </div>
-                    </div>
-
-                    <div class="relative">
-                        <input type="password" id="regPassword" placeholder="Crie uma senha" onkeyup="checkPasswordStrength(this.value)" 
-                               class="w-full pl-11 pr-12 py-3.5 input-modern rounded-xl focus:outline-none text-slate-700 font-medium placeholder:font-normal">
-                        <i class="fas fa-lock icon-container"></i>
-                        <button type="button" onclick="togglePassword('regPassword', this)" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-600 transition-colors">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                    </div>
-                    
-                    <div class="space-y-1.5 px-1">
-                        <div class="flex gap-2">
-                            <div id="strength1" class="password-strength flex-1 bg-slate-200 rounded-full"></div>
-                            <div id="strength2" class="password-strength flex-1 bg-slate-200 rounded-full"></div>
-                            <div id="strength3" class="password-strength flex-1 bg-slate-200 rounded-full"></div>
-                        </div>
-                        <p id="strengthText" class="text-xs font-semibold text-slate-400">Nível de segurança</p>
-                    </div>
-                    
-                    <div class="relative pb-2">
-                        <input type="password" id="regConfirmPassword" placeholder="Confirme a senha" 
-                               class="w-full pl-11 pr-12 py-3.5 input-modern rounded-xl focus:outline-none text-slate-700 font-medium placeholder:font-normal">
-                        <i class="fas fa-check-circle icon-container"></i>
-                        <button type="button" onclick="togglePassword('regConfirmPassword', this)" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-600 transition-colors">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                    </div>
-                    
-                    <label class="flex items-start gap-3 cursor-pointer group pb-2">
-                        <input type="checkbox" id="termos" class="mt-1 w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-600 focus:ring-offset-0">
-                        <span class="text-sm font-medium text-slate-500 leading-snug">Ao me cadastrar, concordo com os <a href="#" class="text-indigo-600 hover:text-indigo-800 underline decoration-indigo-200 underline-offset-2">Termos de Uso</a> e Políticas de Privacidade.</span>
-                    </label>
-                    
-                    <button onclick="fazerCadastro()" class="btn-primary w-full py-4 text-white font-bold text-sm rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20">
-                        Finalizar Cadastro
-                        <i class="fas fa-user-check ml-1"></i>
-                    </button>
-                </div>
-                
+        <div class="text-center mb-8">
+            <div class="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center mx-auto mb-4 border border-gray-100">
+                <i class="fas fa-clipboard-check text-xl text-gray-800"></i>
             </div>
+            <h1 class="text-2xl font-bold tracking-tight">CheckList 2026</h1>
+            <p class="text-sm text-gray-500 mt-1">Acesso exclusivo para equipe</p>
         </div>
+
+        <div class="flex mb-8 border-b border-gray-200">
+            <button id="loginTab" class="flex-1 pb-3 text-sm font-semibold tab-active transition-colors">
+                Entrar
+            </button>
+            <button id="registerTab" class="flex-1 pb-3 text-sm font-semibold tab-inactive transition-colors">
+                Criar Conta
+            </button>
+        </div>
+
+        <div id="loginForm" class="space-y-4">
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">E-mail</label>
+                <input type="email" id="loginEmail" placeholder="nome@exemplo.com" 
+                       class="w-full px-4 py-3 rounded-xl input-clean text-sm">
+            </div>
+            
+            <div>
+                <div class="flex items-center justify-between mb-1.5">
+                    <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide">Senha</label>
+                    <button onclick="recuperarSenha()" class="text-xs font-medium text-gray-500 hover:text-black transition-colors">Esqueceu?</button>
+                </div>
+                <div class="relative">
+                    <input type="password" id="loginPassword" placeholder="••••••••" 
+                           class="w-full px-4 py-3 rounded-xl input-clean text-sm pr-10">
+                    <button type="button" onclick="togglePassword('loginPassword', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-eye text-sm"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <button onclick="fazerLogin()" class="btn-black w-full py-3.5 rounded-xl text-sm font-semibold mt-6">
+                Acessar Plataforma
+            </button>
+        </div>
+
+        <div id="registerForm" class="space-y-4 hidden max-h-[60vh] overflow-y-auto no-scrollbar pb-2">
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Nome Completo</label>
+                <input type="text" id="regNome" placeholder="Seu nome" class="w-full px-4 py-3 rounded-xl input-clean text-sm">
+            </div>
+            
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">E-mail</label>
+                <input type="email" id="regEmail" placeholder="nome@exemplo.com" class="w-full px-4 py-3 rounded-xl input-clean text-sm">
+            </div>
+            
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Cargo</label>
+                    <select id="regCargo" class="w-full px-3 py-3 rounded-xl input-clean text-sm appearance-none cursor-pointer">
+                        <option value="" disabled selected>Selecione</option>
+                        <option value="Consultor">Consultor</option>
+                        <option value="Supervisor">Supervisor</option>
+                        <option value="Coordenador">Coordenador</option>
+                        <option value="Gerente">Gerente</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Regional</label>
+                    <input type="text" id="regRegional" placeholder="Ex: Sul" class="w-full px-4 py-3 rounded-xl input-clean text-sm">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Senha</label>
+                <div class="relative">
+                    <input type="password" id="regPassword" placeholder="Crie uma senha forte" class="w-full px-4 py-3 rounded-xl input-clean text-sm pr-10">
+                    <button type="button" onclick="togglePassword('regPassword', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-eye text-sm"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Confirmar Senha</label>
+                <div class="relative">
+                    <input type="password" id="regConfirmPassword" placeholder="Repita a senha" class="w-full px-4 py-3 rounded-xl input-clean text-sm pr-10">
+                </div>
+            </div>
+            
+            <label class="flex items-start gap-2 pt-2 cursor-pointer">
+                <input type="checkbox" id="termos" class="mt-1 rounded border-gray-300 text-black focus:ring-black">
+                <span class="text-xs text-gray-500">Concordo com os <a href="#" class="text-black font-medium underline">Termos de Uso</a>.</span>
+            </label>
+            
+            <button onclick="fazerCadastro()" class="btn-black w-full py-3.5 rounded-xl text-sm font-semibold mt-4">
+                Finalizar Cadastro
+            </button>
+        </div>
+
     </div>
-    
+
     <script>
-        // Configuração do Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyBdNPXscs1-ikMOLGCzL5igJDi989RRCCQ",
             authDomain: "checklist-94b12.firebaseapp.com",
@@ -279,248 +210,130 @@
             projectId: "checklist-94b12",
             storageBucket: "checklist-94b12.firebasestorage.app",
             messagingSenderId: "471194751883",
-            appId: "1:471194751883:web:b3ea0cad2212d5e0c6d58e",
-            measurementId: "G-KJBZ2F3ZZE"
+            appId: "1:471194751883:web:b3ea0cad2212d5e0c6d58e"
         };
 
-        // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const database = firebase.database();
 
-        // Elementos DOM
-        const toast = document.getElementById('toast');
-        const toastIcon = document.getElementById('toastIcon');
-        const toastMessage = document.getElementById('toastMessage');
-        const loadingOverlay = document.getElementById('loadingOverlay');
-        const loadingMessage = document.getElementById('loadingMessage');
-
-        // Toggle entre Login e Cadastro (Atualizado para o novo estilo visual)
+        // UI Elements
         const loginTab = document.getElementById('loginTab');
         const registerTab = document.getElementById('registerTab');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const toast = document.getElementById('toast');
+        const loadingOverlay = document.getElementById('loadingOverlay');
 
+        // Tab Switching
         loginTab.addEventListener('click', () => {
-            // Estilos aba Login Ativa
-            loginTab.className = 'flex-1 py-2.5 text-center text-sm font-bold rounded-lg bg-white shadow-sm text-indigo-600 transition-all';
-            registerTab.className = 'flex-1 py-2.5 text-center text-sm font-semibold rounded-lg text-slate-500 hover:text-slate-700 transition-all';
-            
-            document.getElementById('loginForm').classList.remove('hidden');
-            document.getElementById('registerForm').classList.add('hidden');
+            loginTab.className = 'flex-1 pb-3 text-sm font-semibold tab-active transition-colors';
+            registerTab.className = 'flex-1 pb-3 text-sm font-semibold tab-inactive transition-colors';
+            loginForm.classList.remove('hidden');
+            registerForm.classList.add('hidden');
         });
 
         registerTab.addEventListener('click', () => {
-            // Estilos aba Register Ativa
-            registerTab.className = 'flex-1 py-2.5 text-center text-sm font-bold rounded-lg bg-white shadow-sm text-indigo-600 transition-all';
-            loginTab.className = 'flex-1 py-2.5 text-center text-sm font-semibold rounded-lg text-slate-500 hover:text-slate-700 transition-all';
-            
-            document.getElementById('registerForm').classList.remove('hidden');
-            document.getElementById('loginForm').classList.add('hidden');
+            registerTab.className = 'flex-1 pb-3 text-sm font-semibold tab-active transition-colors';
+            loginTab.className = 'flex-1 pb-3 text-sm font-semibold tab-inactive transition-colors';
+            registerForm.classList.remove('hidden');
+            loginForm.classList.add('hidden');
         });
 
-        // Função para mostrar toast
         function showToast(message, type = 'success') {
-            toastIcon.className = type === 'success' ? 'fas fa-check-circle text-emerald-500 text-xl' :
-                                 type === 'error' ? 'fas fa-exclamation-circle text-rose-500 text-xl' :
-                                 'fas fa-exclamation-triangle text-amber-500 text-xl';
-            toast.className = `toast show ${type} flex items-center gap-3`;
-            toastMessage.textContent = message;
-            
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
+            const icon = document.getElementById('toastIcon');
+            icon.className = type === 'success' ? 'fas fa-check-circle text-green-500' : 
+                           type === 'error' ? 'fas fa-exclamation-circle text-red-500' : 
+                           'fas fa-info-circle text-blue-500';
+            document.getElementById('toastMessage').textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        // Função para mostrar loading
-        function showLoading(show, message = 'Processando...') {
+        function showLoading(show, msg = 'Aguarde...') {
+            document.getElementById('loadingMessage').textContent = msg;
             if (show) {
-                loadingMessage.textContent = message;
                 loadingOverlay.classList.remove('hidden');
-                setTimeout(() => loadingOverlay.classList.add('flex'), 10);
+                loadingOverlay.classList.add('flex');
             } else {
                 loadingOverlay.classList.add('hidden');
                 loadingOverlay.classList.remove('flex');
             }
         }
 
-        // Função para toggle password visibility
-        function togglePassword(inputId, btn) {
-            const input = document.getElementById(inputId);
+        function togglePassword(id, btn) {
+            const input = document.getElementById(id);
             const icon = btn.querySelector('i');
-            
             if (input.type === 'password') {
                 input.type = 'text';
-                icon.className = 'fas fa-eye-slash text-indigo-600';
+                icon.className = 'fas fa-eye-slash text-sm text-black';
             } else {
                 input.type = 'password';
-                icon.className = 'fas fa-eye';
+                icon.className = 'fas fa-eye text-sm';
             }
         }
 
-        // Função para verificar força da senha
-        function checkPasswordStrength(password) {
-            const strength1 = document.getElementById('strength1');
-            const strength2 = document.getElementById('strength2');
-            const strength3 = document.getElementById('strength3');
-            const strengthText = document.getElementById('strengthText');
-            
-            let strength = 0;
-            
-            if (password.length >= 6) strength++;
-            if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength++;
-            if (password.match(/[0-9]/) && password.match(/[^a-zA-Z0-9]/)) strength++;
-            
-            const colors = ['#f43f5e', '#f59e0b', '#10b981']; // Rose, Amber, Emerald
-            const texts = ['Senha Fraca', 'Senha Média', 'Senha Forte'];
-            
-            strength1.style.backgroundColor = strength >= 1 ? colors[0] : '#e2e8f0';
-            strength2.style.backgroundColor = strength >= 2 ? colors[1] : '#e2e8f0';
-            strength3.style.backgroundColor = strength >= 3 ? colors[2] : '#e2e8f0';
-            
-            strengthText.textContent = strength > 0 ? texts[strength-1] : 'Nível de segurança';
-            strengthText.style.color = strength > 0 ? colors[strength-1] : '#94a3b8';
-        }
-
-        // Função de Login
         function fazerLogin() {
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
             
-            if (!email || !password) {
-                showToast('Preencha todos os campos!', 'error');
-                return;
-            }
+            if (!email || !password) return showToast('Preencha os campos.', 'error');
             
             showLoading(true, 'Autenticando...');
-            
             auth.signInWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    showLoading(false);
-                    showToast('Acesso liberado!', 'success');
-                    
-                    // Salvar dados do usuário
-                    localStorage.setItem('user', JSON.stringify({
-                        uid: userCredential.user.uid,
-                        email: userCredential.user.email
-                    }));
-                    
-                    // Redirecionar para o checklist
-                    setTimeout(() => {
-                        window.location.href = 'checklist.html';
-                    }, 1000);
+                .then((cred) => {
+                    localStorage.setItem('user', JSON.stringify({ uid: cred.user.uid, email: cred.user.email }));
+                    window.location.href = 'checklist.html';
                 })
-                .catch((error) => {
+                .catch((err) => {
                     showLoading(false);
-                    let mensagem = 'Erro ao conectar!';
-                    
-                    if (error.code === 'auth/user-not-found') {
-                        mensagem = 'Credenciais não encontradas!';
-                    } else if (error.code === 'auth/wrong-password') {
-                        mensagem = 'Senha incorreta!';
-                    } else if (error.code === 'auth/invalid-email') {
-                        mensagem = 'Formato de e-mail inválido!';
-                    }
-                    
-                    showToast(mensagem, 'error');
+                    showToast('Credenciais incorretas.', 'error');
                 });
         }
 
-        // Função de Cadastro
         function fazerCadastro() {
             const nome = document.getElementById('regNome').value;
             const email = document.getElementById('regEmail').value;
-            const password = document.getElementById('regPassword').value;
-            const confirmPassword = document.getElementById('regConfirmPassword').value;
+            const pass = document.getElementById('regPassword').value;
+            const conf = document.getElementById('regConfirmPassword').value;
             const cargo = document.getElementById('regCargo').value;
-            const regional = document.getElementById('regRegional').value;
+            const reg = document.getElementById('regRegional').value;
             const termos = document.getElementById('termos').checked;
             
-            // Validações
-            if (!nome || !email || !password || !confirmPassword || !cargo || !regional) {
-                showToast('Preencha todos os dados!', 'error');
-                return;
-            }
+            if (!nome || !email || !pass || !cargo || !reg) return showToast('Preencha tudo.', 'error');
+            if (pass !== conf) return showToast('Senhas diferentes.', 'error');
+            if (!termos) return showToast('Aceite os termos.', 'error');
             
-            if (password.length < 6) {
-                showToast('A senha precisa ter pelo menos 6 caracteres!', 'warning');
-                return;
-            }
-            
-            if (password !== confirmPassword) {
-                showToast('As senhas digitadas não batem!', 'error');
-                return;
-            }
-            
-            if (!termos) {
-                showToast('É necessário aceitar os Termos de Uso.', 'warning');
-                return;
-            }
-            
-            showLoading(true, 'Configurando sua conta...');
-            
-            auth.createUserWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    // Atualizar perfil com nome
-                    return userCredential.user.updateProfile({
-                        displayName: nome
-                    }).then(() => {
-                        // Salvar dados adicionais no Realtime Database
-                        return database.ref(`usuarios/${userCredential.user.uid}`).set({
-                            nome: nome,
-                            email: email,
-                            cargo: cargo,
-                            regional: regional,
-                            dataCadastro: new Date().toISOString(),
-                            uid: userCredential.user.uid
-                        });
-                    }).then(() => {
-                        showLoading(false);
-                        showToast('Conta criada com sucesso!', 'success');
-                        
-                        // Redirecionar para o checklist
-                        setTimeout(() => {
-                            window.location.href = 'checklist.html';
-                        }, 1000);
-                    });
-                })
-                .catch((error) => {
+            showLoading(true, 'Criando conta...');
+            auth.createUserWithEmailAndPassword(email, pass)
+                .then((cred) => cred.user.updateProfile({ displayName: nome }).then(() => cred))
+                .then((cred) => database.ref(`usuarios/${cred.user.uid}`).set({
+                    nome, email, cargo, regional: reg, dataCadastro: new Date().toISOString(), uid: cred.user.uid
+                }))
+                .then(() => window.location.href = 'checklist.html')
+                .catch((err) => {
                     showLoading(false);
-                    let mensagem = 'Erro no cadastro!';
-                    
-                    if (error.code === 'auth/email-already-in-use') {
-                        mensagem = 'Este e-mail já possui cadastro!';
-                    } else if (error.code === 'auth/invalid-email') {
-                        mensagem = 'Formato de e-mail inválido!';
-                    } else if (error.code === 'auth/weak-password') {
-                        mensagem = 'A senha escolhida é muito fraca.';
-                    }
-                    
-                    showToast(mensagem, 'error');
+                    showToast('Erro no cadastro.', 'error');
                 });
         }
 
-        // Recuperar senha
         function recuperarSenha() {
             const email = document.getElementById('loginEmail').value;
+            if (!email) return showToast('Digite o e-mail no campo acima.', 'error');
             
-            if (!email) {
-                showToast('Preencha seu e-mail para recuperar!', 'warning');
-                return;
-            }
-            
-            showLoading(true, 'Enviando instruções...');
-            
+            showLoading(true);
             auth.sendPasswordResetEmail(email)
                 .then(() => {
                     showLoading(false);
-                    showToast('Instruções enviadas para o seu e-mail!', 'success');
+                    showToast('Instruções enviadas para o e-mail.', 'success');
                 })
-                .catch((error) => {
+                .catch(() => {
                     showLoading(false);
-                    showToast('Não foi possível enviar o e-mail.', 'error');
+                    showToast('Erro ao enviar e-mail.', 'error');
                 });
         }
 
-        // Verificar se já está logado
+        // Observador de estado de autenticação (Mantido, mas certifique-se de arrumar o botão "Sair" na outra tela)
         auth.onAuthStateChanged((user) => {
             if (user) {
                 window.location.href = 'checklist.html';
