@@ -763,16 +763,19 @@
         <span>PDF</span>
     </button>
 
-    <button onclick="window.location.href='index.html'" class="action-btn btn-off">
+    <button onclick="sairDaConta()" class="action-btn btn-off">
         <i class="fas fa-sign-out-alt"></i>
         <span>Sair</span>
     </button>
+
 </div>
     </div> <!-- Fim .main-container -->
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
 
     <script>
         // CONFIGURAÇÃO DO FIREBASE
@@ -790,6 +793,19 @@
         // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
+        const auth = firebase.auth();
+        
+        function sairDaConta() {
+            if (confirm('Deseja realmente sair do sistema?')) {
+                auth.signOut().then(() => {
+                    // Limpa os dados salvos no navegador e redireciona
+                    localStorage.removeItem('user'); 
+                    window.location.href = 'index.html';
+                }).catch((error) => {
+                    alert('Erro ao sair: ' + error.message);
+                });
+            }
+        }
 
         // Função para remover linha
         function removerLinha(botao) {
